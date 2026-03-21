@@ -31,18 +31,20 @@ public class GlobalExceptionHandler {
     // ── Handle Validation Exceptions (@Valid) ────────────────────────────────
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationException(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationException(
+            MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         for (FieldError error : ex.getBindingResult().getFieldErrors()) {
             errors.put(error.getField(), error.getDefaultMessage());
         }
         log.warn("Validation error: {}", errors);
-        
+
         // Trả về chung mã lỗi VALIDATION_FAILED nhưng kèm object chi tiết lỗi nếu cần.
         // Spring ko cho override generic của ApiResponse nếu đổi class.
-        // Thay vì return data là errors, ta ném message là dạng string các lỗi gộp lại cho đơn giản với Client.
+        // Thay vì return data là errors, ta ném message là dạng string các lỗi gộp lại
+        // cho đơn giản với Client.
         String firstErrorMessage = errors.values().stream().findFirst().orElse("Invalid input data");
-        
+
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error("VALIDATION_FAILED", firstErrorMessage));
