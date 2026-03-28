@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym App - Login & Avatar</title>
+    <style>
+        :root { --primary: #2563eb; --success: #059669; --bg: #f8fafc; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h2 { margin-top: 0; color: #1e293b; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: opacity 0.2s; }
+        button:hover { opacity: 0.9; }
+        button:disabled { background: #94a3b8; cursor: not-allowed; }
+        
+        #profileSection { display: none; text-align: center; }
+        .avatar-wrapper { position: relative; width: 120px; height: 120px; margin: 0 auto 1rem; }
+        .avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid #e2e8f0; }
+        .status-msg { font-size: 0.875rem; margin-top: 10px; color: #64748b; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="loginSection">
+        <h2>Đăng Nhập</h2>
+        <input type="email" id="email" placeholder="Email" value="admin@gmail.com">
+        <input type="password" id="password" placeholder="Mật khẩu" value="123456">
+        <button id="loginBtn" onclick="login()">Đăng nhập</button>
+    </div>
+
+    <div id="profileSection">
+        <h2>Hồ Sơ Của Tôi</h2>
+        <div class="avatar-wrapper">
+            <img id="userAvatar" class="avatar-img" src="https://via.placeholder.com/150" alt="Avatar">
+        </div>
+        <p><strong id="userName">Tên người dùng</strong></p>
+        
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+        
+        <label for="fileInput" style="display: block; margin-bottom: 10px; font-size: 0.9rem;">Đổi ảnh đại diện:</label>
+        <input type="file" id="fileInput" accept="image/*">
+        <button id="uploadBtn" onclick="uploadAvatar()">Tải lên ảnh mới</button>
+        <p id="status" class="status-msg"></p>
+        
+        <button onclick="logout()" style="margin-top: 20px; background: #ef4444;">Đăng xuất</button>
+    </div>
+</div>
+
+<script>
+    const API_URL = "http://localhost:8081/api/v1";
+
+// Kiểm tra và hiển thị profile nếu đã có token trong máy
+if (localStorage.getItem("accessToken")) {
+    showProfile();
+}
+
+async function login() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const btn = document.getElementById('loginBtn');
+
+    try {
+        btn.disabled = true;
+        const response = await fetch(`${API_URL}/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        });
+
+        const result = await response.json();
+        
+        if (response.ok && result.data) {
+            // SỬA TẠI ĐÂY: Dùng đúng key 'access_token' từ log của bạn
+            const tokenValue = result.data.access_token; 
+            
+            if (tokenValue) {
+                localStorage.setItem("accessToken", tokenValue);
+                // Lưu object user (chứa full_name, avatar_url)
+                localStorage.setItem("userData", JSON.stringify(result.data.user));
+                
+                alert("Đăng nhập thành công!");
+                showProfile();
+            }
+        } else {
+            alert("Đăng nhập thất bại: " + (result.message || "Sai thông tin"));
+        }
+    } catch (err) {
+        alert("Lỗi kết nối server!");
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+function showProfile() {
+    const user = JSON.parse(localStorage.getItem("userData"));
+    if (!user) return;
+
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('profileSection').style.display = 'block';
+    
+    // SỬA TẠI ĐÂY: Dùng 'full_name' và 'avatar_url'
+    document.getElementById('userName').innerText = user.full_name || "Người dùng";
+    if (user.avatar_url) {
+        document.getElementById('userAvatar').src = user.avatar_url;
+    }
+}
+
+async function uploadAvatar() {
+    const fileInput = document.getElementById('fileInput');
+    const status = document.getElementById('status');
+    const uploadBtn = document.getElementById('uploadBtn');
+
+    // Lấy token từ localStorage
+    const currentToken = localStorage.getItem("accessToken");
+
+    if (!currentToken) {
+        alert("Không tìm thấy Token. Vui lòng đăng nhập lại!");
+        logout();
+        return;
+    }
+
+    if (!fileInput.files[0]) {
+        alert("Vui lòng chọn 1 file ảnh!");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+
+    try {
+        status.innerText = "Đang tải lên...";
+        uploadBtn.disabled = true;
+
+        const response = await fetch(`${API_URL}/users/me/avatar`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${currentToken}` 
+            },
+            body: formData
+        });
+
+        if (response.ok) {
+            const imageUrl = await response.text(); // Giả định BE trả về String URL trực tiếp
+            document.getElementById('userAvatar').src = imageUrl;
+            
+            // Cập nhật lại cache để F5 không mất ảnh
+            const user = JSON.parse(localStorage.getItem("userData"));
+            user.avatar_url = imageUrl;
+            localStorage.setItem("userData", JSON.stringify(user));
+            
+            status.innerText = "Cập nhật thành công!";
+        } else {
+            status.innerText = "Lỗi server: " + response.status;
+        }
+    } catch (err) {
+        status.innerText = "Lỗi kết nối!";
+    } finally {
+        uploadBtn.disabled = false;
+    }
+}
+
+function logout() {
+    localStorage.clear();
+    location.reload();
+}
+</script>
+
+</body>
+</html>
