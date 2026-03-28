@@ -55,4 +55,10 @@ public class User {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
+    @Column(name = "weight", nullable = true)
+    private Double weight;
+    @Column(name = "height", nullable = true)
+    private Double height;
+    @Column(name = "age", nullable = true)
+    private Double age;
 }
