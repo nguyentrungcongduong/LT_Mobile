@@ -88,8 +88,7 @@ public class AuthService {
     @Transactional
     public JwtResponse login(LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         User user = userRepository.findById(userDetails.getId())
@@ -113,7 +112,8 @@ public class AuthService {
                 .orElseThrow(() -> new UnauthorizedException("REFRESH_TOKEN_NOT_FOUND", "Refresh token không tồn tại"));
 
         if (refreshToken.isRevoked()) {
-            // Bảo mật: Nếu token đã bị revoke mà còn được dùng, có thể bị leak. Revoke toàn bộ token của User.
+            // Bảo mật: Nếu token đã bị revoke mà còn được dùng, có thể bị leak. Revoke toàn
+            // bộ token của User.
             refreshTokenRepository.revokeAllUserTokens(refreshToken.getUser().getId());
             throw new UnauthorizedException("REFRESH_TOKEN_REVOKED", "Refresh token đã bị thu hồi");
         }
@@ -148,9 +148,11 @@ public class AuthService {
 
     private RefreshToken createAndSaveRefreshToken(User user) {
         String randomToken = UUID.randomUUID().toString();
-        // Để đơn giản và an toàn, dùng chuỗi UUID ngẫu nhiên làm token, 
-        // ở bản thật thay vì 'tokenHash', có thể lưu mã băm của randomToken (SHA-256), client cầm raw.
-        // Ở code này, lấy luôn randomToken bỏ vào db cho gọn. Tính bảo mật ở đây có thể update sau.
+        // Để đơn giản và an toàn, dùng chuỗi UUID ngẫu nhiên làm token,
+        // ở bản thật thay vì 'tokenHash', có thể lưu mã băm của randomToken (SHA-256),
+        // client cầm raw.
+        // Ở code này, lấy luôn randomToken bỏ vào db cho gọn. Tính bảo mật ở đây có thể
+        // update sau.
 
         RefreshToken refreshToken = RefreshToken.builder()
                 .user(user)

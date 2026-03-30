@@ -5,10 +5,15 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -24,8 +29,7 @@ public class JwtUtil {
     private SecretKey key() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(
                 // fallback encode base64 neu config la text thuong
-                java.util.Base64.getEncoder().encodeToString(jwtSecret.getBytes())
-        ));
+                java.util.Base64.getEncoder().encodeToString(jwtSecret.getBytes())));
     }
 
     public String generateJwtToken(String email, UUID userId, String role) {
@@ -41,6 +45,24 @@ public class JwtUtil {
 
     public String getEmailFromJwtToken(String token) {
         return Jwts.parser().verifyWith(key()).build().parseSignedClaims(token).getPayload().getSubject();
+    }
+
+    public static Optional<String> getCurrentUserId() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        return Optional.ofNullable(extractPrincipal(securityContext.getAuthentication()));
+    }
+
+    private static String extractPrincipal(Authentication authentication) {
+        if (authentication == null) {
+            return null;
+        } else if (authentication.getPrincipal() instanceof UserDetailsImpl customUser) {
+            return customUser.getId().toString();
+        } else if (authentication.getPrincipal() instanceof UserDetails springSecurityUser) {
+            return springSecurityUser.getUsername();
+        } else if (authentication.getPrincipal() instanceof String s) {
+            return "anonymousUser".equals(s) ? null : s;
+        }
+        return null;
     }
 
     public boolean validateJwtToken(String authToken) {
