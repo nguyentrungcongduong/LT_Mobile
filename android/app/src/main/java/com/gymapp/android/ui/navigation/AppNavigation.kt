@@ -53,7 +53,39 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
         }
 
         composable(Route.Main.route) {
-            MainScreen()
+            MainScreen(
+                onNavigateToPackages = { navController.navigate("membership_packages") },
+                onNavigateToActiveMembership = { navController.navigate("active_membership") }
+            )
+        }
+
+        composable("membership_packages") {
+            com.gymapp.android.ui.screens.membership.MembershipPackagesScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToPlanDetail = { planId ->
+                    navController.navigate("package_detail/$planId")
+                }
+            )
+        }
+
+        composable(
+            route = "package_detail/{planId}",
+            arguments = listOf(androidx.navigation.navArgument("planId") { type = androidx.navigation.NavType.StringType })
+        ) {
+            com.gymapp.android.ui.screens.membership.PackageDetailScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable("active_membership") {
+            com.gymapp.android.ui.screens.membership.ActiveMembershipScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToPackages = { 
+                    navController.navigate("membership_packages") {
+                        popUpTo("active_membership") { inclusive = true }
+                    }
+                }
+            )
         }
     }
 }
