@@ -36,7 +36,7 @@ public class UserService implements IUserService {
         User user = User.builder()
                 .fullName(userDto.getFullName())
                 .email(userDto.getEmail())
-                .role(UserRole.USER)
+                .role(userDto.getRole() != null ? userDto.getRole() : UserRole.USER) // admin có thể set role
                 .phone(userDto.getPhone())
                 .passwordHash(passwordEncoder.encode(userDto.getPassword()))
                 .build();

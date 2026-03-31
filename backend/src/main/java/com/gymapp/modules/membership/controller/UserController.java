@@ -55,16 +55,17 @@ public class UserController {
 
     // UserResponse updateUser(UserDto userDto, UUID id);
     @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/update/id")
-    public ApiResponse<UserResponse> updateUserById(@RequestBody @Valid UserDto userDto, @PathVariable UUID id) {
+    @PutMapping("/update/{id}")
+    public ApiResponse<UserResponse> updateUserById(@RequestBody @Valid UserDto userDto,
+            @PathVariable(name = "id") UUID id) {
         UserResponse userResponse = userService.updateUser(userDto, id);
         return ApiResponse.ok(userResponse, "Updated");
     }
 
     // User getUserById(UUID id);
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/getUser/id")
-    public ApiResponse<UserResponse> getUserById(@PathVariable UUID id) {
+    @GetMapping("/getUser/{id}")
+    public ApiResponse<UserResponse> getUserById(@PathVariable(name = "id") UUID id) {
         return ApiResponse.ok(userService.getUserById(id), "Thanh cong");
     }
 
