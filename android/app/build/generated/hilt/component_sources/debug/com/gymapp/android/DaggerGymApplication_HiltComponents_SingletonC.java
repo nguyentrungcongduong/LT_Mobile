@@ -10,14 +10,27 @@ import com.gymapp.android.data.local.TokenStorage;
 import com.gymapp.android.data.remote.AuthInterceptor;
 import com.gymapp.android.data.remote.TokenAuthenticator;
 import com.gymapp.android.data.remote.api.AuthApi;
+import com.gymapp.android.data.remote.api.MembershipApi;
 import com.gymapp.android.data.repository.AuthRepository;
+import com.gymapp.android.data.repository.MembershipRepositoryImpl;
+import com.gymapp.android.di.MembershipApiModule_ProvideMembershipApiFactory;
 import com.gymapp.android.di.NetworkModule_ProvideAuthApiFactory;
 import com.gymapp.android.di.NetworkModule_ProvideLoggingInterceptorFactory;
 import com.gymapp.android.di.NetworkModule_ProvideOkHttpClientFactory;
 import com.gymapp.android.di.NetworkModule_ProvideRetrofitFactory;
 import com.gymapp.android.di.StorageModule_ProvideTokenStorageFactory;
+import com.gymapp.android.domain.repository.MembershipRepository;
+import com.gymapp.android.domain.usecase.membership.GetActiveMembershipUseCase;
+import com.gymapp.android.domain.usecase.membership.GetMembershipPlanByIdUseCase;
+import com.gymapp.android.domain.usecase.membership.GetMembershipPlansUseCase;
 import com.gymapp.android.ui.screens.auth.AuthViewModel;
 import com.gymapp.android.ui.screens.auth.AuthViewModel_HiltModules_KeyModule_ProvideFactory;
+import com.gymapp.android.ui.screens.membership.viewmodel.MembershipDetailViewModel;
+import com.gymapp.android.ui.screens.membership.viewmodel.MembershipDetailViewModel_HiltModules_KeyModule_ProvideFactory;
+import com.gymapp.android.ui.screens.membership.viewmodel.MembershipListViewModel;
+import com.gymapp.android.ui.screens.membership.viewmodel.MembershipListViewModel_HiltModules_KeyModule_ProvideFactory;
+import com.gymapp.android.ui.screens.membership.viewmodel.PackageDetailViewModel;
+import com.gymapp.android.ui.screens.membership.viewmodel.PackageDetailViewModel_HiltModules_KeyModule_ProvideFactory;
 import dagger.hilt.android.ActivityRetainedLifecycle;
 import dagger.hilt.android.ViewModelLifecycle;
 import dagger.hilt.android.internal.builders.ActivityComponentBuilder;
@@ -36,8 +49,10 @@ import dagger.hilt.android.internal.modules.ApplicationContextModule_ProvideCont
 import dagger.internal.DaggerGenerated;
 import dagger.internal.DelegateFactory;
 import dagger.internal.DoubleCheck;
+import dagger.internal.MapBuilder;
 import dagger.internal.Preconditions;
 import dagger.internal.Provider;
+import dagger.internal.SetBuilder;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -377,7 +392,7 @@ public final class DaggerGymApplication_HiltComponents_SingletonC {
 
     @Override
     public Set<String> getViewModelKeys() {
-      return Collections.<String>singleton(AuthViewModel_HiltModules_KeyModule_ProvideFactory.provide());
+      return SetBuilder.<String>newSetBuilder(4).add(AuthViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(MembershipDetailViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(MembershipListViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(PackageDetailViewModel_HiltModules_KeyModule_ProvideFactory.provide()).build();
     }
 
     @Override
@@ -397,6 +412,8 @@ public final class DaggerGymApplication_HiltComponents_SingletonC {
   }
 
   private static final class ViewModelCImpl extends GymApplication_HiltComponents.ViewModelC {
+    private final SavedStateHandle savedStateHandle;
+
     private final SingletonCImpl singletonCImpl;
 
     private final ActivityRetainedCImpl activityRetainedCImpl;
@@ -405,12 +422,18 @@ public final class DaggerGymApplication_HiltComponents_SingletonC {
 
     private Provider<AuthViewModel> authViewModelProvider;
 
+    private Provider<MembershipDetailViewModel> membershipDetailViewModelProvider;
+
+    private Provider<MembershipListViewModel> membershipListViewModelProvider;
+
+    private Provider<PackageDetailViewModel> packageDetailViewModelProvider;
+
     private ViewModelCImpl(SingletonCImpl singletonCImpl,
         ActivityRetainedCImpl activityRetainedCImpl, SavedStateHandle savedStateHandleParam,
         ViewModelLifecycle viewModelLifecycleParam) {
       this.singletonCImpl = singletonCImpl;
       this.activityRetainedCImpl = activityRetainedCImpl;
-
+      this.savedStateHandle = savedStateHandleParam;
       initialize(savedStateHandleParam, viewModelLifecycleParam);
 
     }
@@ -419,15 +442,30 @@ public final class DaggerGymApplication_HiltComponents_SingletonC {
       return new AuthRepository(singletonCImpl.provideAuthApiProvider.get(), singletonCImpl.provideTokenStorageProvider.get());
     }
 
+    private GetActiveMembershipUseCase getActiveMembershipUseCase() {
+      return new GetActiveMembershipUseCase(singletonCImpl.bindMembershipRepositoryProvider.get());
+    }
+
+    private GetMembershipPlansUseCase getMembershipPlansUseCase() {
+      return new GetMembershipPlansUseCase(singletonCImpl.bindMembershipRepositoryProvider.get());
+    }
+
+    private GetMembershipPlanByIdUseCase getMembershipPlanByIdUseCase() {
+      return new GetMembershipPlanByIdUseCase(singletonCImpl.bindMembershipRepositoryProvider.get());
+    }
+
     @SuppressWarnings("unchecked")
     private void initialize(final SavedStateHandle savedStateHandleParam,
         final ViewModelLifecycle viewModelLifecycleParam) {
       this.authViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 0);
+      this.membershipDetailViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 1);
+      this.membershipListViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 2);
+      this.packageDetailViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 3);
     }
 
     @Override
     public Map<String, javax.inject.Provider<ViewModel>> getHiltViewModelMap() {
-      return Collections.<String, javax.inject.Provider<ViewModel>>singletonMap("com.gymapp.android.ui.screens.auth.AuthViewModel", ((Provider) authViewModelProvider));
+      return MapBuilder.<String, javax.inject.Provider<ViewModel>>newMapBuilder(4).put("com.gymapp.android.ui.screens.auth.AuthViewModel", ((Provider) authViewModelProvider)).put("com.gymapp.android.ui.screens.membership.viewmodel.MembershipDetailViewModel", ((Provider) membershipDetailViewModelProvider)).put("com.gymapp.android.ui.screens.membership.viewmodel.MembershipListViewModel", ((Provider) membershipListViewModelProvider)).put("com.gymapp.android.ui.screens.membership.viewmodel.PackageDetailViewModel", ((Provider) packageDetailViewModelProvider)).build();
     }
 
     @Override
@@ -458,6 +496,15 @@ public final class DaggerGymApplication_HiltComponents_SingletonC {
         switch (id) {
           case 0: // com.gymapp.android.ui.screens.auth.AuthViewModel 
           return (T) new AuthViewModel(viewModelCImpl.authRepository());
+
+          case 1: // com.gymapp.android.ui.screens.membership.viewmodel.MembershipDetailViewModel 
+          return (T) new MembershipDetailViewModel(viewModelCImpl.getActiveMembershipUseCase());
+
+          case 2: // com.gymapp.android.ui.screens.membership.viewmodel.MembershipListViewModel 
+          return (T) new MembershipListViewModel(viewModelCImpl.getMembershipPlansUseCase());
+
+          case 3: // com.gymapp.android.ui.screens.membership.viewmodel.PackageDetailViewModel 
+          return (T) new PackageDetailViewModel(viewModelCImpl.getMembershipPlanByIdUseCase(), viewModelCImpl.savedStateHandle);
 
           default: throw new AssertionError(id);
         }
@@ -549,6 +596,12 @@ public final class DaggerGymApplication_HiltComponents_SingletonC {
 
     private Provider<Retrofit> provideRetrofitProvider;
 
+    private Provider<MembershipApi> provideMembershipApiProvider;
+
+    private Provider<MembershipRepositoryImpl> membershipRepositoryImplProvider;
+
+    private Provider<MembershipRepository> bindMembershipRepositoryProvider;
+
     private SingletonCImpl(ApplicationContextModule applicationContextModuleParam) {
       this.applicationContextModule = applicationContextModuleParam;
       initialize(applicationContextModuleParam);
@@ -571,6 +624,9 @@ public final class DaggerGymApplication_HiltComponents_SingletonC {
       this.provideOkHttpClientProvider = DoubleCheck.provider(new SwitchingProvider<OkHttpClient>(singletonCImpl, 2));
       this.provideRetrofitProvider = DoubleCheck.provider(new SwitchingProvider<Retrofit>(singletonCImpl, 1));
       DelegateFactory.setDelegate(provideAuthApiProvider, DoubleCheck.provider(new SwitchingProvider<AuthApi>(singletonCImpl, 0)));
+      this.provideMembershipApiProvider = DoubleCheck.provider(new SwitchingProvider<MembershipApi>(singletonCImpl, 6));
+      this.membershipRepositoryImplProvider = new SwitchingProvider<>(singletonCImpl, 5);
+      this.bindMembershipRepositoryProvider = DoubleCheck.provider((Provider) membershipRepositoryImplProvider);
     }
 
     @Override
@@ -620,6 +676,12 @@ public final class DaggerGymApplication_HiltComponents_SingletonC {
 
           case 4: // okhttp3.logging.HttpLoggingInterceptor 
           return (T) NetworkModule_ProvideLoggingInterceptorFactory.provideLoggingInterceptor();
+
+          case 5: // com.gymapp.android.data.repository.MembershipRepositoryImpl 
+          return (T) new MembershipRepositoryImpl(singletonCImpl.provideMembershipApiProvider.get());
+
+          case 6: // com.gymapp.android.data.remote.api.MembershipApi 
+          return (T) MembershipApiModule_ProvideMembershipApiFactory.provideMembershipApi(singletonCImpl.provideRetrofitProvider.get());
 
           default: throw new AssertionError(id);
         }

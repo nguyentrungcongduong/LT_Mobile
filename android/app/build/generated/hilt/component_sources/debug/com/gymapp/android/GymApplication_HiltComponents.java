@@ -1,8 +1,13 @@
 package com.gymapp.android;
 
+import com.gymapp.android.di.MembershipApiModule;
+import com.gymapp.android.di.MembershipRepositoryModule;
 import com.gymapp.android.di.NetworkModule;
 import com.gymapp.android.di.StorageModule;
 import com.gymapp.android.ui.screens.auth.AuthViewModel_HiltModules;
+import com.gymapp.android.ui.screens.membership.viewmodel.MembershipDetailViewModel_HiltModules;
+import com.gymapp.android.ui.screens.membership.viewmodel.MembershipListViewModel_HiltModules;
+import com.gymapp.android.ui.screens.membership.viewmodel.PackageDetailViewModel_HiltModules;
 import dagger.Binds;
 import dagger.Component;
 import dagger.Module;
@@ -131,6 +136,8 @@ public final class GymApplication_HiltComponents {
           ActivityRetainedCBuilderModule.class,
           ServiceCBuilderModule.class,
           HiltWrapper_FragmentGetContextFix_FragmentGetContextFixModule.class,
+          MembershipApiModule.class,
+          MembershipRepositoryModule.class,
           NetworkModule.class,
           StorageModule.class
       }
@@ -159,7 +166,10 @@ public final class GymApplication_HiltComponents {
           ActivityCBuilderModule.class,
           ViewModelCBuilderModule.class,
           HiltWrapper_ActivityRetainedComponentManager_LifecycleModule.class,
-          HiltWrapper_SavedStateHandleModule.class
+          HiltWrapper_SavedStateHandleModule.class,
+          MembershipDetailViewModel_HiltModules.KeyModule.class,
+          MembershipListViewModel_HiltModules.KeyModule.class,
+          PackageDetailViewModel_HiltModules.KeyModule.class
       }
   )
   @ActivityRetainedScoped
@@ -196,7 +206,10 @@ public final class GymApplication_HiltComponents {
   @Subcomponent(
       modules = {
           AuthViewModel_HiltModules.BindsModule.class,
-          HiltWrapper_HiltViewModelFactory_ViewModelModule.class
+          HiltWrapper_HiltViewModelFactory_ViewModelModule.class,
+          MembershipDetailViewModel_HiltModules.BindsModule.class,
+          MembershipListViewModel_HiltModules.BindsModule.class,
+          PackageDetailViewModel_HiltModules.BindsModule.class
       }
   )
   @ViewModelScoped
