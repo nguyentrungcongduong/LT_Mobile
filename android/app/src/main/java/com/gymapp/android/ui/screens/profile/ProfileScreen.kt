@@ -229,7 +229,7 @@ fun EditProfileDialog(
     onConfirm: (String, String) -> Unit
 ) {
     var name by remember { mutableStateOf(user.fullName) }
-    var phone by remember { mutableStateOf("") } // Replace with user.phone if phone is added to model
+    var phone by remember { mutableStateOf(user.phone ?: "") }
 
     AlertDialog(
         onDismissRequest = onDismiss,

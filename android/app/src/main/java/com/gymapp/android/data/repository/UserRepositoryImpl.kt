@@ -83,6 +83,7 @@ class UserRepositoryImpl @Inject constructor(
         id = id,
         email = email,
         fullName = fullName,
+        phone = phone,
         role = role,
         avatarUrl = avatarUrl
     )
