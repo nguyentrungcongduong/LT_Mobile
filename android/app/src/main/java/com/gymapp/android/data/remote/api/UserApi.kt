@@ -21,16 +21,16 @@ data class UploadAvatarResponse(
 )
 
 interface UserApi {
-    @GET("users/me")
+    @GET("api/v1/users/me")
     suspend fun getProfile(): Response<ApiResponse<UserDto>>
 
-    @PUT("users/me")
+    @PUT("api/v1/users/update/me")
     suspend fun updateProfile(
         @Body request: UpdateProfileRequest
     ): Response<ApiResponse<UserDto>>
 
     @Multipart
-    @POST("users/me/avatar")
+    @POST("api/v1/users/me/avatar")
     suspend fun uploadAvatar(
         @Part file: MultipartBody.Part
     ): Response<ApiResponse<UploadAvatarResponse>>
