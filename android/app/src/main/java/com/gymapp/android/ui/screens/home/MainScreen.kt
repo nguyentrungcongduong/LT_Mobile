@@ -120,7 +120,11 @@ fun MainScreen(
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Booking/PT Screen") }
             }
             composable(BottomNavRoute.Profile.route) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("User Profile") }
+                com.gymapp.android.ui.screens.profile.ProfileScreen(
+                    onLogout = {
+                        // TODO: Implement logout navigation
+                    }
+                )
             }
         }
     }

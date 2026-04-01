@@ -60,4 +60,10 @@ object NetworkModule {
     fun provideAuthApi(retrofit: Retrofit): AuthApi {
         return retrofit.create(AuthApi::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun provideUserApi(retrofit: Retrofit): com.gymapp.android.data.remote.api.UserApi {
+        return retrofit.create(com.gymapp.android.data.remote.api.UserApi::class.java)
+    }
 }
