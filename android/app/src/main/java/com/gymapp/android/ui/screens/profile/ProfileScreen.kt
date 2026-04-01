@@ -12,7 +12,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material.icons.filled.Person
+
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -138,7 +139,7 @@ fun ProfileScreen(
                                         .padding(8.dp)
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.PhotoCamera,
+                                        imageVector = Icons.Default.Edit,
                                         contentDescription = "Upload Avatar",
                                         tint = Color.White,
                                         modifier = Modifier.size(16.dp)
@@ -171,7 +172,7 @@ fun ProfileScreen(
                             colors = AssistChipDefaults.assistChipColors(
                                 containerColor = Color(0xFF1B5E20).copy(alpha = 0.3f)
                             ),
-                            border = AssistChipDefaults.assistChipBorder(borderColor = Color.Transparent)
+                            border = null
                         )
 
                         Spacer(modifier = Modifier.height(40.dp))

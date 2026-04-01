@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gymapp.android.data.remote.AuthEventBus
 import com.gymapp.android.data.remote.api.LoginRequest
 import com.gymapp.android.data.remote.api.RegisterRequest
 import com.gymapp.android.data.repository.AuthRepository
@@ -21,7 +22,8 @@ sealed class AuthState {
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val repository: AuthRepository
+    private val repository: AuthRepository,
+    val authEventBus: AuthEventBus
 ) : ViewModel() {
 
     var uiState by mutableStateOf<AuthState>(AuthState.Idle)

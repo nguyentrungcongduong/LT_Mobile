@@ -13,7 +13,8 @@ import javax.inject.Provider
 
 class TokenAuthenticator @Inject constructor(
     private val tokenStorageProvider: Provider<TokenStorage>,
-    private val authApiProvider: Provider<AuthApi> // Lazy init để tránh circular dependency
+    private val authApiProvider: Provider<AuthApi>,
+    private val authEventBus: AuthEventBus
 ) : Authenticator {
 
     override fun authenticate(route: Route?, response: Response): Request? {
@@ -36,9 +37,11 @@ class TokenAuthenticator @Inject constructor(
                 } else {
                     // Nếu refresh thất bại, xóa tokens và đẩy về login
                     tokenStorage.clear()
+                    authEventBus.emit(AuthEvent.TokenExpired)
                 }
             } catch (e: Exception) {
                 tokenStorage.clear()
+                authEventBus.emit(AuthEvent.TokenExpired)
             }
         }
 

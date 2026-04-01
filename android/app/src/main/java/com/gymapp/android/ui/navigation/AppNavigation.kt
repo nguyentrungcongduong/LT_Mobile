@@ -6,10 +6,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.gymapp.android.data.remote.AuthEventBus
+import com.gymapp.android.data.remote.AuthEvent
 import com.gymapp.android.ui.screens.auth.AuthViewModel
 import com.gymapp.android.ui.screens.auth.LoginScreen
 import com.gymapp.android.ui.screens.auth.RegisterScreen
 import com.gymapp.android.ui.screens.home.MainScreen
+import kotlinx.coroutines.flow.collectLatest
 
 sealed class Route(val route: String) {
     object Login : Route("login")
@@ -23,6 +26,20 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
 
     // Bắt đầu từ màn Login hoặc Main tùy theo trạng thái có token hay không
     val startDestination = if (authViewModel.isLoggedIn()) Route.Main.route else Route.Login.route
+
+    // Lắng nghe sự kiện token hết hạn để tự động logout
+    LaunchedEffect(Unit) {
+        authViewModel.authEventBus.authEvents.collectLatest { event ->
+            when (event) {
+                is AuthEvent.TokenExpired -> {
+                    authViewModel.logout()
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            }
+        }
+    }
 
     NavHost(navController = navController, startDestination = startDestination) {
         
