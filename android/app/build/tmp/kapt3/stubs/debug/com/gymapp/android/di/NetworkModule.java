@@ -5,7 +5,7 @@ package com.gymapp.android.di;
 @dagger.hilt.InstallIn(value = {dagger.hilt.components.SingletonComponent.class})
 public final class NetworkModule {
     @org.jetbrains.annotations.NotNull()
-    private static final java.lang.String BASE_URL = "http://10.0.2.2:8080/";
+    private static final java.lang.String BASE_URL = "http://192.168.1.18:8080/";
     @org.jetbrains.annotations.NotNull()
     public static final com.gymapp.android.di.NetworkModule INSTANCE = null;
     

@@ -11,7 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Person
 
 import androidx.compose.material3.*
@@ -197,7 +197,7 @@ fun ProfileScreen(
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1A1A1A))
                         ) {
-                            Icon(Icons.Default.ExitToApp, contentDescription = null, tint = Color(0xFFE53935))
+                            Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null, tint = Color(0xFFE53935))
                             Spacer(modifier = Modifier.width(16.dp))
                             Text("Đăng xuất", color = Color(0xFFE53935), fontSize = 16.sp)
                         }

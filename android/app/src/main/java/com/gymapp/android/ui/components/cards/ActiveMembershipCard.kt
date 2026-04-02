@@ -60,7 +60,7 @@ fun ActiveMembershipCard(
                 StatusBadge(status = membership.status)
             }
 
-            Divider(modifier = Modifier.padding(vertical = 16.dp), color = Color(0xFFE0E0E0))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = Color(0xFFE0E0E0))
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Column {
@@ -84,7 +84,7 @@ fun ActiveMembershipCard(
             Spacer(modifier = Modifier.height(16.dp))
 
             LinearProgressIndicator(
-                progress = progress,
+                progress = { progress },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(8.dp),

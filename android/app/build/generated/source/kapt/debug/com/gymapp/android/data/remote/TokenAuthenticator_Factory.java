@@ -9,7 +9,7 @@ import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
 import javax.inject.Provider;
 
-@ScopeMetadata
+@ScopeMetadata("javax.inject.Singleton")
 @QualifierMetadata
 @DaggerGenerated
 @Generated(
@@ -27,24 +27,27 @@ public final class TokenAuthenticator_Factory implements Factory<TokenAuthentica
 
   private final Provider<AuthApi> authApiProvider;
 
+  private final Provider<AuthEventBus> authEventBusProvider;
+
   public TokenAuthenticator_Factory(Provider<TokenStorage> tokenStorageProvider,
-      Provider<AuthApi> authApiProvider) {
+      Provider<AuthApi> authApiProvider, Provider<AuthEventBus> authEventBusProvider) {
     this.tokenStorageProvider = tokenStorageProvider;
     this.authApiProvider = authApiProvider;
+    this.authEventBusProvider = authEventBusProvider;
   }
 
   @Override
   public TokenAuthenticator get() {
-    return newInstance(tokenStorageProvider, authApiProvider);
+    return newInstance(tokenStorageProvider, authApiProvider, authEventBusProvider.get());
   }
 
   public static TokenAuthenticator_Factory create(Provider<TokenStorage> tokenStorageProvider,
-      Provider<AuthApi> authApiProvider) {
-    return new TokenAuthenticator_Factory(tokenStorageProvider, authApiProvider);
+      Provider<AuthApi> authApiProvider, Provider<AuthEventBus> authEventBusProvider) {
+    return new TokenAuthenticator_Factory(tokenStorageProvider, authApiProvider, authEventBusProvider);
   }
 
   public static TokenAuthenticator newInstance(Provider<TokenStorage> tokenStorageProvider,
-      Provider<AuthApi> authApiProvider) {
-    return new TokenAuthenticator(tokenStorageProvider, authApiProvider);
+      Provider<AuthApi> authApiProvider, AuthEventBus authEventBus) {
+    return new TokenAuthenticator(tokenStorageProvider, authApiProvider, authEventBus);
   }
 }

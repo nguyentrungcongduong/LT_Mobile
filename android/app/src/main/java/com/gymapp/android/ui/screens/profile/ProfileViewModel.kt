@@ -57,7 +57,7 @@ class ProfileViewModel @Inject constructor(
             userRepository.updateProfile(fullName, phone, currentState.user.avatarUrl).onSuccess { user ->
                 _uiState.value = ProfileUiState.Success(user)
                 _isUpdating.value = false
-            }.onFailure { error ->
+            }.onFailure { _ ->
                 _isUpdating.value = false
                 // you could use an event channel for toast errors, but this is simple enough
             }
@@ -75,7 +75,7 @@ class ProfileViewModel @Inject constructor(
                 // Update profile with new avatar URL
                 val updatedUser = currentState.user.copy(avatarUrl = avatarUrl)
                 _uiState.value = ProfileUiState.Success(updatedUser)
-            }.onFailure { error ->
+            }.onFailure { _ ->
                 _isUploading.value = false
             }
         }
