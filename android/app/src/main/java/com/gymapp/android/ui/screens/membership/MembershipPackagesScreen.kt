@@ -7,6 +7,9 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.ui.Alignment
@@ -30,6 +33,11 @@ fun MembershipPackagesScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val filterOptions = listOf("Tất cả", "1 Chi nhánh", "Toàn chuỗi")
+    
+    // Trạng thái giữ id của gói đang được người dùng nhấn chọn (viền màu cam)
+    var selectedPlanId by remember { mutableStateOf<String?>(null) }
+
+    // Đặt mặc định chọn gói đầu tiên, hoặc giữ null tuỳ bạn (ở đây tạm giữ null cho đến khi user nhấn)
 
     Scaffold(
         topBar = {
@@ -99,14 +107,22 @@ fun MembershipPackagesScreen(
                     contentPadding = PaddingValues(bottom = 24.dp)
                 ) {
                     itemsIndexed(uiState.plans) { index, plan ->
-                        // Simulate "Featured" for the second card (just for mockup purpose based on wireframe)
                         val isFeatured = index == 1
+                        
+                        // Nếu chưa chọn ai, gói Featured (index 1) sẽ tạm có isSelected = true để giống với design mockup
+                        // Khi user nhấn thủ công, selectedPlanId sẽ chi phối
+                        val isSelected = if (selectedPlanId == null) isFeatured else plan.id == selectedPlanId
+
                         MembershipPackageCard(
                             plan = plan,
                             isFeatured = isFeatured,
-                            onPlanClick = { planId ->
-                                onNavigateToPlanDetail(planId)
-                                viewModel.onEvent(MembershipListEvent.OnPackageClicked(planId))
+                            isSelected = isSelected,
+                            onCardClick = {
+                                selectedPlanId = plan.id
+                            },
+                            onButtonClick = {
+                                onNavigateToPlanDetail(plan.id)
+                                viewModel.onEvent(MembershipListEvent.OnPackageClicked(plan.id))
                             }
                         )
                     }

@@ -18,7 +18,7 @@ import com.gymapp.android.domain.model.membership.MembershipStatus
 fun StatusBadge(status: MembershipStatus, modifier: Modifier = Modifier) {
     val (bgColor, textColor, borderColor) = when (status) {
         MembershipStatus.ACTIVE -> Triple(Color(0xFFEAF3DE), Color(0xFF3B6D11), Color(0xFFC0DD97))
-        MembershipStatus.EXPIRED -> Triple(Color(0xFFFCEBEB), Color(0xFFA32D2D), Color(0xFFF7C1C1))
+        MembershipStatus.EXPIRED -> Triple(Color(0xFFEAEAEA), Color(0xFF666666), Color(0xFFCCCCCC)) // Xám cho EXPIRED
         MembershipStatus.FROZEN -> Triple(Color(0xFFF1EFE8), Color(0xFF5F5E5A), Color(0xFFD3D1C7))
         MembershipStatus.PENDING -> Triple(Color(0xFFFAEEDA), Color(0xFF854F0B), Color(0xFFFAC775))
         MembershipStatus.CANCELLED -> Triple(Color(0xFFFCEBEB), Color(0xFFA32D2D), Color(0xFFF7C1C1))
@@ -26,7 +26,7 @@ fun StatusBadge(status: MembershipStatus, modifier: Modifier = Modifier) {
 
     val statusText = when (status) {
         MembershipStatus.ACTIVE -> "ACTIVE"
-        MembershipStatus.EXPIRED -> "HẾT HẠN"
+        MembershipStatus.EXPIRED -> "EXPIRED"
         MembershipStatus.FROZEN -> "TẠM DỪNG"
         MembershipStatus.PENDING -> "ĐANG XỬ LÝ"
         MembershipStatus.CANCELLED -> "ĐÃ HỦY"

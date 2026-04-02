@@ -15,7 +15,12 @@ import javax.inject.Inject
 data class PackageDetailUiState(
     val isLoading: Boolean = true,
     val plan: MembershipPlan? = null,
-    val error: String? = null
+    val error: String? = null,
+    
+    // Thêm các thuộc tính để check trạng thái gói hiện tại của user
+    val isCurrentUserPlan: Boolean = false,
+    val isExpired: Boolean = false,
+    val activeUntil: String? = null
 )
 
 @HiltViewModel
@@ -42,7 +47,17 @@ class PackageDetailViewModel @Inject constructor(
             if (result.isSuccess) {
                 val plan = result.getOrNull()
                 if (plan != null) {
-                    _uiState.update { it.copy(isLoading = false, plan = plan) }
+                    // Tạm thời mock giá trị true để preview UI:
+                    // Trong thực tế, bạn sẽ dùng GetUserMembershipUseCase để kết hợp dữ liệu vào đây.
+                    _uiState.update { 
+                        it.copy(
+                            isLoading = false, 
+                            plan = plan,
+                            isCurrentUserPlan = true,
+                            activeUntil = "30/12/2026",
+                            isExpired = false
+                        ) 
+                    }
                 } else {
                     _uiState.update { it.copy(isLoading = false, error = "Gói tập không tồn tại") }
                 }

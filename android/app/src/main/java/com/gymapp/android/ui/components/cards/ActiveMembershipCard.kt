@@ -71,7 +71,7 @@ fun ActiveMembershipCard(
                         fontWeight = FontWeight.Medium
                     )
                 }
-                Column(horizontalAlignment = Alignment.End) {
+                Column(horizontalAlignment = Alignment.End, modifier = Modifier.padding(end = 16.dp)) {
                     Text(text = "Hết hạn", color = Color(0xFF666666), fontSize = 12.sp)
                     Text(
                         text = membership.endDate.format(DateTimeFormatter.ofPattern("dd/MM/yy")),
