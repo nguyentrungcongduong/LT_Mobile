@@ -19,7 +19,7 @@ import javax.inject.Singleton
 object NetworkModule {
 
     // Thay thế bằng địa chỉ IP của máy thật hoặc 10.0.2.2 cho Android Emulator
-    private const val BASE_URL = "http://192.168.1.18:8080/"
+    private const val BASE_URL = "http://10.0.2.2:8080/"
 
     @Provides
     @Singleton

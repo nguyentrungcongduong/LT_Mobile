@@ -152,7 +152,7 @@ fun ProfileScreen(
 
                         // User Info
                         Text(
-                            text = user.fullName,
+                            text = user.fullName ?: "Chưa cập nhật",
                             color = Color(0xFFEDEDEC),
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold
@@ -229,7 +229,7 @@ fun EditProfileDialog(
     onDismiss: () -> Unit,
     onConfirm: (String, String) -> Unit
 ) {
-    var name by remember { mutableStateOf(user.fullName) }
+    var name by remember { mutableStateOf(user.fullName ?: "") }
     var phone by remember { mutableStateOf(user.phone ?: "") }
 
     AlertDialog(

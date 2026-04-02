@@ -24,7 +24,11 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun getProfile(): Result<User> = withContext(Dispatchers.IO) {
         try {
+            android.util.Log.d("UserRepository", "Fetching profile...")
             val response = userApi.getProfile()
+            android.util.Log.d("UserRepository", "Response code: ${response.code()}")
+            android.util.Log.d("UserRepository", "Response body: ${response.body()}")
+            android.util.Log.d("UserRepository", "Response error: ${response.errorBody()?.string()}")
             if (response.isSuccessful && response.body()?.success == true) {
                 val data = response.body()?.data
                 if (data != null) {
@@ -42,7 +46,10 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun updateProfile(fullName: String?, phone: String?, avatarUrl: String?): Result<User> = withContext(Dispatchers.IO) {
         try {
+            android.util.Log.d("UserRepository", "Sending update: fullName=$fullName, phone=$phone, avatarUrl=$avatarUrl")
             val response = userApi.updateProfile(UpdateProfileRequest(fullName, phone, avatarUrl))
+            android.util.Log.d("UserRepository", "Update response code: ${response.code()}")
+            android.util.Log.d("UserRepository", "Update response body: ${response.body()}")
             if (response.isSuccessful && response.body()?.success == true) {
                 val data = response.body()?.data
                 if (data != null) {
@@ -54,6 +61,7 @@ class UserRepositoryImpl @Inject constructor(
                 Result.failure(Exception(parseErrorMessage(response)))
             }
         } catch (e: Exception) {
+            android.util.Log.e("UserRepository", "Update exception: ${e.message}", e)
             Result.failure(e)
         }
     }

@@ -11,9 +11,9 @@ import retrofit2.http.PUT
 import retrofit2.http.Part
 
 data class UpdateProfileRequest(
-    @SerializedName("full_name") val fullName: String?,
+    val fullName: String?,
     val phone: String?,
-    @SerializedName("avatar_url") val avatarUrl: String?
+    val avatarUrl: String?
 )
 
 data class UploadAvatarResponse(
@@ -24,7 +24,7 @@ interface UserApi {
     @GET("api/v1/users/me")
     suspend fun getProfile(): Response<ApiResponse<UserDto>>
 
-    @PUT("api/v1/users/update/me")
+    @PUT("api/v1/users/me")
     suspend fun updateProfile(
         @Body request: UpdateProfileRequest
     ): Response<ApiResponse<UserDto>>

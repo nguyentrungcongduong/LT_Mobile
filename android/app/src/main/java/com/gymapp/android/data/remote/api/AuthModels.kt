@@ -23,10 +23,10 @@ data class TokenRefreshResponse(
 data class UserDto(
     val id: String,
     val email: String,
-    @SerializedName("full_name") val fullName: String,
+    val fullName: String?,
     val phone: String?,
     val role: String,
-    @SerializedName("avatar_url") val avatarUrl: String?
+    val avatarUrl: String?
 )
 
 data class LoginRequest(

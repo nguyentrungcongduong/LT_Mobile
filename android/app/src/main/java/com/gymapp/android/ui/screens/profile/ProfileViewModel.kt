@@ -54,12 +54,14 @@ class ProfileViewModel @Inject constructor(
 
         _isUpdating.value = true
         viewModelScope.launch {
+            android.util.Log.d("ProfileViewModel", "Updating profile: fullName=$fullName, phone=$phone")
             userRepository.updateProfile(fullName, phone, currentState.user.avatarUrl).onSuccess { user ->
+                android.util.Log.d("ProfileViewModel", "Update success: $user")
                 _uiState.value = ProfileUiState.Success(user)
                 _isUpdating.value = false
-            }.onFailure { _ ->
+            }.onFailure { error ->
+                android.util.Log.e("ProfileViewModel", "Update failed: ${error.message}", error)
                 _isUpdating.value = false
-                // you could use an event channel for toast errors, but this is simple enough
             }
         }
     }

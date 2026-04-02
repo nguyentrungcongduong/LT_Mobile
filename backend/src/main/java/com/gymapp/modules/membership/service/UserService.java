@@ -92,6 +92,8 @@ public class UserService implements IUserService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        System.out.println("GetUser - Email: " + email + ", AvatarUrl: " + user.getAvatarUrl());
 
         return UserResponse.fromUser(user);
     }
@@ -102,14 +104,21 @@ public class UserService implements IUserService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
 
+        System.out.println("updateCurrentUser - Email: " + email + ", DTO: " + dto);
+        System.out.println("DTO fullName: " + dto.getFullName() + ", phone: " + dto.getPhone() + ", avatarUrl: " + dto.getAvatarUrl());
+
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // Update các field được phép
-        if (dto.getFullName() != null)
+        if (dto.getFullName() != null) {
+            System.out.println("Updating fullName from " + user.getFullName() + " to " + dto.getFullName());
             user.setFullName(dto.getFullName());
-        if (dto.getPhone() != null)
+        }
+        if (dto.getPhone() != null) {
+            System.out.println("Updating phone from " + user.getPhone() + " to " + dto.getPhone());
             user.setPhone(dto.getPhone());
+        }
         if (dto.getAge() != null) {
             user.setAge(dto.getAge());
         }
@@ -119,8 +128,13 @@ public class UserService implements IUserService {
         if (dto.getWeight() != null) {
             user.setWeight(dto.getWeight());
         }
+        if (dto.getAvatarUrl() != null) {
+            System.out.println("Updating avatarUrl from " + user.getAvatarUrl() + " to " + dto.getAvatarUrl());
+            user.setAvatarUrl(dto.getAvatarUrl());
+        }
         // Lưu DB
         User updated = userRepository.save(user);
+        System.out.println("Saved user - fullName: " + updated.getFullName() + ", avatarUrl: " + updated.getAvatarUrl());
 
         return UserResponse.fromUser(updated);
     }
@@ -138,6 +152,8 @@ public class UserService implements IUserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         try {
+            System.out.println("Uploading avatar for user: " + user.getId());
+            
             // Upload file lên Cloudinary
             Map uploadResult = cloudinary.uploader().upload(file.getBytes(),
                     ObjectUtils.asMap(
@@ -146,13 +162,16 @@ public class UserService implements IUserService {
                             "overwrite", true));
 
             String avatarUrl = (String) uploadResult.get("secure_url");
+            System.out.println("Cloudinary upload success. URL: " + avatarUrl);
 
             // Lưu URL vào DB
             user.setAvatarUrl(avatarUrl);
-            userRepository.save(user);
+            User saved = userRepository.save(user);
+            System.out.println("Saved to DB. User avatarUrl: " + saved.getAvatarUrl());
 
             return avatarUrl;
         } catch (java.io.IOException e) {
+            System.err.println("Upload failed: " + e.getMessage());
             throw new RuntimeException("Failed to upload avatar", e);
         }
     }

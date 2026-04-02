@@ -3,7 +3,11 @@ package com.gymapp.modules.membership.controller;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.http.ResponseEntity;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.http.MediaType;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,14 +33,14 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://127.0.0.1:5500")
+@CrossOrigin(origins = "*")
 @Builder
 public class UserController {
     private final IUserService userService;
 
     @GetMapping("/me")
-    public UserResponse getUser() {
-        return userService.getUser();
+    public ApiResponse<UserResponse> getUser() {
+        return ApiResponse.ok(userService.getUser(), "Lấy thông tin thành công");
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -70,15 +74,19 @@ public class UserController {
     }
 
     // UserResponse updateCurrentUser(UserUpdateDto dto);
-    @PutMapping("/update/me")
+    @PutMapping("/me")
     public ApiResponse<UserResponse> updateCurrentUser(@RequestBody @Valid UserUpdateDto userDto) {
         UserResponse userResponse = userService.updateCurrentUser(userDto);
         return ApiResponse.ok(userResponse, "Updated");
     }
 
-    @PostMapping("/me/avatar")
-    public ResponseEntity<String> uploadAvatar(@RequestParam("file") MultipartFile file) {
+    @PostMapping(value = "/me/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<java.util.Map<String, String>> uploadAvatar(
+            @Parameter(description = "Avatar image file", required = true, content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE, schema = @Schema(type = "string", format = "binary")))
+            @RequestParam("file") MultipartFile file) {
         String url = userService.uploadAvatar(file); // dùng method service đã chỉnh sửa để chỉ update user hiện tại
-        return ResponseEntity.ok(url);
+        java.util.Map<String, String> data = new java.util.HashMap<>();
+        data.put("avatar_url", url);
+        return ApiResponse.ok(data, "Upload successful");
     }
 }
