@@ -51,7 +51,7 @@ public class MembershipEventListener {
             ));
             notification.setType(com.gymapp.modules.notification.enums.NotificationType.MEMBERSHIP_EXPIRED);
             notification.setRefId(event.getMembershipId());
-            notification.setRead(false);
+            notification.setIsRead(false);
             notification.setCreatedAt(OffsetDateTime.now());
 
             notificationRepository.save(notification);

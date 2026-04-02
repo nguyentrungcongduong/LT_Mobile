@@ -98,7 +98,7 @@ fun ActiveMembershipScreen(
                                 border = BorderStroke(1.dp, Color(0xFFE0E0E0)),
                                 colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF1A1A1A))
                             ) {
-                                Text("📷 Hiện mã QR", fontWeight = FontWeight.Medium)
+                                Text("🔳 Hiện mã QR", fontWeight = FontWeight.Medium)
                             }
 
                             Button(
@@ -106,11 +106,11 @@ fun ActiveMembershipScreen(
                                 modifier = Modifier.weight(1f),
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFFF6F6F6),
-                                    contentColor = Color(0xFF1A1A1A)
+                                    containerColor = Color(0xFFFF5722),
+                                    contentColor = Color.White
                                 )
                             ) {
-                                Text("🔄 Gia hạn", fontWeight = FontWeight.Medium)
+                                Text("🔄 Gia hạn", fontWeight = FontWeight.Bold)
                             }
                         }
                     }

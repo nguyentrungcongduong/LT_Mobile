@@ -1,7 +1,6 @@
 package com.gymapp.android.ui.components.cards
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -17,16 +16,20 @@ import com.gymapp.android.domain.model.membership.PlanType
 import java.text.NumberFormat
 import java.util.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MembershipPackageCard(
     plan: MembershipPlan,
     isFeatured: Boolean = false,
-    onPlanClick: (String) -> Unit
+    isSelected: Boolean = false,
+    onCardClick: () -> Unit,
+    onButtonClick: () -> Unit
 ) {
     val formatter = NumberFormat.getNumberInstance(Locale("vi", "VN"))
     val formattedPrice = "${formatter.format(plan.price.toLong())}đ"
 
     Card(
+        onClick = onCardClick,
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
@@ -34,7 +37,7 @@ fun MembershipPackageCard(
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFFF6F6F6)
         ),
-        border = if (isFeatured) BorderStroke(2.dp, Color(0xFFFF5722)) else null,
+        border = if (isSelected) BorderStroke(2.dp, Color(0xFFFF5722)) else null,
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
@@ -88,12 +91,12 @@ fun MembershipPackageCard(
 
             Spacer(modifier = Modifier.height(16.dp))
             Button(
-                onClick = { onPlanClick(plan.id) },
+                onClick = onButtonClick,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isFeatured) Color(0xFFFF5722) else Color.Transparent,
-                    contentColor = if (isFeatured) Color.White else Color(0xFF1A1A1A)
+                    containerColor = if (isSelected) Color(0xFFFF5722) else Color.Transparent,
+                    contentColor = if (isSelected) Color.White else Color(0xFF1A1A1A)
                 ),
-                border = if (!isFeatured) BorderStroke(1.dp, Color(0xFFE0E0E0)) else null,
+                border = if (!isSelected) BorderStroke(1.dp, Color(0xFFE0E0E0)) else null,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp)
             ) {
