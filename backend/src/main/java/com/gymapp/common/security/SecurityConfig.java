@@ -60,7 +60,9 @@ public class SecurityConfig {
                         // Public endpoints
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers("/api/v1/webhook/**").permitAll()
+                        .requestMatchers("/api/v1/webhook/**", "/api/v1/payments/vnpay-return",
+                                "/api/v1/payments/momo-return")
+                        .permitAll()
 
                         // Allow GET for PTS without auth maybe? Or according to docs, everyone can
                         // access
