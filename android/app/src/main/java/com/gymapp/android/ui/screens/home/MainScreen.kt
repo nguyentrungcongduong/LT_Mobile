@@ -28,7 +28,8 @@ sealed class BottomNavRoute(val route: String, val title: String, val icon: andr
 @Composable
 fun MainScreen(
     onNavigateToPackages: () -> Unit = {},
-    onNavigateToActiveMembership: () -> Unit = {}
+    onNavigateToActiveMembership: () -> Unit = {},
+    onLogout: () -> Unit = {}
 ) {
     val navController = rememberNavController()
     val items = listOf(
@@ -121,9 +122,7 @@ fun MainScreen(
             }
             composable(BottomNavRoute.Profile.route) {
                 com.gymapp.android.ui.screens.profile.ProfileScreen(
-                    onLogout = {
-                        // TODO: Implement logout navigation
-                    }
+                    onLogout = onLogout
                 )
             }
         }
