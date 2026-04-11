@@ -63,6 +63,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingMapper bookingMapper;
 
     private static final BigDecimal COMMISSION_RATE = new BigDecimal("0.20");
+    private static final List<BookingStatus> VALID_PROGRESS_STATUSES = List.of(BookingStatus.COMPLETED);
 
     @Override
     @Transactional
@@ -221,8 +222,21 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<BookingSummary> getPtBookings(UUID ptId, BookingStatus status, Pageable pageable) {
-        Page<Booking> page = bookingRepository.findAllByPtIdAndStatus(ptId, status, pageable);
+    public PageResponse<BookingSummary> getPtBookings(UUID ptId, BookingStatus status, Boolean upcomingOnly, Pageable pageable) {
+        Page<Booking> page;
+        if (Boolean.TRUE.equals(upcomingOnly)) {
+            if (status != null) {
+                page = bookingRepository.findUpcomingByStatus(ptId, status, java.time.LocalDate.now(), pageable);
+            } else {
+                page = bookingRepository.findUpcomingAll(
+                    ptId, 
+                    java.time.LocalDate.now(), 
+                    List.of(BookingStatus.CANCELLED),
+                    pageable);
+            }
+        } else {
+            page = bookingRepository.findAllByPtIdAndStatus(ptId, status, pageable);
+        }
         return mapToPageResponse(page);
     }
 
@@ -303,8 +317,9 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<PtClientSummary> getPtClients(UUID ptId, Pageable pageable) {
-        Page<PtClientSummary> page = bookingRepository.findClientSummariesByPtId(ptId, pageable);
+    public PageResponse<PtClientSummary> getPtClients(UUID ptId, BookingStatus status, Pageable pageable) {
+        List<BookingStatus> statuses = (status != null) ? List.of(status) : VALID_PROGRESS_STATUSES;
+        Page<PtClientSummary> page = bookingRepository.findClientSummariesByPtId(ptId, statuses, pageable);
 
         return PageResponse.<PtClientSummary>builder()
                 .items(page.getContent())
@@ -320,7 +335,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional(readOnly = true)
     public ClientProgressDto getClientProgress(UUID ptId, UUID userId) {
-        List<Booking> bookings = bookingRepository.findAllByUserIdAndPtIdOrderByScheduledAtDesc(userId, ptId);
+        List<Booking> bookings = bookingRepository.findAllByUserIdAndPtIdAndStatusInOrderByScheduledAtDesc(userId, ptId,
+                VALID_PROGRESS_STATUSES);
 
         List<ClientProgressDto.SessionHistoryDto> sessions = bookings.stream()
                 .map(b -> ClientProgressDto.SessionHistoryDto.builder()

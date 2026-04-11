@@ -27,10 +27,12 @@ public class PtClientController {
     @PreAuthorize("hasRole('PT')")
     @GetMapping
     @Operation(summary = "Get PT clients")
-    public ResponseEntity<ApiResponse<PageResponse<PtClientSummary>>> getPtClients(Pageable pageable) {
+    public ResponseEntity<ApiResponse<PageResponse<PtClientSummary>>> getPtClients(
+            @RequestParam(required = false) com.gymapp.modules.booking.enums.BookingStatus status,
+            Pageable pageable) {
         UUID ptId = UUID.fromString(JwtUtil.getCurrentUserId()
                 .orElseThrow(() -> new UnauthorizedException("UNAUTHORIZED", "User not logged in")));
-        PageResponse<PtClientSummary> response = bookingService.getPtClients(ptId, pageable);
+        PageResponse<PtClientSummary> response = bookingService.getPtClients(ptId, status, pageable);
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
 

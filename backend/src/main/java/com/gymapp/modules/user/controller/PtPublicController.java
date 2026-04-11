@@ -32,12 +32,13 @@ public class PtPublicController {
             @RequestParam(name = "max_price", required = false) BigDecimal maxPrice,
             @PageableDefault(sort = "ratingAvg", direction = Sort.Direction.DESC) Pageable pageable,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        
+
         boolean isNotAdmin = userDetails == null || userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-        
+
         // Only return approved PTs unless user is ADMIN
-        PageResponse<PtListDto> results = ptProfileService.getPtList(specialization, minRating, maxPrice, pageable, isNotAdmin);
+        PageResponse<PtListDto> results = ptProfileService.getPtList(specialization, minRating, maxPrice, pageable,
+                isNotAdmin);
         return ResponseEntity.ok(ApiResponse.ok(results));
     }
 
@@ -48,7 +49,7 @@ public class PtPublicController {
 
         boolean isNotAdmin = userDetails == null || userDetails.getAuthorities().stream()
                 .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-        
+
         // Restrict to approved PTs unless user is ADMIN
         PtDetailDto result = ptProfileService.getPtDetail(ptId, isNotAdmin);
         return ResponseEntity.ok(ApiResponse.ok(result));

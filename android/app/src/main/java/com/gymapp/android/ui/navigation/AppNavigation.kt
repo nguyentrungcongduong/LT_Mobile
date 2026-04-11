@@ -72,7 +72,13 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
         composable(Route.Main.route) {
             MainScreen(
                 onNavigateToPackages = { navController.navigate("membership_packages") },
-                onNavigateToActiveMembership = { navController.navigate("active_membership") }
+                onNavigateToActiveMembership = { navController.navigate("active_membership") },
+                onLogout = {
+                    authViewModel.logout()
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
             )
         }
 
