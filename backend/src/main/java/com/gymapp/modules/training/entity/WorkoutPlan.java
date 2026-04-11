@@ -1,6 +1,7 @@
 package com.gymapp.modules.training.entity;
 
 import com.gymapp.modules.training.enums.WpType;
+import com.gymapp.modules.training.enums.TargetLevel;
 import com.gymapp.modules.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -37,6 +38,10 @@ public class WorkoutPlan {
     @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.NAMED_ENUM)
     @Column(name = "plan_type", nullable = false, columnDefinition = "wp_type")
     private WpType planType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "target_level", length = 20)
+    private TargetLevel targetLevel;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assigned_to")

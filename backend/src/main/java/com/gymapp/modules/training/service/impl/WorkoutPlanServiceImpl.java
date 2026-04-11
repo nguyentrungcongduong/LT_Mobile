@@ -66,6 +66,7 @@ public class WorkoutPlanServiceImpl implements WorkoutPlanService {
                 .description(request.getDescription())
                 .createdBy(creator)
                 .planType(request.getPlanType())
+                .targetLevel(request.getTargetLevel())
                 .assignedTo(assignedTo)
                 .isActive(true)
                 .exercises(new ArrayList<>())
@@ -90,6 +91,7 @@ public class WorkoutPlanServiceImpl implements WorkoutPlanService {
 
         plan.setName(request.getName());
         plan.setDescription(request.getDescription());
+        plan.setTargetLevel(request.getTargetLevel());
         
         // Update assigned user if changed
         if (request.getPlanType() == WpType.PT_ASSIGNED && request.getAssignedTo() != null) {
@@ -146,6 +148,7 @@ public class WorkoutPlanServiceImpl implements WorkoutPlanService {
                 .name(plan.getName())
                 .description(plan.getDescription())
                 .planType(plan.getPlanType())
+                .targetLevel(plan.getTargetLevel())
                 .assignedToName(plan.getAssignedTo() != null ? plan.getAssignedTo().getFullName() : null)
                 .createdByName(plan.getCreatedBy().getFullName())
                 .exercises(plan.getExercises().stream().map(ptEx -> PlanExerciseResponse.builder()
