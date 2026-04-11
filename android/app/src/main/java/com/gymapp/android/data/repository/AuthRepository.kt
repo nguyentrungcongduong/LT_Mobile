@@ -64,8 +64,17 @@ class AuthRepository @Inject constructor(
         }
     }
 
-    fun logout() {
-        tokenStorage.clear()
+    suspend fun logout() = withContext(Dispatchers.IO) {
+        try {
+            val refreshToken = tokenStorage.getRefreshToken()
+            if (refreshToken != null) {
+                authApi.logout(com.gymapp.android.data.remote.api.TokenRefreshRequest(refreshToken))
+            }
+        } catch (e: Exception) {
+            // Log error but continue to clear local storage
+        } finally {
+            tokenStorage.clear()
+        }
     }
 
     fun hasToken(): Boolean {

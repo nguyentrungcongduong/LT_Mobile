@@ -29,10 +29,11 @@ public class PtBookingController {
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<BookingSummary>>> getPtBookings(
             @RequestParam(required = false) BookingStatus status,
+            @RequestParam(value = "upcoming_only", required = false) Boolean upcomingOnly,
             Pageable pageable) {
         UUID ptId = UUID.fromString(JwtUtil.getCurrentUserId()
                 .orElseThrow(() -> new UnauthorizedException("UNAUTHORIZED", "User not logged in")));
-        PageResponse<BookingSummary> response = bookingService.getPtBookings(ptId, status, pageable);
+        PageResponse<BookingSummary> response = bookingService.getPtBookings(ptId, status, upcomingOnly, pageable);
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
 }

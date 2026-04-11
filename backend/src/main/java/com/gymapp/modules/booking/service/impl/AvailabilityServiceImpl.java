@@ -21,11 +21,18 @@ import java.util.stream.Collectors;
 public class AvailabilityServiceImpl implements AvailabilityService {
 
     private final PtAvailabilityRepository availabilityRepository;
+    private final com.gymapp.modules.user.repository.PtProfileRepository ptProfileRepository;
 
     @Override
     @Transactional(readOnly = true)
-    public List<PtAvailabilityResponse> getPtAvailability(UUID ptId, LocalDate from, LocalDate to) {
-        return availabilityRepository.findAllByPtIdAndAvailableDateBetween(ptId, from, to)
+    public List<PtAvailabilityResponse> getPtAvailability(UUID ptProfileId, LocalDate from, LocalDate to) {
+        // Resolve User ID from PT Profile ID
+        com.gymapp.modules.user.entity.PtProfile profile = ptProfileRepository.findById(ptProfileId)
+                .orElseThrow(() -> new com.gymapp.common.exception.ResourceNotFoundException("PT_PROFILE_NOT_FOUND", "Personal Trainer profile not found"));
+        
+        UUID ptUserId = profile.getUser().getId();
+
+        return availabilityRepository.findAllByPtIdAndAvailableDateBetween(ptUserId, from, to)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());

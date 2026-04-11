@@ -14,13 +14,14 @@ public interface BookingService {
 
     PageResponse<BookingSummary> getUserBookings(UUID userId, BookingStatus status, Pageable pageable);
 
-    PageResponse<BookingSummary> getPtBookings(UUID ptId, BookingStatus status, Pageable pageable);
+    PageResponse<BookingSummary> getPtBookings(UUID ptId, BookingStatus status, Boolean upcomingOnly,
+            Pageable pageable);
 
     void expirePendingBookings();
 
     void autoCompleteBookings();
 
-    PageResponse<PtClientSummary> getPtClients(UUID ptId, Pageable pageable);
+    PageResponse<PtClientSummary> getPtClients(UUID ptId, BookingStatus status, Pageable pageable);
 
     ClientProgressDto getClientProgress(UUID ptId, UUID userId);
 }
