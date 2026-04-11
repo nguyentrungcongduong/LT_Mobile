@@ -10,6 +10,7 @@ import com.gymapp.modules.training.entity.Exercise;
 import com.gymapp.modules.training.entity.PlanExercise;
 import com.gymapp.modules.training.entity.WorkoutPlan;
 import com.gymapp.modules.training.enums.WpType;
+import com.gymapp.modules.training.enums.TargetLevel;
 import com.gymapp.modules.training.repository.ExerciseRepository;
 import com.gymapp.modules.training.repository.WorkoutPlanRepository;
 import com.gymapp.modules.training.service.WorkoutPlanService;
@@ -39,6 +40,21 @@ public class WorkoutPlanServiceImpl implements WorkoutPlanService {
     @Transactional(readOnly = true)
     public Page<WorkoutPlanResponse> getWorkoutPlans(UUID currentUserId, WpType type, Pageable pageable) {
         Page<WorkoutPlan> plans = workoutPlanRepository.findAllByTypeAndUser(type, currentUserId, pageable);
+        return plans.map(this::mapToResponse);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<WorkoutPlanResponse> getRecommendedPlans(UUID currentUserId, Pageable pageable) {
+        User user = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND", "User not found"));
+
+        TargetLevel targetLevel = TargetLevel.BEGINNER;
+        if (user.getExperienceLevel() != null) {
+            targetLevel = TargetLevel.valueOf(user.getExperienceLevel().name());
+        }
+
+        Page<WorkoutPlan> plans = workoutPlanRepository.findRecommendedPlans(targetLevel, WpType.USER_CUSTOM, pageable);
         return plans.map(this::mapToResponse);
     }
 

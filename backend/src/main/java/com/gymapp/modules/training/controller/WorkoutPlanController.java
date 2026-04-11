@@ -36,6 +36,14 @@ public class WorkoutPlanController {
         return ResponseEntity.ok(workoutPlanService.getWorkoutPlans(userDetails.getId(), type, pageable));
     }
 
+    @Operation(summary = "Get recommended workout plans", description = "Get list of recommended workout plans based on user's experience level")
+    @GetMapping("/recommended")
+    public ResponseEntity<Page<WorkoutPlanResponse>> getRecommendedPlans(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PageableDefault(size = 20) Pageable pageable) {
+        return ResponseEntity.ok(workoutPlanService.getRecommendedPlans(userDetails.getId(), pageable));
+    }
+
     @Operation(summary = "Create workout plan", description = "Create a new workout plan with exercises list")
     @PostMapping
     public ResponseEntity<WorkoutPlanResponse> createWorkoutPlan(
