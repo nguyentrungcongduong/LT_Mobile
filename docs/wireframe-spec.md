@@ -149,13 +149,23 @@
 
 ## 🧩 Shared Components
 
-### Bottom Navigation Bar
+### Bottom Navigation Bar — User Flow (`role = user`)
 - Height: `50dp` · padding-top: `5dp`
-- 4 tabs đều nhau (flex: 1 mỗi tab)
+- **4 tabs:** Trang Chủ | Thuê PT | Lịch | Cá nhân
 - Icon: 13×13dp SVG
 - Label: `6.5sp`
-- Active color: **#185FA5** (user flow) hoặc **#1D9E75** (PT flow)
+- Active color: **#185FA5**
 - Inactive color: `--color-text-secondary`
+
+### Bottom Navigation Bar — PT Flow (`role = PT`)
+- Height: `50dp` · padding-top: `5dp`
+- **4 tabs:** Trang Chủ | Lịch hẹn | Clients | Cá nhân
+- Icon: 13×13dp SVG
+- Label: `6.5sp`
+- Active color: **#1D9E75**
+- Inactive color: `--color-text-secondary`
+
+> ⚠️ **Role-based rendering:** Navigation bar được render khác nhau hoàn toàn tùy theo `role`. Tab "Lịch hẹn" và "Clients" **chỉ xuất hiện** khi `role = PT`. User thông thường **không thấy** và **không thể truy cập** các tab này.
 
 ### Avatar (Circle)
 - Size: `28×28dp` · border-radius: `50%`
@@ -268,7 +278,7 @@
 **Section Divider Label**
 - "Đã hoàn thành": `7.5sp 500 secondary` · margin-top `4dp`
 
-**Bottom Nav:** Trang Chủ | Thuê PT | **Lịch** (active) | Cá nhân
+**Bottom Nav (User):** Trang Chủ | Thuê PT | **Lịch** (active `#185FA5`) | Cá nhân
 
 ---
 
@@ -306,7 +316,9 @@
 ---
 
 ### Screen 5 — PT: Booking Queue
-**Route:** PT Flow · Lịch hẹn của tôi
+**Route:** PT Flow · Tab "Lịch hẹn" trên Navigation Bar
+
+> 🔒 **Access Control:** Tab "Lịch hẹn" **chỉ hiển thị trên Navigation Bar** khi `role = PT`. User thông thường (`role = user`) không thấy tab này và không thể truy cập màn hình này qua bất kỳ route nào.
 
 **Header**
 - Title "Lịch hẹn của tôi"
@@ -335,15 +347,14 @@ Row item:
 - Badge "Đã xác nhận"
 - border-bottom `0.5px --color-border-tertiary`
 
-**Bottom Nav:** Trang Chủ | **Lịch hẹn** (active) | Clients | Cá nhân
-- Active icon: calendar màu `#1D9E75`
+**Bottom Nav (PT):** Trang Chủ | **Lịch hẹn** (active `#1D9E75`) | Clients | Cá nhân
 
 ---
 
 ### Screen 6 — PT: Danh Sách Clients
-**Route:** PT Flow · từ Trang Cá nhân → PT Management → Danh sách clients
+**Route:** PT Flow · Tab "Clients" trên Navigation Bar
 
-> 🔒 **Access Control:** Screen này chỉ cho phép truy cập khi `role = PT`
+> 🔒 **Access Control:** Tab "Clients" **chỉ hiển thị trên Navigation Bar** khi `role = PT`. User thông thường (`role = user`) không thấy tab này và không thể truy cập màn hình này qua bất kỳ route nào.
 
 **Header**
 - Title "Clients của tôi" + "4 clients" ở phải (`7.5sp secondary`)
@@ -365,14 +376,14 @@ Mỗi client row:
 - Buổi hoàn thành: **22**
 - Clients mới: **+2** so tháng trước
 
-**Bottom Nav:** Trang Chủ | Lịch hẹn | **Clients** (active `#1D9E75`) | Cá nhân
+**Bottom Nav (PT):** Trang Chủ | Lịch hẹn | **Clients** (active `#1D9E75`) | Cá nhân
 
 ---
 
 ### Screen 7 — PT: Xem Progress Client
-**Route:** PT Flow · từ Trang Cá nhân → PT Management → Danh sách clients → Client detail
+**Route:** PT Flow · từ Screen 6 (Danh sách clients) → Client detail
 
-> 🔒 **Access Control:** Screen này chỉ cho phép truy cập khi `role = PT`
+> 🔒 **Access Control:** Screen này chỉ truy cập được từ Screen 6. Vì Screen 6 đã yêu cầu `role = PT`, Screen 7 kế thừa điều kiện đó.
 
 **Header (đặc biệt — prog-hdr)**
 - bg `--color-background-secondary` · border-bottom `0.5px --color-border-tertiary` · padding `8dp 12dp 6dp`
@@ -408,24 +419,30 @@ Mỗi session row:
 ## 🗺️ User Flow Map
 
 ```
-[User]
-  └─ Chọn PT
-       └─ Screen 1: Chọn Ngày & Slot
-            └─ Screen 2: Xác Nhận Đặt Lịch
-                 └─ [Thanh toán VNPAY/MOMO]
-                      └─ Screen 3: My Bookings List
-                           └─ Screen 4: Chi Tiết + Cancel Flow
-                                └─ [Bottom Sheet: Xác nhận hủy?]
-                                     ├─ Giữ lịch hẹn → quay lại Screen 3
-                                     └─ Xác nhận hủy → cập nhật trạng thái
+[User — role = user]
+  └─ Nav: Trang Chủ | Thuê PT | Lịch | Cá nhân
+       └─ Chọn PT
+            └─ Screen 1: Chọn Ngày & Slot
+                 └─ Screen 2: Xác Nhận Đặt Lịch
+                      └─ [Thanh toán VNPAY/MOMO]
+                           └─ Screen 3: My Bookings List  ← tab "Lịch"
+                                └─ Screen 4: Chi Tiết + Cancel Flow
+                                     └─ [Bottom Sheet: Xác nhận hủy?]
+                                          ├─ Giữ lịch hẹn → quay lại Screen 3
+                                          └─ Xác nhận hủy → cập nhật trạng thái
 
-[PT]
-  └─ Shared Screen: Trang Cá nhân
-       └─ PT Management Section
-            ├─ Quản lý lịch hẹn → Screen 5
-            ├─ Danh sách clients → Screen 6
-            └─ Theo dõi tiến độ → Screen 6 → Screen 7
+[PT — role = PT]
+  └─ Nav: Trang Chủ | Lịch hẹn | Clients | Cá nhân
+       ├─ Tab "Lịch hẹn" → Screen 5: Booking Queue
+       └─ Tab "Clients"  → Screen 6: Danh sách Clients
+                                └─ Screen 7: Progress Client (detail)
 ```
+
+> ℹ️ **Navigation Bar Rendering Logic:**
+> - `role = user` → hiển thị 4 tab: Trang Chủ, Thuê PT, Lịch, Cá nhân
+> - `role = PT` → hiển thị 4 tab: Trang Chủ, Lịch hẹn, Clients, Cá nhân
+> - Tab "Lịch hẹn" và "Clients" **không tồn tại** trong nav của user
+> - PT **không thấy** tab "Thuê PT" và "Lịch" (lịch booking của user)
 
 ---
 
