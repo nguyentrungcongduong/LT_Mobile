@@ -5,6 +5,7 @@ import com.gymapp.modules.booking.enums.BookingStatus;
 import com.gymapp.common.response.PageResponse;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface BookingService {
@@ -23,4 +24,6 @@ public interface BookingService {
     PageResponse<PtClientSummary> getPtClients(UUID ptId, Pageable pageable);
 
     ClientProgressDto getClientProgress(UUID ptId, UUID userId);
+
+    List<BookingResponse> getAllBookings();
 }

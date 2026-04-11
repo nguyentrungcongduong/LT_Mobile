@@ -60,6 +60,7 @@ public class BookingServiceImpl implements BookingService {
     private final UserRepository userRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final PaymentService paymentService;
+    private final BookingMapper bookingMapper;
 
     private static final BigDecimal COMMISSION_RATE = new BigDecimal("0.20");
 
@@ -346,5 +347,13 @@ public class BookingServiceImpl implements BookingService {
                 .ptAmount(booking.getPtAmount())
                 .status(booking.getStatus())
                 .build();
+    }
+
+    public List<BookingResponse> getAllBookings() {
+        List<Booking> bookings = bookingRepository.findAllWithRelations();
+
+        return bookings.stream()
+                .map(b -> bookingMapper.toResponse(b, null))
+                .toList();
     }
 }

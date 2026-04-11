@@ -5,6 +5,7 @@ import com.gymapp.common.response.ApiResponse;
 import com.gymapp.common.security.JwtUtil;
 import com.gymapp.modules.payment.dto.request.PaymentInitiateRequest;
 import com.gymapp.modules.payment.dto.response.PaymentInitiateResponse;
+import com.gymapp.modules.payment.dto.response.PaymentResponse;
 import com.gymapp.modules.payment.dto.response.PaymentStatusResponse;
 import com.gymapp.modules.payment.service.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -88,4 +90,10 @@ public class PaymentController {
             return ResponseEntity.internalServerError().body("Error redirecting to app");
         }
     }
+
+    @GetMapping("/alls")
+    public List<PaymentResponse> getAllPayments() {
+        return paymentService.getAllPayments();
+    }
+
 }
