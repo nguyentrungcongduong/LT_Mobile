@@ -5,9 +5,11 @@ import java.util.UUID;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.gymapp.modules.membership.dto.UpdateUserGoalRequest;
 import com.gymapp.modules.membership.dto.UserDto;
 import com.gymapp.modules.membership.dto.UserResponse;
 import com.gymapp.modules.membership.dto.UserUpdateDto;
+import com.gymapp.modules.user.entity.User;
 
 public interface IUserService {
     UserResponse createUser(UserDto userDto);
@@ -23,4 +25,6 @@ public interface IUserService {
     UserResponse updateCurrentUser(UserUpdateDto dto);
 
     String uploadAvatar(MultipartFile file);
+
+    User updateMyGoal(UpdateUserGoalRequest request);
 }

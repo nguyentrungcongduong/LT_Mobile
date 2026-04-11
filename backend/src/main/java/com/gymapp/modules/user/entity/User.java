@@ -5,6 +5,9 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.gymapp.modules.membership.enums.ExperienceLevel;
+import com.gymapp.modules.membership.enums.FitnessGoal;
+
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -61,4 +64,9 @@ public class User {
     private Double height;
     @Column(name = "age", nullable = true)
     private Double age;
+
+    @Column(name = "experiencelevel", nullable = true)
+    private ExperienceLevel experienceLevel;
+    @Column(name = "fitnessgoal", nullable = true)
+    private FitnessGoal fitnessGoal;
 }

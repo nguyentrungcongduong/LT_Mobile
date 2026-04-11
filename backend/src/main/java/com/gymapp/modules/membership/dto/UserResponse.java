@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.gymapp.modules.membership.enums.ExperienceLevel;
+import com.gymapp.modules.membership.enums.FitnessGoal;
 import com.gymapp.modules.user.entity.User;
 import com.gymapp.modules.user.entity.UserRole;
 
@@ -33,6 +35,9 @@ public class UserResponse {
     private Double age;
     private String avatarUrl;
 
+    private ExperienceLevel experienceLevel;
+    private FitnessGoal fitnessGoal;
+
     public static UserResponse fromUser(User user) {
         if (user == null)
             return null;
@@ -50,6 +55,8 @@ public class UserResponse {
                 .height(user.getHeight())
                 .weight(user.getWeight())
                 .avatarUrl(user.getAvatarUrl())
+                .experienceLevel(user.getExperienceLevel())
+                .fitnessGoal(user.getFitnessGoal())
                 .build();
     }
 
