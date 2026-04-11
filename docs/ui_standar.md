@@ -381,6 +381,13 @@ Header: Plan name (headlineMedium) + type chip (PT/Custom)
 List: Exercise rows with sets/reps badge (stat style)
 FAB: "Log workout" button
 
+### Recommended Plans Screen (Màn hình recommended plans theo level)
+
+Header: "Kế hoạch đề xuất" (headlineLarge)
+Top Info: Chip báo level hiện tại của user (e.g. BEGINNER, INTERMEDIATE)
+List: Danh sách các thẻ bài tập (WorkoutPlan Card) 
+      phân loại theo targetLevel. Mỗi thẻ hiển thị tên plan, mô tả, và số lượng bài tập.
+
 ### Profile Screen
 
 Top: Avatar (72dp circle) + name (headlineSmall) + role chip
@@ -483,7 +490,7 @@ home/ — HomeScreen, HomeViewModel
 pt/ — PtListScreen, PtDetailScreen
 booking/ — BookingFlowScreen, MyBookingsScreen
 checkin/ — QrDisplayScreen
-training/ — WorkoutPlanScreen, WorkoutLogScreen
+training/ — WorkoutPlanScreen, WorkoutLogScreen, RecommendedPlansScreen
 profile/ — ProfileScreen
 auth/ — LoginScreen, RegisterScreen
 theme/
