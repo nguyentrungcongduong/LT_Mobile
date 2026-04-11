@@ -5,6 +5,8 @@ import com.gymapp.modules.training.dto.WorkoutPlanRequest;
 import com.gymapp.modules.training.dto.WorkoutPlanResponse;
 import com.gymapp.modules.training.enums.WpType;
 import com.gymapp.modules.training.service.WorkoutPlanService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,10 +22,12 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/workout-plans")
 @RequiredArgsConstructor
+@Tag(name = "Workout Plans", description = "CRUD API for Workout Plans (USER_CUSTOM and PT_ASSIGNED)")
 public class WorkoutPlanController {
 
     private final WorkoutPlanService workoutPlanService;
 
+    @Operation(summary = "Get workout plans", description = "Get list of paginated workout plans for the current user by type")
     @GetMapping
     public ResponseEntity<Page<WorkoutPlanResponse>> getWorkoutPlans(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -32,6 +36,7 @@ public class WorkoutPlanController {
         return ResponseEntity.ok(workoutPlanService.getWorkoutPlans(userDetails.getId(), type, pageable));
     }
 
+    @Operation(summary = "Create workout plan", description = "Create a new workout plan with exercises list")
     @PostMapping
     public ResponseEntity<WorkoutPlanResponse> createWorkoutPlan(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -40,6 +45,7 @@ public class WorkoutPlanController {
                 .body(workoutPlanService.createWorkoutPlan(userDetails.getId(), request));
     }
 
+    @Operation(summary = "Update workout plan", description = "Update an existing workout plan and its exercises")
     @PutMapping("/{planId}")
     public ResponseEntity<WorkoutPlanResponse> updateWorkoutPlan(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -48,6 +54,7 @@ public class WorkoutPlanController {
         return ResponseEntity.ok(workoutPlanService.updateWorkoutPlan(userDetails.getId(), planId, request));
     }
 
+    @Operation(summary = "Get workout plan details", description = "Get details of a specific workout plan by ID")
     @GetMapping("/{planId}")
     public ResponseEntity<WorkoutPlanResponse> getWorkoutPlanById(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
