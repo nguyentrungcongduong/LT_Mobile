@@ -89,7 +89,7 @@ fun MainScreen(
                     modifier = Modifier.fillMaxSize().padding(16.dp)
                 ) {
                     Text("Xin chào, bạn 👋", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                    Text("Hôm nay là ngày tập luyện tuyệt vời!", color = Color.Gray)
+                    Text("Hôm nay là ngày tập luyện tuyệt vời!", color = MaterialTheme.colorScheme.onSurfaceVariant)
                     
                     Spacer(modifier = Modifier.height(24.dp))
                     
@@ -131,7 +131,10 @@ fun MainScreen(
                                 onClick = { navController.navigate(BottomNavRoute.PTBooking.route) },
                                 modifier = Modifier.weight(1f).height(60.dp),
                                 shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E2E2E))
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
                             ) {
                                 Text("🏋️ Thuê PT", fontSize = 16.sp)
                             }

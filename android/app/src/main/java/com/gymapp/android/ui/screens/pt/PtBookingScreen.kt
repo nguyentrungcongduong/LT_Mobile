@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -321,16 +322,17 @@ private fun SlotItem(
 ) {
     val containerColor = when {
         isSelected -> MaterialTheme.colorScheme.primaryContainer
-        isBooked -> MaterialTheme.colorScheme.surfaceVariant
+        isBooked -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         else -> MaterialTheme.colorScheme.surface
     }
     val borderColor = when {
         isSelected -> MaterialTheme.colorScheme.primary
+        isBooked -> MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
         else -> MaterialTheme.colorScheme.outlineVariant
     }
     val contentColor = when {
         isSelected -> MaterialTheme.colorScheme.onPrimaryContainer
-        isBooked -> MaterialTheme.colorScheme.onSurfaceVariant
+        isBooked -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
         else -> MaterialTheme.colorScheme.onBackground
     }
 
@@ -348,13 +350,12 @@ private fun SlotItem(
             if (isSelected) {
                 Box(modifier = Modifier.size(8.dp).clip(RoundedCornerShape(50)).background(MaterialTheme.colorScheme.primary))
                 Spacer(Modifier.width(6.dp))
-            } else if (isBooked) {
-                Text("✗ ", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
             }
             Text(
                 text = startTime,
                 style = MaterialTheme.typography.labelLarge,
-                color = contentColor
+                color = contentColor,
+                textDecoration = if (isBooked) TextDecoration.LineThrough else null
             )
         }
     }

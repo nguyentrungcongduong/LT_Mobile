@@ -61,12 +61,12 @@ fun ProfileScreen(
             TopAppBar(
                 title = { Text("Hồ sơ", fontWeight = FontWeight.SemiBold) },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF0D0D0D),
-                    titleContentColor = Color(0xFFEDEDEC)
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
                 )
             )
         },
-        containerColor = Color(0xFF0D0D0D)
+        containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             when (val state = uiState) {
@@ -104,7 +104,7 @@ fun ProfileScreen(
                             modifier = Modifier
                                 .size(120.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFF242424))
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
                                 .clickable { launcher.launch("image/*") },
                             contentAlignment = Alignment.Center
                         ) {
@@ -154,13 +154,13 @@ fun ProfileScreen(
                         // User Info
                         Text(
                             text = user.fullName ?: "Chưa cập nhật",
-                            color = Color(0xFFEDEDEC),
+                            color = MaterialTheme.colorScheme.onBackground,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
                             text = user.email,
-                            color = Color(0xFF8A8F98),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 16.sp,
                             modifier = Modifier.padding(top = 8.dp)
                         )
@@ -183,37 +183,48 @@ fun ProfileScreen(
                             onClick = { showEditDialog = true },
                             modifier = Modifier.fillMaxWidth().height(56.dp),
                             shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1A1A1A))
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         ) {
-                            Icon(Icons.Default.Edit, contentDescription = null, tint = Color(0xFFEDEDEC))
+                            Icon(Icons.Default.Edit, contentDescription = null)
                             Spacer(modifier = Modifier.width(16.dp))
-                            Text("Chỉnh sửa thông tin", color = Color(0xFFEDEDEC), fontSize = 16.sp)
+                            Text("Chỉnh sửa thông tin", fontSize = 16.sp)
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        Button(
-                            onClick = onNavigateToHistory,
-                            modifier = Modifier.fillMaxWidth().height(56.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1A1A1A))
-                        ) {
-                            Text("💳", fontSize = 18.sp)
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Text("Lịch sử giao dịch", color = Color(0xFFEDEDEC), fontSize = 16.sp)
-                        }
+                        if (user.role == "USER") {
+                            Button(
+                                onClick = onNavigateToHistory,
+                                modifier = Modifier.fillMaxWidth().height(56.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            ) {
+                                Text("💳", fontSize = 18.sp)
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Text("Lịch sử giao dịch", fontSize = 16.sp)
+                            }
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
 
                         Button(
                             onClick = onLogout,
                             modifier = Modifier.fillMaxWidth().height(56.dp),
                             shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1A1A1A))
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f),
+                                contentColor = MaterialTheme.colorScheme.error
+                            )
                         ) {
-                            Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null, tint = Color(0xFFE53935))
+                            Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null)
                             Spacer(modifier = Modifier.width(16.dp))
-                            Text("Đăng xuất", color = Color(0xFFE53935), fontSize = 16.sp)
+                            Text("Đăng xuất", fontSize = 16.sp)
                         }
 
                         // Edit Dialog
@@ -248,24 +259,22 @@ fun EditProfileDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF1A1A1A),
+        containerColor = MaterialTheme.colorScheme.surface,
         title = {
-            Text(text = "Chỉnh sửa thông tin", color = Color(0xFFEDEDEC), fontWeight = FontWeight.Bold)
+            Text(text = "Chỉnh sửa thông tin", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
         },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Họ tên", color = Color(0xFF8A8F98)) },
+                    label = { Text("Họ tên") },
                     singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFF242424),
-                        unfocusedContainerColor = Color(0xFF242424),
-                        focusedTextColor = Color(0xFFEDEDEC),
-                        unfocusedTextColor = Color(0xFFEDEDEC),
-                        focusedBorderColor = Color(0xFFFF5722),
-                        unfocusedBorderColor = Color(0xFF2E2E2E)
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                     ),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -273,15 +282,13 @@ fun EditProfileDialog(
                 OutlinedTextField(
                     value = phone,
                     onValueChange = { phone = it },
-                    label = { Text("Số điện thoại", color = Color(0xFF8A8F98)) },
+                    label = { Text("Số điện thoại") },
                     singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFF242424),
-                        unfocusedContainerColor = Color(0xFF242424),
-                        focusedTextColor = Color(0xFFEDEDEC),
-                        unfocusedTextColor = Color(0xFFEDEDEC),
-                        focusedBorderColor = Color(0xFFFF5722),
-                        unfocusedBorderColor = Color(0xFF2E2E2E)
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                     ),
                     modifier = Modifier.fillMaxWidth()
                 )
