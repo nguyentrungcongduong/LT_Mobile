@@ -89,7 +89,7 @@ fun MainScreen(
                     modifier = Modifier.fillMaxSize().padding(16.dp)
                 ) {
                     Text("Xin chào, bạn 👋", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                    Text("Hôm nay là ngày tập luyện tuyệt vời!", color = Color.Gray)
+                    Text("Hôm nay là ngày tập luyện tuyệt vời!", color = MaterialTheme.colorScheme.onSurfaceVariant)
                     
                     Spacer(modifier = Modifier.height(24.dp))
                     
@@ -131,7 +131,10 @@ fun MainScreen(
                                 onClick = { navController.navigate(BottomNavRoute.PTBooking.route) },
                                 modifier = Modifier.weight(1f).height(60.dp),
                                 shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E2E2E))
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
                             ) {
                                 Text("🏋️ Thuê PT", fontSize = 16.sp)
                             }
@@ -166,12 +169,59 @@ fun MainScreen(
                 route = "pt_booking_confirm/{ptId}",
                 arguments = listOf(androidx.navigation.navArgument("ptId") { type = androidx.navigation.NavType.StringType })
             ) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    try {
+                        navController.getBackStackEntry("pt_booking/{ptId}")
+                    } catch (e: Exception) {
+                        backStackEntry
+                    }
+                }
+                val sharedViewModel: com.gymapp.android.ui.screens.pt.PtBookingViewModel = androidx.hilt.navigation.compose.hiltViewModel(parentEntry)
+
                 com.gymapp.android.ui.screens.pt.PtBookingConfirmScreen(
+                    viewModel = sharedViewModel,
                     onNavigateBack = { navController.popBackStack() },
-                    onBookingSuccess = { paymentUrl ->
-                        // Open payment URL or success screen
-                        // For now we just go back to clean the flow
-                        navController.popBackStack("booking", inclusive = false)
+                    onBookingSuccess = { paymentUrl, bookingId ->
+                        val encodedUrl = android.util.Base64.encodeToString(paymentUrl.toByteArray(), android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP)
+                        navController.navigate("pt_payment_webview/$encodedUrl")
+                    }
+                )
+            }
+            composable(
+                route = "pt_payment_webview/{encodedUrl}",
+                arguments = listOf(androidx.navigation.navArgument("encodedUrl") { type = androidx.navigation.NavType.StringType })
+            ) { backStackEntry ->
+                val encodedUrl = backStackEntry.arguments?.getString("encodedUrl") ?: ""
+                com.gymapp.android.ui.screens.pt.PaymentWebViewScreen(
+                    encodedUrl = encodedUrl,
+                    onNavigateBack = { navController.popBackStack() },
+                    onPaymentResultReceived = { bookingId ->
+                        navController.navigate("pt_payment_result/$bookingId") {
+                            popUpTo("pt_booking_confirm/{ptId}") { inclusive = true } // close payment view
+                        }
+                    }
+                )
+            }
+            composable(
+                route = "pt_payment_result/{bookingId}",
+                arguments = listOf(androidx.navigation.navArgument("bookingId") { type = androidx.navigation.NavType.StringType }),
+                deepLinks = listOf(androidx.navigation.navDeepLink { uriPattern = "gymapp://payment/result?booking_id={bookingId}" })
+            ) { backStackEntry ->
+                val bookingId = backStackEntry.arguments?.getString("bookingId") ?: ""
+                com.gymapp.android.ui.screens.pt.PaymentResultScreen(
+                    bookingId = bookingId,
+                    onNavigateHome = {
+                        navController.navigate(BottomNavRoute.Dashboard.route) {
+                            popUpTo(BottomNavRoute.Dashboard.route) { inclusive = true }
+                        }
+                    },
+                    onRetry = {
+                        navController.popBackStack("pt_booking/{ptId}", inclusive = false)
+                    },
+                    onCancel = {
+                        navController.navigate(BottomNavRoute.Dashboard.route) {
+                            popUpTo(BottomNavRoute.Dashboard.route) { inclusive = true }
+                        }
                     }
                 )
             }
@@ -231,7 +281,13 @@ fun MainScreen(
             }
             composable(BottomNavRoute.Profile.route) {
                 com.gymapp.android.ui.screens.profile.ProfileScreen(
-                    onLogout = onLogout
+                    onLogout = onLogout,
+                    onNavigateToHistory = { navController.navigate("payment_history") }
+                )
+            }
+            composable(route = "payment_history") {
+                com.gymapp.android.ui.screens.pt.PaymentHistoryScreen(
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
         }
