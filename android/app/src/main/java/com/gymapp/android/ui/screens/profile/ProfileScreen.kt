@@ -35,7 +35,8 @@ import com.gymapp.android.util.FileUtil
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel(),
-    onLogout: () -> Unit = {}
+    onLogout: () -> Unit = {},
+    onNavigateToHistory: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val isUploading by viewModel.isUploading.collectAsState()
@@ -187,6 +188,19 @@ fun ProfileScreen(
                             Icon(Icons.Default.Edit, contentDescription = null, tint = Color(0xFFEDEDEC))
                             Spacer(modifier = Modifier.width(16.dp))
                             Text("Chỉnh sửa thông tin", color = Color(0xFFEDEDEC), fontSize = 16.sp)
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Button(
+                            onClick = onNavigateToHistory,
+                            modifier = Modifier.fillMaxWidth().height(56.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1A1A1A))
+                        ) {
+                            Text("💳", fontSize = 18.sp)
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Text("Lịch sử giao dịch", color = Color(0xFFEDEDEC), fontSize = 16.sp)
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))

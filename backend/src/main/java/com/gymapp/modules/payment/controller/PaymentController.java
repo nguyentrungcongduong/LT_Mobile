@@ -4,13 +4,21 @@ import com.gymapp.common.exception.UnauthorizedException;
 import com.gymapp.common.response.ApiResponse;
 import com.gymapp.common.security.JwtUtil;
 import com.gymapp.modules.payment.dto.request.PaymentInitiateRequest;
+import com.gymapp.modules.payment.dto.response.PaymentHistoryResponse;
 import com.gymapp.modules.payment.dto.response.PaymentInitiateResponse;
 import com.gymapp.modules.payment.dto.response.PaymentStatusResponse;
+import com.gymapp.modules.payment.enums.PaymentProvider;
+import com.gymapp.modules.payment.enums.PaymentStatus;
+import com.gymapp.modules.payment.enums.PaymentType;
 import com.gymapp.modules.payment.service.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,9 +35,6 @@ public class PaymentController {
 
     private final PaymentService paymentService;
     private final com.gymapp.config.PaymentProperties paymentProperties;
-
-    @org.springframework.beans.factory.annotation.Value("classpath:templates/payment-redirect.html")
-    private org.springframework.core.io.Resource redirectTemplate;
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/initiate")
@@ -56,36 +61,61 @@ public class PaymentController {
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
 
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/history")
+    @Operation(summary = "Get payment history for current user")
+    public ResponseEntity<ApiResponse<Page<PaymentHistoryResponse>>> getPaymentHistory(
+            @RequestParam(required = false) PaymentType paymentType,
+            @RequestParam(required = false) PaymentStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        UUID userId = UUID.fromString(JwtUtil.getCurrentUserId()
+                .orElseThrow(() -> new UnauthorizedException("UNAUTHORIZED", "User not logged in")));
+
+        var pageable = PageRequest.of(page, size);
+        var result = paymentService.getPaymentHistory(userId, paymentType, status, pageable);
+        return ResponseEntity.ok(ApiResponse.ok(result));
+    }
+
     @GetMapping("/vnpay-return")
-    public ResponseEntity<String> vnpayReturn(@RequestParam Map<String, String> allParams) {
-        String paymentId = allParams.get("vnp_TxnRef");
-        String redirectUrl = paymentProperties.getVnpay().getMobileRedirectUrl();
-        return generateRedirectHtml(redirectUrl, paymentId);
+    public ResponseEntity<Void> vnpayReturn(@RequestParam Map<String, String> allParams) {
+        String paymentIdStr = allParams.get("vnp_TxnRef");
+        return handleReturnUrl(PaymentProvider.VNPAY, allParams, paymentIdStr,
+                paymentProperties.getVnpay().getMobileRedirectUrl());
     }
 
     @GetMapping("/momo-return")
-    public ResponseEntity<String> momoReturn(@RequestParam Map<String, String> allParams) {
-        String paymentId = allParams.get("orderId");
-        String redirectUrl = paymentProperties.getMomo().getMobileRedirectUrl();
-        return generateRedirectHtml(redirectUrl, paymentId);
+    public ResponseEntity<Void> momoReturn(@RequestParam Map<String, String> allParams) {
+        String paymentIdStr = allParams.get("orderId");
+        return handleReturnUrl(PaymentProvider.MOMO, allParams, paymentIdStr,
+                paymentProperties.getMomo().getMobileRedirectUrl());
     }
 
-    private ResponseEntity<String> generateRedirectHtml(String baseUri, String paymentId) {
-        String finalUrl = baseUri + (baseUri.contains("?") ? "&" : "?") + "paymentId=" + paymentId;
-
+    private ResponseEntity<Void> handleReturnUrl(PaymentProvider provider, Map<String, String> params,
+            String paymentIdStr, String redirectUrl) {
         try {
-            String html = org.springframework.util.StreamUtils.copyToString(
-                    redirectTemplate.getInputStream(),
-                    java.nio.charset.StandardCharsets.UTF_8);
-
-            html = html.replace("{{finalUrl}}", finalUrl);
-
-            return ResponseEntity.ok()
-                    .header("Content-Type", "text/html; charset=utf-8")
-                    .body(html);
-        } catch (java.io.IOException e) {
-            log.error("Error loading redirect template", e);
-            return ResponseEntity.internalServerError().body("Error redirecting to app");
+            paymentService.confirmPayment(provider, params);
+        } catch (Exception e) {
+            log.error("Error confirming payment synchronously in returnUrl: {}", e.getMessage());
         }
+
+        String bookingId = "";
+        try {
+            PaymentStatusResponse status = paymentService.getPaymentStatus(UUID.fromString(paymentIdStr));
+            bookingId = status.getBookingId() != null ? status.getBookingId().toString() : "";
+        } catch (Exception e) {
+            log.warn("Failed to retrieve bookingId for payment: {}", paymentIdStr);
+        }
+
+        return generateRedirectHtml(redirectUrl, "booking_id", bookingId);
+    }
+
+    private ResponseEntity<Void> generateRedirectHtml(String baseUri, String paramKey, String paramValue) {
+        String finalUrl = baseUri + (baseUri.contains("?") ? "&" : "?") + paramKey + "=" + paramValue;
+
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .header(HttpHeaders.LOCATION, finalUrl)
+                .build();
     }
 }

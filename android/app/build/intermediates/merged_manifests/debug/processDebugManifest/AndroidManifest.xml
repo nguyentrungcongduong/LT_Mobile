@@ -36,6 +36,19 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!-- Deep link handler for payment redirect -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Matches gymapp://payment/result -->
+                <data
+                    android:host="payment"
+                    android:pathPrefix="/result"
+                    android:scheme="gymapp" />
+            </intent-filter>
         </activity>
         <activity
             android:name="androidx.compose.ui.tooling.PreviewActivity"

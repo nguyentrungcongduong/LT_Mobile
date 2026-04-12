@@ -41,6 +41,9 @@ class PtBookingViewModel @Inject constructor(
     private val _selectedSlotId = MutableStateFlow<String?>(null)
     val selectedSlotId: StateFlow<String?> = _selectedSlotId.asStateFlow()
 
+    private val _selectedProvider = MutableStateFlow<String?>("VNPAY")
+    val selectedProvider: StateFlow<String?> = _selectedProvider.asStateFlow()
+
     private val _ptDetail = MutableStateFlow<com.gymapp.android.data.remote.api.PtPublicDto?>(null)
     val ptDetail: StateFlow<com.gymapp.android.data.remote.api.PtPublicDto?> = _ptDetail.asStateFlow()
 
@@ -71,6 +74,10 @@ class PtBookingViewModel @Inject constructor(
 
     fun selectSlot(slotId: String) {
         _selectedSlotId.value = slotId
+    }
+
+    fun selectProvider(provider: String) {
+        _selectedProvider.value = provider
     }
 
     fun nextMonth() {
@@ -110,9 +117,10 @@ class PtBookingViewModel @Inject constructor(
 
     fun confirmBooking() {
         val slotId = _selectedSlotId.value ?: return
+        val provider = _selectedProvider.value ?: "VNPAY"
         _uiState.value = PtBookingUiState.Loading
         viewModelScope.launch {
-            ptRepository.createBooking(BookingCreateRequest(ptId, slotId))
+            ptRepository.createBooking(BookingCreateRequest(ptId, slotId, provider))
                 .onSuccess { response ->
                     _uiState.value = PtBookingUiState.BookingSuccess(response)
                 }
@@ -120,5 +128,9 @@ class PtBookingViewModel @Inject constructor(
                     _uiState.value = PtBookingUiState.Error(error.message ?: "Lỗi đặt lịch")
                 }
         }
+    }
+
+    fun resetUiState() {
+        _uiState.value = PtBookingUiState.Idle
     }
 }

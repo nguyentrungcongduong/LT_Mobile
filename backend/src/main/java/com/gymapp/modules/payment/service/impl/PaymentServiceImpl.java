@@ -17,6 +17,7 @@ import com.gymapp.modules.payment.constant.MoMoParams;
 import com.gymapp.modules.payment.constant.VNPayParams;
 import com.gymapp.modules.payment.constant.VnpayIpnResponseContant;
 import com.gymapp.modules.payment.dto.request.PaymentInitiateRequest;
+import com.gymapp.modules.payment.dto.response.PaymentHistoryResponse;
 import com.gymapp.modules.payment.dto.response.PaymentInitiateResponse;
 import com.gymapp.modules.payment.dto.response.PaymentStatusResponse;
 import com.gymapp.modules.payment.entity.Payment;
@@ -28,9 +29,14 @@ import com.gymapp.modules.payment.gateway.momo.MoMoService;
 import com.gymapp.modules.payment.gateway.vnpay.VNPayService;
 import com.gymapp.modules.payment.repository.PaymentRepository;
 import com.gymapp.modules.payment.service.PaymentService;
+
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -287,7 +293,55 @@ public class PaymentServiceImpl implements PaymentService {
                 .paymentId(payment.getId())
                 .status(payment.getStatus())
                 .bookingStatus(bookingStatus)
+                .bookingId(payment.getBookingId())
                 .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<PaymentHistoryResponse> getPaymentHistory(
+            UUID userId,
+            PaymentType paymentType,
+            PaymentStatus status,
+            Pageable pageable) {
+
+        Specification<Payment> spec = (root, query, cb) -> {
+            java.util.List<Predicate> predicates = new java.util.ArrayList<>();
+            predicates.add(cb.equal(root.get("userId"), userId));
+            if (paymentType != null)
+                predicates.add(cb.equal(root.get("paymentType"), paymentType));
+            if (status != null)
+                predicates.add(cb.equal(root.get("status"), status));
+            if (query != null)
+                query.orderBy(cb.desc(root.get("createdAt")));
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        return paymentRepository.findAll(spec, pageable)
+                .map(payment -> {
+                    String transactionName = "Giao dịch";
+                    if (payment.getPaymentType() == PaymentType.BOOKING && payment.getBookingId() != null) {
+                        transactionName = bookingRepository.findById(payment.getBookingId())
+                                .map(b -> "Buổi PT · "
+                                        + (b.getPt() != null ? b.getPt().getFullName() : "Huấn luyện viên"))
+                                .orElse("Buổi PT");
+                    } else if (payment.getPaymentType() == PaymentType.MEMBERSHIP
+                            && payment.getMembershipId() != null) {
+                        transactionName = membershipRepository.findById(payment.getMembershipId())
+                                .map(m -> "Gói " + m.getPlan().getName())
+                                .orElse("Gói hội viên");
+                    }
+
+                    return com.gymapp.modules.payment.dto.response.PaymentHistoryResponse.builder()
+                            .paymentId(payment.getId())
+                            .transactionName(transactionName)
+                            .provider(payment.getProvider())
+                            .paymentType(payment.getPaymentType())
+                            .status(payment.getStatus())
+                            .amount(payment.getAmount())
+                            .createdAt(payment.getCreatedAt())
+                            .build();
+                });
     }
 
     @Override

@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:2:1-26:12
-INJECTED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:2:1-26:12
-INJECTED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:2:1-26:12
-INJECTED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:2:1-26:12
+ADDED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:2:1-35:12
+INJECTED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:2:1-35:12
+INJECTED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:2:1-35:12
+INJECTED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:2:1-35:12
 MERGED from [androidx.hilt:hilt-navigation-compose:1.1.0] C:\Users\Admin\.gradle\caches\8.10.2\transforms\2110fba599ad741b156b5505359e79e9\transformed\hilt-navigation-compose-1.1.0\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.hilt:hilt-navigation:1.1.0] C:\Users\Admin\.gradle\caches\8.10.2\transforms\6abf904ce0acd12a9ff74b6cca428489\transformed\hilt-navigation-1.1.0\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.navigation:navigation-common:2.7.7] C:\Users\Admin\.gradle\caches\8.10.2\transforms\78530e1b916081215621440e3dc61c54\transformed\navigation-common-2.7.7\AndroidManifest.xml:17:1-22:12
@@ -91,8 +91,8 @@ ADDED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest
 	android:name
 		ADDED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:5:22-64
 application
-ADDED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:7:5-24:19
-INJECTED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:7:5-24:19
+ADDED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:7:5-33:19
+INJECTED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:7:5-33:19
 MERGED from [androidx.compose.ui:ui-tooling-android:1.6.3] C:\Users\Admin\.gradle\caches\8.10.2\transforms\bfc5ee1d21f3739912ca82091362955a\transformed\ui-tooling-release\AndroidManifest.xml:22:5-26:19
 MERGED from [androidx.compose.ui:ui-tooling-android:1.6.3] C:\Users\Admin\.gradle\caches\8.10.2\transforms\bfc5ee1d21f3739912ca82091362955a\transformed\ui-tooling-release\AndroidManifest.xml:22:5-26:19
 MERGED from [androidx.compose.ui:ui-test-manifest:1.6.3] C:\Users\Admin\.gradle\caches\8.10.2\transforms\859a15b7eea756643ee95118d6fe8a18\transformed\ui-test-manifest-1.6.3\AndroidManifest.xml:22:5-26:19
@@ -128,7 +128,7 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\Admin\.gradle\cach
 	android:name
 		ADDED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:8:9-39
 activity#com.gymapp.android.MainActivity
-ADDED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:15:9-23:20
+ADDED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:15:9-32:20
 	android:exported
 		ADDED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:17:13-36
 	android:theme
@@ -145,6 +145,28 @@ category#android.intent.category.LAUNCHER
 ADDED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:21:17-77
 	android:name
 		ADDED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:21:27-74
+intent-filter#action:name:android.intent.action.VIEW+category:name:android.intent.category.BROWSABLE+category:name:android.intent.category.DEFAULT+data:host:payment+data:pathPrefix:/result+data:scheme:gymapp
+ADDED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:25:13-31:29
+action#android.intent.action.VIEW
+ADDED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:26:17-69
+	android:name
+		ADDED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:26:25-66
+category#android.intent.category.DEFAULT
+ADDED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:27:17-76
+	android:name
+		ADDED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:27:27-73
+category#android.intent.category.BROWSABLE
+ADDED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:28:17-78
+	android:name
+		ADDED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:28:27-75
+data
+ADDED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:30:17-101
+	android:host
+		ADDED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:30:47-69
+	android:scheme
+		ADDED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:30:23-46
+	android:pathPrefix
+		ADDED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml:30:70-98
 uses-sdk
 INJECTED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from E:\github-tutorio-demo\LT_Mobile\android\app\src\main\AndroidManifest.xml

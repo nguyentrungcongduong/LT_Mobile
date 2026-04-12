@@ -87,13 +87,13 @@ public class BookingServiceImpl implements BookingService {
             throw new ConflictException("SLOT_ALREADY_BOOKED", "This slot is already booked");
         }
 
-        if (availability.getPtId().equals(userId)) {
+        // 3. Get PT Profile and Calculate Amounts
+        PtProfile ptProfile = ptProfileRepository.findById(request.getPtId())
+                .orElseThrow(() -> new ResourceNotFoundException("PT_NOT_FOUND", "PT Profile not found"));
+
+        if (ptProfile.getUser().getId().equals(userId)) {
             throw new BadRequestException("CANNOT_BOOK_OWN_SLOT", "You cannot book your own slot");
         }
-
-        // 3. Get PT Profile and Calculate Amounts
-        PtProfile ptProfile = ptProfileRepository.findByUserId(request.getPtId())
-                .orElseThrow(() -> new ResourceNotFoundException("PT_NOT_FOUND", "PT Profile not found"));
 
         BigDecimal totalAmount = ptProfile.getPricePerSession();
         BigDecimal platformFee = totalAmount.multiply(COMMISSION_RATE);
