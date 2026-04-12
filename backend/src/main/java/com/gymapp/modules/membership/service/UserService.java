@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.gymapp.common.exception.ResourceNotFoundException;
+import com.gymapp.modules.membership.dto.UpdateUserGoalRequest;
 import com.gymapp.modules.membership.dto.UserDto;
 import com.gymapp.modules.membership.dto.UserResponse;
 import com.gymapp.modules.membership.dto.UserUpdateDto;
@@ -92,7 +93,7 @@ public class UserService implements IUserService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        
+
         System.out.println("GetUser - Email: " + email + ", AvatarUrl: " + user.getAvatarUrl());
 
         return UserResponse.fromUser(user);
@@ -105,7 +106,8 @@ public class UserService implements IUserService {
         String email = auth.getName();
 
         System.out.println("updateCurrentUser - Email: " + email + ", DTO: " + dto);
-        System.out.println("DTO fullName: " + dto.getFullName() + ", phone: " + dto.getPhone() + ", avatarUrl: " + dto.getAvatarUrl());
+        System.out.println("DTO fullName: " + dto.getFullName() + ", phone: " + dto.getPhone() + ", avatarUrl: "
+                + dto.getAvatarUrl());
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -134,7 +136,8 @@ public class UserService implements IUserService {
         }
         // Lưu DB
         User updated = userRepository.save(user);
-        System.out.println("Saved user - fullName: " + updated.getFullName() + ", avatarUrl: " + updated.getAvatarUrl());
+        System.out
+                .println("Saved user - fullName: " + updated.getFullName() + ", avatarUrl: " + updated.getAvatarUrl());
 
         return UserResponse.fromUser(updated);
     }
@@ -153,7 +156,7 @@ public class UserService implements IUserService {
 
         try {
             System.out.println("Uploading avatar for user: " + user.getId());
-            
+
             // Upload file lên Cloudinary
             Map uploadResult = cloudinary.uploader().upload(file.getBytes(),
                     ObjectUtils.asMap(
@@ -174,5 +177,30 @@ public class UserService implements IUserService {
             System.err.println("Upload failed: " + e.getMessage());
             throw new RuntimeException("Failed to upload avatar", e);
         }
+    }
+
+    public User updateMyGoal(UpdateUserGoalRequest request) {
+        // Lấy thông tin user từ token
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Update nếu có dữ liệu
+        if (request.getExperienceLevel() != null) {
+            user.setExperienceLevel(request.getExperienceLevel());
+        }
+
+        if (request.getFitnessGoal() != null) {
+            user.setFitnessGoal(request.getFitnessGoal());
+        }
+
+        return userRepository.save(user);
     }
 }

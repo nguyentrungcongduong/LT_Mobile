@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -63,5 +64,11 @@ public class BookingController {
     private UUID getCurrentUserId() {
         return UUID.fromString(JwtUtil.getCurrentUserId()
                 .orElseThrow(() -> new UnauthorizedException("UNAUTHORIZED", "User not logged in")));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/alls")
+    public List<BookingResponse> getAllBookings() {
+        return bookingService.getAllBookings();
     }
 }

@@ -21,10 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.gymapp.common.response.ApiResponse;
+import com.gymapp.modules.membership.dto.UpdateUserGoalRequest;
 import com.gymapp.modules.membership.dto.UserDto;
 import com.gymapp.modules.membership.dto.UserResponse;
 import com.gymapp.modules.membership.dto.UserUpdateDto;
 import com.gymapp.modules.membership.service.Interface.IUserService;
+import com.gymapp.modules.user.entity.User;
 
 import jakarta.validation.Valid;
 import lombok.Builder;
@@ -82,11 +84,16 @@ public class UserController {
 
     @PostMapping(value = "/me/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<java.util.Map<String, String>> uploadAvatar(
-            @Parameter(description = "Avatar image file", required = true, content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE, schema = @Schema(type = "string", format = "binary")))
-            @RequestParam("file") MultipartFile file) {
+            @Parameter(description = "Avatar image file", required = true, content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE, schema = @Schema(type = "string", format = "binary"))) @RequestParam("file") MultipartFile file) {
         String url = userService.uploadAvatar(file); // dùng method service đã chỉnh sửa để chỉ update user hiện tại
         java.util.Map<String, String> data = new java.util.HashMap<>();
         data.put("avatar_url", url);
         return ApiResponse.ok(data, "Upload successful");
+    }
+
+    @PutMapping("/me/goal")
+    public UserResponse updateMyGoal(@RequestBody UpdateUserGoalRequest request) {
+        User user = userService.updateMyGoal(request);
+        return UserResponse.fromUser(user);
     }
 }

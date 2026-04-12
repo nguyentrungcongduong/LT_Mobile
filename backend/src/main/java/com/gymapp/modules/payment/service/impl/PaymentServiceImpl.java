@@ -17,8 +17,13 @@ import com.gymapp.modules.payment.constant.MoMoParams;
 import com.gymapp.modules.payment.constant.VNPayParams;
 import com.gymapp.modules.payment.constant.VnpayIpnResponseContant;
 import com.gymapp.modules.payment.dto.request.PaymentInitiateRequest;
+<<<<<<< HEAD
 import com.gymapp.modules.payment.dto.response.PaymentHistoryResponse;
+=======
+import com.gymapp.modules.payment.dto.request.PaymentMapper;
+>>>>>>> b473e1eb998fa6d2fd3c87d930a1dc8e3d6c7c4a
 import com.gymapp.modules.payment.dto.response.PaymentInitiateResponse;
+import com.gymapp.modules.payment.dto.response.PaymentResponse;
 import com.gymapp.modules.payment.dto.response.PaymentStatusResponse;
 import com.gymapp.modules.payment.entity.Payment;
 import com.gymapp.modules.payment.enums.PaymentProvider;
@@ -42,6 +47,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -377,4 +383,12 @@ public class PaymentServiceImpl implements PaymentService {
             return momoService;
         throw new BadRequestException("UNSUPPORTED_PROVIDER", "Provider " + provider + " is not supported");
     }
+
+    public List<PaymentResponse> getAllPayments() {
+        return paymentRepository.findAll()
+                .stream()
+                .map(PaymentMapper::toResponse)
+                .toList();
+    }
+
 }
