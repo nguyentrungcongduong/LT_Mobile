@@ -26,6 +26,7 @@ sealed class BottomNavRoute(val route: String, val title: String, val icon: andr
     object PTBooking : BottomNavRoute("booking", "Thuê PT", Icons.Default.Star)
     object Profile : BottomNavRoute("profile", "Cá nhân", Icons.Default.Person)
     object UserBookings : BottomNavRoute("user_bookings", "Lịch", Icons.Default.DateRange)
+    object PtSchedule : BottomNavRoute("pt_schedule", "Lịch dạy", Icons.Default.DateRange)
     object PtQueue : BottomNavRoute("pt_queue", "Lịch hẹn", Icons.Default.DateRange)
     object PtClients : BottomNavRoute("pt_clients", "Clients", Icons.Default.AddCircle) // Assuming Icons.Default.AddCircle as Group isn't imported
 }
@@ -64,7 +65,7 @@ fun MainScreen(
 
     val ptItems = listOf(
         BottomNavRoute.Dashboard,
-        BottomNavRoute.PtQueue,
+        BottomNavRoute.PtSchedule,
         BottomNavRoute.PtClients,
         BottomNavRoute.Profile
     )
@@ -444,6 +445,13 @@ fun MainScreen(
                     onNavigateToCancel = { route ->
                         navController.navigate(route)
                     }
+                )
+            }
+            composable(BottomNavRoute.PtSchedule.route) {
+                // Get the PT's user ID from MainViewModel
+                val ptId by mainViewModel.currentUserId.collectAsState()
+                com.gymapp.android.ui.screens.pt.PtScheduleManagementScreen(
+                    currentPtId = ptId ?: ""
                 )
             }
             composable(BottomNavRoute.PtQueue.route) {

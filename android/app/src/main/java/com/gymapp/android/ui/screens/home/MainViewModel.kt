@@ -25,6 +25,9 @@ class MainViewModel @Inject constructor(
     private val _userAvatar = MutableStateFlow<String?>(null)
     val userAvatar: StateFlow<String?> = _userAvatar.asStateFlow()
 
+    private val _currentUserId = MutableStateFlow<String?>(null)
+    val currentUserId: StateFlow<String?> = _currentUserId.asStateFlow()
+
     private val _adminStats = MutableStateFlow<com.gymapp.android.data.remote.api.AdminDashboardStatsDto?>(null)
     val adminStats: StateFlow<com.gymapp.android.data.remote.api.AdminDashboardStatsDto?> = _adminStats.asStateFlow()
 
@@ -39,6 +42,7 @@ class MainViewModel @Inject constructor(
             userRepository.getProfile().onSuccess { user ->
                 _userRole.value = user.role
                 _userAvatar.value = user.avatarUrl
+                _currentUserId.value = user.id
                 
                 val needFromServer =
                     user.experienceLevel == null ||

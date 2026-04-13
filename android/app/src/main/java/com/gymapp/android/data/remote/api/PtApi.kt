@@ -82,10 +82,21 @@ interface PtApi {
     suspend fun updatePtProfile(
         @Body request: PtProfileUpdateRequest
     ): Response<ApiResponse<Map<String, Any>>>
+
+    @POST("api/v1/pt/availability")
+    suspend fun createAvailability(
+        @Body request: CreateAvailabilityRequest
+    ): Response<ApiResponse<Map<String, Any>>>
 }
 
 data class PtProfileUpdateRequest(
     val pricePerSession: Long? = null,
     val bio: String? = null,
     val yearsExperience: Int? = null
+)
+
+data class CreateAvailabilityRequest(
+    @com.google.gson.annotations.SerializedName("available_date") val availableDate: String,
+    @com.google.gson.annotations.SerializedName("start_time") val startTime: String,
+    @com.google.gson.annotations.SerializedName("end_time") val endTime: String
 )
