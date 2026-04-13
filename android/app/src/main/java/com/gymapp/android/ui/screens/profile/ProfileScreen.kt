@@ -56,6 +56,7 @@ fun ProfileScreen(
 
     var showEditDialog by remember { mutableStateOf(false) }
     var showPasswordDialog by remember { mutableStateOf(false) }
+    var showPtProfileDialog by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(
@@ -409,6 +410,16 @@ fun ProfileScreen(
                                 )
                                 HorizontalDivider(color = DividerColor, thickness = 1.dp, modifier = Modifier.padding(horizontal = 16.dp))
 
+                                if (user.role == "PT") {
+                                    SettingRow(
+                                        icon = Icons.Default.AttachMoney,
+                                        title = "Cập nhật hồ sơ PT",
+                                        subtitle = "Giá/buổi, kinh nghiệm, bio",
+                                        onClick = { showPtProfileDialog = true }
+                                    )
+                                    HorizontalDivider(color = DividerColor, thickness = 1.dp, modifier = Modifier.padding(horizontal = 16.dp))
+                                }
+
                                 if (user.role == "USER") {
                                     SettingRow(
                                         icon = Icons.Default.List,
@@ -457,6 +468,28 @@ fun ProfileScreen(
                         }
 
                         Spacer(modifier = Modifier.height(32.dp))
+
+                        // PT Profile Dialog
+                        if (showPtProfileDialog) {
+                            UpdatePtProfileDialog(
+                                isUpdating = isUpdating,
+                                onDismiss = { showPtProfileDialog = false },
+                                onConfirm = { price, bio, exp ->
+                                    viewModel.updatePtProfile(
+                                        pricePerSession = price,
+                                        bio = bio,
+                                        yearsExperience = exp,
+                                        onSuccess = {
+                                            showPtProfileDialog = false
+                                            Toast.makeText(context, "Cập nhật thành công!", Toast.LENGTH_SHORT).show()
+                                        },
+                                        onError = { err ->
+                                            Toast.makeText(context, err, Toast.LENGTH_SHORT).show()
+                                        }
+                                    )
+                                }
+                            )
+                        }
 
                         // Edit Dialog
                         if (showEditDialog) {
@@ -751,6 +784,108 @@ fun ChangePasswordDialog(
                 onClick = { onConfirm(oldPassword, newPassword) },
                 colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange),
                 enabled = !isUpdating && oldPassword.isNotBlank() && newPassword.isNotBlank() && newPassword == confirmPassword
+            ) {
+                Text(if (isUpdating) "Đang lưu..." else "Lưu", color = Color.White)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Hủy", color = TextGray)
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun UpdatePtProfileDialog(
+    isUpdating: Boolean,
+    onDismiss: () -> Unit,
+    onConfirm: (Long?, String?, Int?) -> Unit
+) {
+    var priceText by remember { mutableStateOf("") }
+    var bio by remember { mutableStateOf("") }
+    var yearsExpText by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = CardBackground,
+        title = {
+            Text(
+                text = "Cập nhật hồ sơ PT",
+                color = TextDark,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = priceText,
+                    onValueChange = { priceText = it.filter { c -> c.isDigit() } },
+                    label = { Text("Giá/buổi (VNĐ)", color = TextGray) },
+                    singleLine = true,
+                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                        keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
+                    ),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = BgColor,
+                        unfocusedContainerColor = BgColor,
+                        focusedTextColor = TextDark,
+                        unfocusedTextColor = TextDark,
+                        focusedBorderColor = PrimaryOrange,
+                        unfocusedBorderColor = DividerColor
+                    ),
+                    placeholder = { Text("VD: 300000", color = TextGray) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                OutlinedTextField(
+                    value = yearsExpText,
+                    onValueChange = { yearsExpText = it.filter { c -> c.isDigit() } },
+                    label = { Text("Số năm kinh nghiệm", color = TextGray) },
+                    singleLine = true,
+                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                        keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
+                    ),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = BgColor,
+                        unfocusedContainerColor = BgColor,
+                        focusedTextColor = TextDark,
+                        unfocusedTextColor = TextDark,
+                        focusedBorderColor = PrimaryOrange,
+                        unfocusedBorderColor = DividerColor
+                    ),
+                    placeholder = { Text("VD: 3", color = TextGray) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                OutlinedTextField(
+                    value = bio,
+                    onValueChange = { bio = it },
+                    label = { Text("Giới thiệu bản thân", color = TextGray) },
+                    maxLines = 3,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = BgColor,
+                        unfocusedContainerColor = BgColor,
+                        focusedTextColor = TextDark,
+                        unfocusedTextColor = TextDark,
+                        focusedBorderColor = PrimaryOrange,
+                        unfocusedBorderColor = DividerColor
+                    ),
+                    placeholder = { Text("Mô tả kinh nghiệm, chuyên môn...", color = TextGray) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    val price = priceText.toLongOrNull()
+                    val exp = yearsExpText.toIntOrNull()
+                    onConfirm(price, bio.ifBlank { null }, exp)
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange),
+                enabled = !isUpdating && (priceText.isNotBlank() || bio.isNotBlank() || yearsExpText.isNotBlank())
             ) {
                 Text(if (isUpdating) "Đang lưu..." else "Lưu", color = Color.White)
             }

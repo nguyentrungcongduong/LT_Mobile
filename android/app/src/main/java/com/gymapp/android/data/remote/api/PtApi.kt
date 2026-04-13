@@ -5,6 +5,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -76,4 +77,15 @@ interface PtApi {
         @Path("pt_id") ptId: String,
         @Body request: Any // SuspendReq if needed, or empty map
     ): Response<ApiResponse<Map<String, Any>>>
+
+    @PUT("api/v1/pt/profile")
+    suspend fun updatePtProfile(
+        @Body request: PtProfileUpdateRequest
+    ): Response<ApiResponse<Map<String, Any>>>
 }
+
+data class PtProfileUpdateRequest(
+    val pricePerSession: Long? = null,
+    val bio: String? = null,
+    val yearsExperience: Int? = null
+)

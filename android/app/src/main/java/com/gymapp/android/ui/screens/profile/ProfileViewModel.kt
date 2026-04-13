@@ -3,8 +3,10 @@ package com.gymapp.android.ui.screens.profile
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gymapp.android.data.remote.api.PtProfileUpdateRequest
 import com.gymapp.android.domain.model.User
 import com.gymapp.android.domain.repository.UserRepository
+import com.gymapp.android.data.remote.api.PtApi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +23,8 @@ sealed class ProfileUiState {
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val ptApi: PtApi
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ProfileUiState>(ProfileUiState.Loading)
@@ -97,4 +100,35 @@ class ProfileViewModel @Inject constructor(
                 }
         }
     }
+
+    fun updatePtProfile(
+        pricePerSession: Long?,
+        bio: String?,
+        yearsExperience: Int?,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        _isUpdating.value = true
+        viewModelScope.launch {
+            try {
+                val response = ptApi.updatePtProfile(
+                    PtProfileUpdateRequest(
+                        pricePerSession = pricePerSession,
+                        bio = bio,
+                        yearsExperience = yearsExperience
+                    )
+                )
+                _isUpdating.value = false
+                if (response.isSuccessful) {
+                    onSuccess()
+                } else {
+                    onError("Cập nhật thất bại")
+                }
+            } catch (e: Exception) {
+                _isUpdating.value = false
+                onError(e.message ?: "Lỗi kết nối")
+            }
+        }
+    }
 }
+
