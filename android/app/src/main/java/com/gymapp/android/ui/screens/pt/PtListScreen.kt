@@ -19,6 +19,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
+import coil.request.ImageRequest
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.gymapp.android.data.remote.api.PtPublicDto
@@ -109,65 +112,104 @@ private fun PtCard(pt: PtPublicDto, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
-        shape = RoundedCornerShape(10.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = BgPrimary),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = androidx.compose.foundation.BorderStroke(0.5.dp, BorderTertiary)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp, pressedElevation = 0.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F0F0))
     ) {
         Row(
             modifier = Modifier
-                .padding(8.dp)
+                .padding(14.dp)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            // PT Avatar
+            // PT Avatar with Fallback and Smooth Request
             if (pt.avatarUrl.isNullOrBlank()) {
-                AvatarBubble(name = pt.fullName, modifier = Modifier.size(70.dp))
+                AvatarBubble(name = pt.fullName, modifier = Modifier.size(80.dp).clip(RoundedCornerShape(12.dp)))
             } else {
                 AsyncImage(
-                    model = pt.avatarUrl,
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(pt.avatarUrl)
+                        .crossfade(true)
+                        .build(),
                     contentDescription = pt.fullName,
                     modifier = Modifier
-                        .size(70.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .border(0.5.dp, BorderTertiary, RoundedCornerShape(8.dp)),
+                        .size(80.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .border(1.dp, Color(0xFFEEEEEE), RoundedCornerShape(12.dp)),
                     contentScale = ContentScale.Crop
                 )
             }
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(pt.fullName, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Tprimary)
-                Text(pt.specializations?.firstOrNull() ?: "Personal Trainer", fontSize = 14.sp, color = Tsecondary)
+                Text(
+                    pt.fullName, 
+                    fontSize = 17.sp, 
+                    fontWeight = FontWeight.Black, 
+                    color = Tprimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
                 
                 Spacer(Modifier.height(4.dp))
                 
+                // Chip Specialization
+                val specText = pt.specializations?.firstOrNull() ?: "Personal Trainer"
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = Color(0xFFE3F2FD),
+                    modifier = Modifier.padding(bottom = 6.dp)
+                ) {
+                    Text(
+                        text = specText,
+                        color = Color(0xFF1565C0),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                    )
+                }
+                
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Star, contentDescription = null, tint = AmberStar, modifier = Modifier.size(14.dp))
+                    Icon(Icons.Default.Star, contentDescription = null, tint = AmberStar, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(4.dp))
-                    Text("${pt.rating}", fontSize = 14.sp, fontWeight = FontWeight.W500, color = Tprimary)
+                    Text("${pt.rating}", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Tprimary)
                     Spacer(Modifier.width(4.dp))
-                    Text("(${pt.reviewCount})", fontSize = 12.sp, color = Tsecondary)
+                    Text("(${pt.reviewCount} đánh giá)", fontSize = 12.sp, color = Tsecondary)
                 }
             }
+        }
+        
+        HorizontalDivider(color = Color(0xFFF5F5F5), thickness = 1.dp)
 
-            Column(horizontalAlignment = Alignment.End) {
-                Text(
-                    "%,.0fđ".format(pt.price),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = BlueActive
-                )
-                Text("/buổi", fontSize = 12.sp, color = Tsecondary)
-                
-                Spacer(Modifier.height(8.dp))
-                
-                Box(
-                    modifier = Modifier
-                        .background(PinkPrimary, RoundedCornerShape(8.dp))
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
-                ) {
-                    Text("Đặt lịch", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFFFAFAFA))
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text("Giá ưu đãi", fontSize = 12.sp, color = Tsecondary)
+                Row(verticalAlignment = Alignment.Bottom) {
+                    Text(
+                        "%,.0fđ".format(pt.price),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = PinkPrimary
+                    )
+                    Text(" /buổi", fontSize = 13.sp, color = Tsecondary, modifier = Modifier.padding(bottom = 2.dp))
                 }
+            }
+            
+            Button(
+                onClick = onClick,
+                colors = ButtonDefaults.buttonColors(containerColor = PinkPrimary),
+                shape = RoundedCornerShape(10.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                modifier = Modifier.height(36.dp)
+            ) {
+                Text("Xem chi tiết", fontSize = 13.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
