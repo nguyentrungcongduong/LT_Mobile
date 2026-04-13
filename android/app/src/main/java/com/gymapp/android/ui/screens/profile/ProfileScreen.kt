@@ -225,34 +225,76 @@ fun ProfileScreen(
                         // Logic UI theo Role
                         if (user.role == "PT") {
                             // PT View
-                            Row(
+                            Card(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                shape = RoundedCornerShape(20.dp),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color.Transparent)
                             ) {
-                                StatCard(modifier = Modifier.weight(1f), value = "12", label = "Học viên", valueColor = TextDark)
-                                StatCard(modifier = Modifier.weight(1f), value = "4.9", label = "Đánh giá ⭐️", valueColor = PrimaryOrange)
-                                StatCard(modifier = Modifier.weight(1f), value = "150+", label = "Tiết dạy", valueColor = TextDark)
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(
+                                            brush = androidx.compose.ui.graphics.Brush.linearGradient(
+                                                colors = listOf(Color(0xFF1E1E1E), Color(0xFF2D2D2D))
+                                            )
+                                        )
+                                        .padding(20.dp)
+                                ) {
+                                    Column {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(Icons.Default.VerifiedUser, tint = Color(0xFFFFD700), contentDescription = null, modifier = Modifier.size(28.dp))
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text("Trainer Chuyên Nghiệp", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                                        }
+                                        Spacer(modifier = Modifier.height(16.dp))
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                                Text("150+", color = Color(0xFFFF5722), fontSize = 22.sp, fontWeight = FontWeight.ExtraBold)
+                                                Text("Giờ dạy", color = Color.LightGray, fontSize = 13.sp)
+                                            }
+                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                                Text("12", color = Color(0xFFFF5722), fontSize = 22.sp, fontWeight = FontWeight.ExtraBold)
+                                                Text("Học viên", color = Color.LightGray, fontSize = 13.sp)
+                                            }
+                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                    Text("4.9", color = Color(0xFFFF5722), fontSize = 22.sp, fontWeight = FontWeight.ExtraBold)
+                                                    Icon(Icons.Default.Star, tint = Color(0xFFFFD700), contentDescription = null, modifier = Modifier.size(20.dp).padding(start = 2.dp))
+                                                }
+                                                Text("Đánh giá", color = Color.LightGray, fontSize = 13.sp)
+                                            }
+                                        }
+                                    }
+                                }
                             }
                             
                             Spacer(modifier = Modifier.height(16.dp))
                             
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(CardBackground, RoundedCornerShape(16.dp))
-                                    .padding(16.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(containerColor = CardBackground)
                             ) {
-                                Box(
-                                    modifier = Modifier.size(44.dp).background(Color(0xFFE8F5E9), RoundedCornerShape(12.dp)),
-                                    contentAlignment = Alignment.Center
+                                Row(
+                                    modifier = Modifier.padding(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Icon(Icons.Default.VerifiedUser, contentDescription = null, tint = PrimaryGreen)
-                                }
-                                Spacer(modifier = Modifier.width(16.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(text = "Chuyên môn chính", color = TextGray, fontSize = 12.sp)
-                                    Text(text = "Bodybuilding & Fitness", color = TextDark, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                    Box(
+                                        modifier = Modifier.size(48.dp).background(Color(0xFFFFF3E0), CircleShape),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(Icons.Default.FitnessCenter, contentDescription = null, tint = PrimaryOrange)
+                                    }
+                                    Spacer(modifier = Modifier.width(16.dp))
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(text = "Chuyên môn chính", color = TextGray, fontSize = 13.sp)
+                                        Text(text = "Bodybuilding & Fitness", color = TextDark, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = TextGray)
                                 }
                             }
                         } else if (user.role == "ADMIN") {

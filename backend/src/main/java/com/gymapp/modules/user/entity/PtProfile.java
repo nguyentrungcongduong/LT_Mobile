@@ -56,6 +56,9 @@ public class PtProfile {
     @Column(name = "certificate_urls", columnDefinition = "text[]")
     private List<String> certificateUrls;
 
+    @Column(name = "cv_url")
+    private String cvUrl;
+
     @Column(name = "is_approved", nullable = false)
     @Builder.Default
     private boolean isApproved = false;

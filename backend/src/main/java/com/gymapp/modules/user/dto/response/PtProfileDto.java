@@ -24,6 +24,7 @@ public class PtProfileDto {
     private Integer totalReviews;
     private Integer yearsExperience;
     private List<String> certificateUrls;
+    private String cvUrl;
     private boolean isApproved;
     private OffsetDateTime approvedAt;
     private OffsetDateTime createdAt;

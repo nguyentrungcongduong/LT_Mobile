@@ -22,5 +22,6 @@ public class PtListDto {
     private BigDecimal ratingAvg;
     private Integer totalReviews;
     private Integer yearsExperience;
+    private String cvUrl;
     private boolean isApproved;
 }
