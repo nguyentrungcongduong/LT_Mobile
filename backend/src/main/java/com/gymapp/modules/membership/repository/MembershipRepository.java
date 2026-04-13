@@ -33,6 +33,15 @@ public interface MembershipRepository extends JpaRepository<Membership, UUID> {
     List<Membership> findActiveMembershipsByUserId(@Param("userId") UUID userId);
 
     /**
+     * New Method checkin
+     */
+    @Query("SELECT m FROM Membership m WHERE m.user.id = :userId AND m.status = :status")
+    List<Membership> findActiveMembershipsByUserIdAndStatus(
+            @Param("userId") UUID userId,
+            @Param("status") MembershipStatus status
+    );
+
+    /**
      * Tìm membership mới nhất của user (bất kể status)
      */
     @Query("SELECT m FROM Membership m WHERE m.user.id = :userId ORDER BY m.createdAt DESC")
