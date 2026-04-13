@@ -94,8 +94,23 @@ fun PaymentWebViewScreen(
                                 // Bắt tất cả các scheme không phải HTTP/HTTPS (ví dụ: momo://, vnpay://, intent://)
                                 if (!loadingUrl.startsWith("http://") && !loadingUrl.startsWith("https://")) {
                                     try {
-                                        val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(loadingUrl))
-                                        context.startActivity(intent)
+                                        if (loadingUrl.startsWith("intent://")) {
+                                            val intent = android.content.Intent.parseUri(loadingUrl, android.content.Intent.URI_INTENT_SCHEME)
+                                            val fallbackUrl = intent.getStringExtra("browser_fallback_url")
+                                            if (intent.resolveActivity(context.packageManager) != null) {
+                                                context.startActivity(intent)
+                                            } else if (fallbackUrl != null) {
+                                                view?.loadUrl(fallbackUrl)
+                                            } else {
+                                                val packageName = intent.`package`
+                                                if (packageName != null) {
+                                                    context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("market://details?id=$packageName")))
+                                                }
+                                            }
+                                        } else {
+                                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(loadingUrl))
+                                            context.startActivity(intent)
+                                        }
                                     } catch (e: Exception) {
                                         android.widget.Toast.makeText(context, "Không thể mở ứng dụng ngoài", android.widget.Toast.LENGTH_SHORT).show()
                                     }
