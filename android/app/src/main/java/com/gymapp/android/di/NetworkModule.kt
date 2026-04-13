@@ -3,6 +3,7 @@ package com.gymapp.android.di
 import com.gymapp.android.data.remote.AuthInterceptor
 import com.gymapp.android.data.remote.TokenAuthenticator
 import com.gymapp.android.data.remote.api.AuthApi
+import com.gymapp.android.data.remote.api.WorkoutApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,7 +20,7 @@ import javax.inject.Singleton
 object NetworkModule {
 
     // Thay thế bằng địa chỉ IP của máy thật hoặc 10.0.2.2 cho Android Emulator
-    private const val BASE_URL = "http://10.0.2.2:8080/"
+    private const val BASE_URL = "http://10.0.2.2:8082/"
 
     @Provides
     @Singleton
@@ -65,5 +66,11 @@ object NetworkModule {
     @Singleton
     fun provideUserApi(retrofit: Retrofit): com.gymapp.android.data.remote.api.UserApi {
         return retrofit.create(com.gymapp.android.data.remote.api.UserApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideWorkoutApi(retrofit: Retrofit): WorkoutApi {
+        return retrofit.create(WorkoutApi::class.java)
     }
 }

@@ -1,6 +1,8 @@
 package com.gymapp.android.data.remote.api
 
 import com.google.gson.annotations.SerializedName
+import com.gymapp.android.data.remote.dto.user.UpdateUserGoalRequest
+import com.gymapp.android.data.remote.response.UserResponse
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -34,4 +36,11 @@ interface UserApi {
     suspend fun uploadAvatar(
         @Part file: MultipartBody.Part
     ): Response<ApiResponse<UploadAvatarResponse>>
+
+    @PUT("/api/v1/users/me/goal")
+    suspend fun updateGoal(
+        @Body request: UpdateUserGoalRequest
+    ): Response<ApiResponse<UserResponse>>
 }
+
+
