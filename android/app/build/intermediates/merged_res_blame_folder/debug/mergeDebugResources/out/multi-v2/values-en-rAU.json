@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.gymapp.android.app-mergeDebugResources-60:/values-en-rAU/values-en-rAU.xml",
+            "outputFile": "com.gymapp.android.app-mergeDebugResources-61:/values-en-rAU/values-en-rAU.xml",
             "map": [
                 {
                     "source": "C:\\Users\\Administrator\\.gradle\\caches\\8.10.2\\transforms\\19f280088b103ae57aa7278e08822f8c\\transformed\\material3\\res\\values-en-rAU\\values-en-rAU.xml",

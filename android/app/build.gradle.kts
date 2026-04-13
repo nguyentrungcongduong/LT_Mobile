@@ -87,6 +87,10 @@ dependencies {
     // Coil Image Loading
     implementation("io.coil-kt:coil-compose:2.5.0")
 
+    // QR Code Scanner and Generator
+    implementation("com.google.zxing:core:3.5.3")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+
     // Google Maps
     implementation("com.google.maps.android:maps-compose:4.3.0")
     implementation("com.google.android.gms:play-services-maps:18.2.0")

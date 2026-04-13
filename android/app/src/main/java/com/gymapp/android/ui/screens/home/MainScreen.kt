@@ -38,6 +38,8 @@ fun MainScreen(
     onLogout: () -> Unit = {},
     onNavigateToGoal: () -> Unit = {},
     onNavigateToWorkout: () -> Unit = {},
+    onNavigateToQrDisplay: () -> Unit = {},
+    onNavigateToQrScan: () -> Unit = {},
     mainViewModel: MainViewModel = androidx.hilt.navigation.compose.hiltViewModel()
 ) {
     val navController = rememberNavController()
@@ -271,6 +273,14 @@ fun MainScreen(
                                 )
                             ) {
                                 Text("👥 Clients", fontSize = 14.sp)
+                            }
+                            Button(
+                                onClick = onNavigateToQrScan,
+                                modifier = Modifier.weight(1f).height(56.dp),
+                                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9C27B0))
+                            ) {
+                                Text("📷 Quét QR", fontSize = 14.sp)
                             }
                         }
 

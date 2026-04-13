@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
@@ -82,7 +83,18 @@ fun CreateScheduleScreen(navController: NavController) {
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        Text("Tạo lịch tập", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            IconButton(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier.padding(end = 8.dp)
+            ) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Trở lại")
+            }
+            Text("Tạo lịch tập", fontWeight = FontWeight.Bold, fontSize = 24.sp)
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 

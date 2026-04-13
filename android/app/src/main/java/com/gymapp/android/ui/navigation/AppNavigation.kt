@@ -19,6 +19,8 @@ import com.gymapp.android.ui.screens.training.WorkoutDetailScreenWrapper
 import com.gymapp.android.ui.screens.training.WorkoutHistoryScreen
 import com.gymapp.android.ui.screens.training.WorkoutMenuScreen
 import com.gymapp.android.ui.screens.training.WorkoutScreen
+import com.gymapp.android.ui.screens.checkin.QrDisplayScreen
+import com.gymapp.android.ui.screens.checkin.QrScanScreen
 import kotlinx.coroutines.flow.collectLatest
 
 sealed class Route(val route: String) {
@@ -108,9 +110,16 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
                         onNavigateToGoal = {
                     navController.navigate(Route.Goal.route)
                 },
-                onNavigateToWorkout = { navController.navigate(Route.WorkoutList.route) }
-
+                onNavigateToWorkout = { navController.navigate(Route.WorkoutList.route) },
+                onNavigateToQrDisplay = { navController.navigate("qr_display") },
+                onNavigateToQrScan = { navController.navigate("qr_scan") }
             )
+        }
+        composable("qr_display") {
+            QrDisplayScreen(onNavigateBack = { navController.popBackStack() })
+        }
+        composable("qr_scan") {
+            QrScanScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable(Route.WorkoutList.route) {
             WorkoutScreen(navController)
@@ -152,6 +161,9 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
                     navController.navigate("membership_packages") {
                         popUpTo("active_membership") { inclusive = true }
                     }
+                },
+                onNavigateToQrDisplay = {
+                    navController.navigate("qr_display")
                 }
             )
         }

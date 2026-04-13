@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.gymapp.android.app-mergeDebugResources-60:/values-zh-rTW/values-zh-rTW.xml",
+            "outputFile": "com.gymapp.android.app-mergeDebugResources-61:/values-zh-rTW/values-zh-rTW.xml",
             "map": [
                 {
                     "source": "C:\\Users\\Administrator\\.gradle\\caches\\8.10.2\\transforms\\9e9ad70ec31b6923b7354bf6fa293a5d\\transformed\\play-services-basement-18.0.0\\res\\values-zh-rTW\\values.xml",
@@ -35,6 +35,23 @@
                         "startOffsets": "105,10756,10839",
                         "endColumns": "99,82,78",
                         "endOffsets": "200,10834,10913"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Administrator\\.gradle\\caches\\8.10.2\\transforms\\0b882f6ce94ec06bcced4792857f225e\\transformed\\zxing-android-embedded-4.3.0\\res\\values-zh-rTW\\values-zh-rTW.xml",
+                    "from": {
+                        "startLines": "2,3,4,5",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,104,151,244",
+                        "endColumns": "48,46,92,69",
+                        "endOffsets": "99,146,239,309"
+                    },
+                    "to": {
+                        "startLines": "117,118,119,120",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "10918,10967,11014,11107",
+                        "endColumns": "48,46,92,69",
+                        "endOffsets": "10962,11009,11102,11172"
                     }
                 },
                 {

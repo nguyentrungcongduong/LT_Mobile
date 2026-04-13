@@ -27,7 +27,8 @@ import com.gymapp.android.ui.screens.membership.viewmodel.MembershipDetailViewMo
 fun ActiveMembershipScreen(
     viewModel: MembershipDetailViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit,
-    onNavigateToPackages: () -> Unit
+    onNavigateToPackages: () -> Unit,
+    onNavigateToQrDisplay: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -92,7 +93,7 @@ fun ActiveMembershipScreen(
                         
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                             OutlinedButton(
-                                onClick = { viewModel.onEvent(MembershipDetailEvent.OnShowQrClicked) },
+                                onClick = onNavigateToQrDisplay,
                                 modifier = Modifier.weight(1f),
                                 shape = RoundedCornerShape(8.dp),
                                 border = BorderStroke(1.dp, Color(0xFFE0E0E0)),

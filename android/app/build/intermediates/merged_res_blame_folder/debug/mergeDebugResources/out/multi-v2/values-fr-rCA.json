@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.gymapp.android.app-mergeDebugResources-60:/values-fr-rCA/values-fr-rCA.xml",
+            "outputFile": "com.gymapp.android.app-mergeDebugResources-61:/values-fr-rCA/values-fr-rCA.xml",
             "map": [
                 {
                     "source": "C:\\Users\\Administrator\\.gradle\\caches\\8.10.2\\transforms\\1f96cd851d45041c44e7af397efa54cb\\transformed\\core-1.16.0\\res\\values-fr-rCA\\values-fr-rCA.xml",

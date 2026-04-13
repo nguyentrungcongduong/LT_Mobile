@@ -1,8 +1,25 @@
 {
     "logs": [
         {
-            "outputFile": "com.gymapp.android.app-mergeDebugResources-60:/values-iw/values-iw.xml",
+            "outputFile": "com.gymapp.android.app-mergeDebugResources-61:/values-iw/values-iw.xml",
             "map": [
+                {
+                    "source": "C:\\Users\\Administrator\\.gradle\\caches\\8.10.2\\transforms\\0b882f6ce94ec06bcced4792857f225e\\transformed\\zxing-android-embedded-4.3.0\\res\\values-iw\\values-iw.xml",
+                    "from": {
+                        "startLines": "2,3,4,5",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,111,161,296",
+                        "endColumns": "55,49,134,89",
+                        "endOffsets": "106,156,291,381"
+                    },
+                    "to": {
+                        "startLines": "117,118,119,120",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "11979,12035,12085,12220",
+                        "endColumns": "55,49,134,89",
+                        "endOffsets": "12030,12080,12215,12305"
+                    }
+                },
                 {
                     "source": "C:\\Users\\Administrator\\.gradle\\caches\\8.10.2\\transforms\\d9c070ab25f385856fc44248eb0b2c85\\transformed\\ui\\res\\values-iw\\values-iw.xml",
                     "from": {

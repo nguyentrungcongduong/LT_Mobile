@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.gymapp.android.app-mergeDebugResources-60:/values-vi/values-vi.xml",
+            "outputFile": "com.gymapp.android.app-mergeDebugResources-61:/values-vi/values-vi.xml",
             "map": [
                 {
                     "source": "C:\\Users\\Administrator\\.gradle\\caches\\8.10.2\\transforms\\d9c070ab25f385856fc44248eb0b2c85\\transformed\\ui\\res\\values-vi\\values-vi.xml",

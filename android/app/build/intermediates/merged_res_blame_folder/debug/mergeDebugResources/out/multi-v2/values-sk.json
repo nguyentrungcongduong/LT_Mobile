@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.gymapp.android.app-mergeDebugResources-60:/values-sk/values-sk.xml",
+            "outputFile": "com.gymapp.android.app-mergeDebugResources-61:/values-sk/values-sk.xml",
             "map": [
                 {
                     "source": "C:\\Users\\Administrator\\.gradle\\caches\\8.10.2\\transforms\\004c031938ba56e5addf40b9a7d4f828\\transformed\\play-services-base-18.0.1\\res\\values-sk\\values.xml",
@@ -18,6 +18,23 @@
                         "startOffsets": "1243,1349,1509,1633,1743,1899,2027,2140,2381,2550,2661,2831,2961,3124,3288,3356,3423",
                         "endColumns": "105,159,123,109,155,127,112,101,168,110,169,129,162,163,67,66,86",
                         "endOffsets": "1344,1504,1628,1738,1894,2022,2135,2237,2545,2656,2826,2956,3119,3283,3351,3418,3505"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Administrator\\.gradle\\caches\\8.10.2\\transforms\\0b882f6ce94ec06bcced4792857f225e\\transformed\\zxing-android-embedded-4.3.0\\res\\values-sk\\values-sk.xml",
+                    "from": {
+                        "startLines": "2,3,4,5",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,114,161,315",
+                        "endColumns": "58,46,153,120",
+                        "endOffsets": "109,156,310,431"
+                    },
+                    "to": {
+                        "startLines": "117,118,119,120",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "12441,12500,12547,12701",
+                        "endColumns": "58,46,153,120",
+                        "endOffsets": "12495,12542,12696,12817"
                     }
                 },
                 {

@@ -11,286 +11,341 @@
 11    <uses-permission android:name="android.permission.INTERNET" />
 11-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:5:5-67
 11-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:5:22-64
-12
-13    <!-- Include required permissions for Google Maps API to run. -->
-14    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-14-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c8af639d68d79709fa9c316a205150be\transformed\play-services-maps-18.2.0\AndroidManifest.xml:23:5-79
-14-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c8af639d68d79709fa9c316a205150be\transformed\play-services-maps-18.2.0\AndroidManifest.xml:23:22-76
-15
-16    <uses-feature
-16-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c8af639d68d79709fa9c316a205150be\transformed\play-services-maps-18.2.0\AndroidManifest.xml:26:5-28:35
-17        android:glEsVersion="0x00020000"
-17-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c8af639d68d79709fa9c316a205150be\transformed\play-services-maps-18.2.0\AndroidManifest.xml:27:9-41
-18        android:required="true" />
-18-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c8af639d68d79709fa9c316a205150be\transformed\play-services-maps-18.2.0\AndroidManifest.xml:28:9-32
-19
-20    <queries>
-20-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c8af639d68d79709fa9c316a205150be\transformed\play-services-maps-18.2.0\AndroidManifest.xml:30:5-34:15
-21
-22        <!-- Needs to be explicitly declared on Android R+ -->
-23        <package android:name="com.google.android.apps.maps" />
-23-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c8af639d68d79709fa9c316a205150be\transformed\play-services-maps-18.2.0\AndroidManifest.xml:33:9-64
-23-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c8af639d68d79709fa9c316a205150be\transformed\play-services-maps-18.2.0\AndroidManifest.xml:33:18-61
-24        <package android:name="androidx.test.orchestrator" />
-24-->[androidx.test:runner:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\2791a137090456a5723cf331db18837f\transformed\runner-1.5.0\AndroidManifest.xml:25:9-62
-24-->[androidx.test:runner:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\2791a137090456a5723cf331db18837f\transformed\runner-1.5.0\AndroidManifest.xml:25:18-59
-25        <package android:name="androidx.test.services" />
-25-->[androidx.test:runner:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\2791a137090456a5723cf331db18837f\transformed\runner-1.5.0\AndroidManifest.xml:26:9-58
-25-->[androidx.test:runner:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\2791a137090456a5723cf331db18837f\transformed\runner-1.5.0\AndroidManifest.xml:26:18-55
-26        <package android:name="com.google.android.apps.common.testing.services" />
-26-->[androidx.test:runner:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\2791a137090456a5723cf331db18837f\transformed\runner-1.5.0\AndroidManifest.xml:27:9-83
-26-->[androidx.test:runner:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\2791a137090456a5723cf331db18837f\transformed\runner-1.5.0\AndroidManifest.xml:27:18-80
-27    </queries>
-28
-29    <permission
-29-->[androidx.core:core:1.16.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\1f96cd851d45041c44e7af397efa54cb\transformed\core-1.16.0\AndroidManifest.xml:22:5-24:47
-30        android:name="com.gymapp.android.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
-30-->[androidx.core:core:1.16.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\1f96cd851d45041c44e7af397efa54cb\transformed\core-1.16.0\AndroidManifest.xml:23:9-81
-31        android:protectionLevel="signature" />
-31-->[androidx.core:core:1.16.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\1f96cd851d45041c44e7af397efa54cb\transformed\core-1.16.0\AndroidManifest.xml:24:9-44
-32
-33    <uses-permission android:name="com.gymapp.android.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
-33-->[androidx.core:core:1.16.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\1f96cd851d45041c44e7af397efa54cb\transformed\core-1.16.0\AndroidManifest.xml:26:5-97
-33-->[androidx.core:core:1.16.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\1f96cd851d45041c44e7af397efa54cb\transformed\core-1.16.0\AndroidManifest.xml:26:22-94
-34    <uses-permission android:name="android.permission.REORDER_TASKS" />
-34-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:24:5-72
-34-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:24:22-69
-35
-36    <application
-36-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:7:5-38:19
-37        android:name="com.gymapp.android.GymApplication"
-37-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:8:9-39
-38        android:allowBackup="true"
-38-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:9:9-35
-39        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-39-->[androidx.core:core:1.16.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\1f96cd851d45041c44e7af397efa54cb\transformed\core-1.16.0\AndroidManifest.xml:28:18-86
-40        android:debuggable="true"
-41        android:extractNativeLibs="false"
-42        android:label="@string/app_name"
-42-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:10:9-41
-43        android:supportsRtl="true"
-43-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:11:9-35
-44        android:testOnly="true"
-45        android:theme="@style/Theme.GymApp"
-45-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:12:9-44
-46        android:usesCleartextTraffic="true" >
-46-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:13:9-44
-47        <meta-data
-47-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:16:9-18:71
-48            android:name="com.google.android.geo.API_KEY"
-48-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:17:13-58
-49            android:value="AIzaSyDhto5Ivs70eR_4ValuGdsg-UYNQ95AD6M" />
-49-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:18:13-68
-50
-51        <activity
-51-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:20:9-37:20
-52            android:name="com.gymapp.android.MainActivity"
-52-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:21:13-41
-53            android:exported="true"
-53-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:22:13-36
-54            android:theme="@style/Theme.GymApp" >
-54-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:23:13-48
-55            <intent-filter>
-55-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:24:13-27:29
-56                <action android:name="android.intent.action.MAIN" />
-56-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:25:17-69
-56-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:25:25-66
-57
-58                <category android:name="android.intent.category.LAUNCHER" />
-58-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:26:17-77
-58-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:26:27-74
-59            </intent-filter>
-60
-61            <!-- Deep link handler for payment redirect -->
-62            <intent-filter>
-62-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:30:13-36:29
-63                <action android:name="android.intent.action.VIEW" />
-63-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:31:17-69
-63-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:31:25-66
-64
-65                <category android:name="android.intent.category.DEFAULT" />
-65-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:32:17-76
-65-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:32:27-73
-66                <category android:name="android.intent.category.BROWSABLE" />
-66-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:33:17-78
-66-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:33:27-75
-67                <!-- Matches gymapp://payment/result -->
-68                <data
-68-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:35:17-101
-69                    android:host="payment"
-69-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:35:47-69
-70                    android:pathPrefix="/result"
-70-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:35:70-98
-71                    android:scheme="gymapp" />
-71-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:35:23-46
-72            </intent-filter>
-73        </activity>
-74        <!-- Needs to be explicitly declared on P+ -->
-75        <uses-library
-75-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c8af639d68d79709fa9c316a205150be\transformed\play-services-maps-18.2.0\AndroidManifest.xml:39:9-41:40
-76            android:name="org.apache.http.legacy"
-76-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c8af639d68d79709fa9c316a205150be\transformed\play-services-maps-18.2.0\AndroidManifest.xml:40:13-50
-77            android:required="false" />
-77-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c8af639d68d79709fa9c316a205150be\transformed\play-services-maps-18.2.0\AndroidManifest.xml:41:13-37
-78
-79        <activity
-79-->[com.google.android.gms:play-services-base:18.0.1] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\004c031938ba56e5addf40b9a7d4f828\transformed\play-services-base-18.0.1\AndroidManifest.xml:20:9-22:45
-80            android:name="com.google.android.gms.common.api.GoogleApiActivity"
-80-->[com.google.android.gms:play-services-base:18.0.1] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\004c031938ba56e5addf40b9a7d4f828\transformed\play-services-base-18.0.1\AndroidManifest.xml:20:19-85
-81            android:exported="false"
-81-->[com.google.android.gms:play-services-base:18.0.1] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\004c031938ba56e5addf40b9a7d4f828\transformed\play-services-base-18.0.1\AndroidManifest.xml:22:19-43
-82            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-82-->[com.google.android.gms:play-services-base:18.0.1] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\004c031938ba56e5addf40b9a7d4f828\transformed\play-services-base-18.0.1\AndroidManifest.xml:21:19-78
-83
-84        <meta-data
-84-->[com.google.android.gms:play-services-basement:18.0.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\9e9ad70ec31b6923b7354bf6fa293a5d\transformed\play-services-basement-18.0.0\AndroidManifest.xml:21:9-23:69
-85            android:name="com.google.android.gms.version"
-85-->[com.google.android.gms:play-services-basement:18.0.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\9e9ad70ec31b6923b7354bf6fa293a5d\transformed\play-services-basement-18.0.0\AndroidManifest.xml:22:13-58
-86            android:value="@integer/google_play_services_version" />
-86-->[com.google.android.gms:play-services-basement:18.0.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\9e9ad70ec31b6923b7354bf6fa293a5d\transformed\play-services-basement-18.0.0\AndroidManifest.xml:23:13-66
-87
-88        <activity
-88-->[androidx.compose.ui:ui-tooling-android:1.10.6] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c4fae7fca82c1af84e82b1ff4787b9de\transformed\ui-tooling\AndroidManifest.xml:23:9-25:39
-89            android:name="androidx.compose.ui.tooling.PreviewActivity"
-89-->[androidx.compose.ui:ui-tooling-android:1.10.6] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c4fae7fca82c1af84e82b1ff4787b9de\transformed\ui-tooling\AndroidManifest.xml:24:13-71
-90            android:exported="true" />
-90-->[androidx.compose.ui:ui-tooling-android:1.10.6] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c4fae7fca82c1af84e82b1ff4787b9de\transformed\ui-tooling\AndroidManifest.xml:25:13-36
-91
-92        <provider
-92-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\bc968e7e79f565ed7ea9635879ea3c6b\transformed\emoji2-1.4.0\AndroidManifest.xml:24:9-32:20
-93            android:name="androidx.startup.InitializationProvider"
-93-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\bc968e7e79f565ed7ea9635879ea3c6b\transformed\emoji2-1.4.0\AndroidManifest.xml:25:13-67
-94            android:authorities="com.gymapp.android.androidx-startup"
-94-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\bc968e7e79f565ed7ea9635879ea3c6b\transformed\emoji2-1.4.0\AndroidManifest.xml:26:13-68
-95            android:exported="false" >
-95-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\bc968e7e79f565ed7ea9635879ea3c6b\transformed\emoji2-1.4.0\AndroidManifest.xml:27:13-37
-96            <meta-data
-96-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\bc968e7e79f565ed7ea9635879ea3c6b\transformed\emoji2-1.4.0\AndroidManifest.xml:29:13-31:52
-97                android:name="androidx.emoji2.text.EmojiCompatInitializer"
-97-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\bc968e7e79f565ed7ea9635879ea3c6b\transformed\emoji2-1.4.0\AndroidManifest.xml:30:17-75
-98                android:value="androidx.startup" />
-98-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\bc968e7e79f565ed7ea9635879ea3c6b\transformed\emoji2-1.4.0\AndroidManifest.xml:31:17-49
-99            <meta-data
-99-->[androidx.lifecycle:lifecycle-process:2.9.4] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\a56ce50ef2deae75a59c04ed9201d3e3\transformed\lifecycle-process-2.9.4\AndroidManifest.xml:29:13-31:52
-100                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-100-->[androidx.lifecycle:lifecycle-process:2.9.4] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\a56ce50ef2deae75a59c04ed9201d3e3\transformed\lifecycle-process-2.9.4\AndroidManifest.xml:30:17-78
-101                android:value="androidx.startup" />
-101-->[androidx.lifecycle:lifecycle-process:2.9.4] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\a56ce50ef2deae75a59c04ed9201d3e3\transformed\lifecycle-process-2.9.4\AndroidManifest.xml:31:17-49
-102            <meta-data
-102-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:29:13-31:52
-103                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
-103-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:30:17-85
-104                android:value="androidx.startup" />
-104-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:31:17-49
-105        </provider>
-106
-107        <uses-library
-107-->[androidx.window:window:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\22503e699668f8dcef88c775a19f72c4\transformed\window-1.5.0\AndroidManifest.xml:23:9-25:40
-108            android:name="androidx.window.extensions"
-108-->[androidx.window:window:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\22503e699668f8dcef88c775a19f72c4\transformed\window-1.5.0\AndroidManifest.xml:24:13-54
-109            android:required="false" />
-109-->[androidx.window:window:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\22503e699668f8dcef88c775a19f72c4\transformed\window-1.5.0\AndroidManifest.xml:25:13-37
-110        <uses-library
-110-->[androidx.window:window:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\22503e699668f8dcef88c775a19f72c4\transformed\window-1.5.0\AndroidManifest.xml:26:9-28:40
-111            android:name="androidx.window.sidecar"
-111-->[androidx.window:window:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\22503e699668f8dcef88c775a19f72c4\transformed\window-1.5.0\AndroidManifest.xml:27:13-51
-112            android:required="false" />
-112-->[androidx.window:window:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\22503e699668f8dcef88c775a19f72c4\transformed\window-1.5.0\AndroidManifest.xml:28:13-37
-113
-114        <activity
-114-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:27:9-34:20
-115            android:name="androidx.test.core.app.InstrumentationActivityInvoker$BootstrapActivity"
-115-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:28:13-99
-116            android:exported="true"
-116-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:29:13-36
-117            android:theme="@style/WhiteBackgroundTheme" >
-117-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:30:13-56
-118            <intent-filter android:priority="-100" >
-118-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:31:13-33:29
-118-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:31:28-51
-119                <category android:name="android.intent.category.LAUNCHER" />
-119-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:26:17-77
-119-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:26:27-74
-120            </intent-filter>
-121        </activity>
-122        <activity
-122-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:35:9-42:20
-123            android:name="androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity"
-123-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:36:13-95
-124            android:exported="true"
-124-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:37:13-36
-125            android:theme="@style/WhiteBackgroundTheme" >
-125-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:38:13-56
-126            <intent-filter android:priority="-100" >
-126-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:31:13-33:29
-126-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:31:28-51
-127                <category android:name="android.intent.category.LAUNCHER" />
-127-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:26:17-77
-127-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:26:27-74
-128            </intent-filter>
-129        </activity>
-130        <activity
-130-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:43:9-50:20
-131            android:name="androidx.test.core.app.InstrumentationActivityInvoker$EmptyFloatingActivity"
-131-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:44:13-103
-132            android:exported="true"
-132-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:45:13-36
-133            android:theme="@style/WhiteBackgroundDialogTheme" >
-133-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:46:13-62
-134            <intent-filter android:priority="-100" >
-134-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:31:13-33:29
-134-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:31:28-51
-135                <category android:name="android.intent.category.LAUNCHER" />
-135-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:26:17-77
-135-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:26:27-74
-136            </intent-filter>
-137        </activity>
-138        <activity
-138-->[androidx.compose.ui:ui-test-manifest:1.10.6] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\a6eecfee271921d83c63e2310e481b25\transformed\ui-test-manifest-1.10.6\AndroidManifest.xml:23:9-26:79
-139            android:name="androidx.activity.ComponentActivity"
-139-->[androidx.compose.ui:ui-test-manifest:1.10.6] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\a6eecfee271921d83c63e2310e481b25\transformed\ui-test-manifest-1.10.6\AndroidManifest.xml:24:13-63
-140            android:exported="true"
-140-->[androidx.compose.ui:ui-test-manifest:1.10.6] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\a6eecfee271921d83c63e2310e481b25\transformed\ui-test-manifest-1.10.6\AndroidManifest.xml:25:13-36
-141            android:theme="@android:style/Theme.Material.Light.NoActionBar" />
-141-->[androidx.compose.ui:ui-test-manifest:1.10.6] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\a6eecfee271921d83c63e2310e481b25\transformed\ui-test-manifest-1.10.6\AndroidManifest.xml:26:13-76
-142
-143        <receiver
-143-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:34:9-52:20
-144            android:name="androidx.profileinstaller.ProfileInstallReceiver"
-144-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:35:13-76
-145            android:directBootAware="false"
-145-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:36:13-44
-146            android:enabled="true"
-146-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:37:13-35
-147            android:exported="true"
-147-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:38:13-36
-148            android:permission="android.permission.DUMP" >
-148-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:39:13-57
-149            <intent-filter>
-149-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:40:13-42:29
-150                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
-150-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:41:17-91
-150-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:41:25-88
-151            </intent-filter>
-152            <intent-filter>
-152-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:43:13-45:29
-153                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
-153-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:44:17-85
-153-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:44:25-82
-154            </intent-filter>
-155            <intent-filter>
-155-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:46:13-48:29
-156                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
-156-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:47:17-88
-156-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:47:25-85
-157            </intent-filter>
-158            <intent-filter>
-158-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:49:13-51:29
-159                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
-159-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:50:17-95
-159-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:50:25-92
-160            </intent-filter>
-161        </receiver>
-162    </application>
-163
-164</manifest>
+12    <uses-permission android:name="android.permission.CAMERA" />
+12-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:6:5-65
+12-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:6:22-62
+13
+14    <!-- Include required permissions for Google Maps API to run. -->
+15    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+15-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c8af639d68d79709fa9c316a205150be\transformed\play-services-maps-18.2.0\AndroidManifest.xml:23:5-79
+15-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c8af639d68d79709fa9c316a205150be\transformed\play-services-maps-18.2.0\AndroidManifest.xml:23:22-76
+16
+17    <uses-feature
+17-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c8af639d68d79709fa9c316a205150be\transformed\play-services-maps-18.2.0\AndroidManifest.xml:26:5-28:35
+18        android:glEsVersion="0x00020000"
+18-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c8af639d68d79709fa9c316a205150be\transformed\play-services-maps-18.2.0\AndroidManifest.xml:27:9-41
+19        android:required="true" />
+19-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c8af639d68d79709fa9c316a205150be\transformed\play-services-maps-18.2.0\AndroidManifest.xml:28:9-32
+20
+21    <queries>
+21-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c8af639d68d79709fa9c316a205150be\transformed\play-services-maps-18.2.0\AndroidManifest.xml:30:5-34:15
+22
+23        <!-- Needs to be explicitly declared on Android R+ -->
+24        <package android:name="com.google.android.apps.maps" />
+24-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c8af639d68d79709fa9c316a205150be\transformed\play-services-maps-18.2.0\AndroidManifest.xml:33:9-64
+24-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c8af639d68d79709fa9c316a205150be\transformed\play-services-maps-18.2.0\AndroidManifest.xml:33:18-61
+25        <package android:name="androidx.test.orchestrator" />
+25-->[androidx.test:runner:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\2791a137090456a5723cf331db18837f\transformed\runner-1.5.0\AndroidManifest.xml:25:9-62
+25-->[androidx.test:runner:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\2791a137090456a5723cf331db18837f\transformed\runner-1.5.0\AndroidManifest.xml:25:18-59
+26        <package android:name="androidx.test.services" />
+26-->[androidx.test:runner:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\2791a137090456a5723cf331db18837f\transformed\runner-1.5.0\AndroidManifest.xml:26:9-58
+26-->[androidx.test:runner:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\2791a137090456a5723cf331db18837f\transformed\runner-1.5.0\AndroidManifest.xml:26:18-55
+27        <package android:name="com.google.android.apps.common.testing.services" />
+27-->[androidx.test:runner:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\2791a137090456a5723cf331db18837f\transformed\runner-1.5.0\AndroidManifest.xml:27:9-83
+27-->[androidx.test:runner:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\2791a137090456a5723cf331db18837f\transformed\runner-1.5.0\AndroidManifest.xml:27:18-80
+28    </queries>
+29
+30    <permission
+30-->[androidx.core:core:1.16.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\1f96cd851d45041c44e7af397efa54cb\transformed\core-1.16.0\AndroidManifest.xml:22:5-24:47
+31        android:name="com.gymapp.android.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+31-->[androidx.core:core:1.16.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\1f96cd851d45041c44e7af397efa54cb\transformed\core-1.16.0\AndroidManifest.xml:23:9-81
+32        android:protectionLevel="signature" />
+32-->[androidx.core:core:1.16.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\1f96cd851d45041c44e7af397efa54cb\transformed\core-1.16.0\AndroidManifest.xml:24:9-44
+33
+34    <uses-permission android:name="com.gymapp.android.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+34-->[androidx.core:core:1.16.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\1f96cd851d45041c44e7af397efa54cb\transformed\core-1.16.0\AndroidManifest.xml:26:5-97
+34-->[androidx.core:core:1.16.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\1f96cd851d45041c44e7af397efa54cb\transformed\core-1.16.0\AndroidManifest.xml:26:22-94
+35    <uses-permission android:name="android.permission.REORDER_TASKS" /> <!-- Don't require camera, as this requires a rear camera. This allows it to work on the Nexus 7 -->
+35-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:24:5-72
+35-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:24:22-69
+36    <uses-feature
+36-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:25:5-27:36
+37        android:name="android.hardware.camera"
+37-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:26:9-47
+38        android:required="false" />
+38-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:27:9-33
+39    <uses-feature
+39-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:28:5-30:36
+40        android:name="android.hardware.camera.front"
+40-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:29:9-53
+41        android:required="false" /> <!-- TODO replace above two with next line after Android 4.2 -->
+41-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:30:9-33
+42    <!-- <uses-feature android:name="android.hardware.camera.any"/> -->
+43    <uses-feature
+43-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:33:5-35:36
+44        android:name="android.hardware.camera.autofocus"
+44-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:34:9-57
+45        android:required="false" />
+45-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:35:9-33
+46    <uses-feature
+46-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:36:5-38:36
+47        android:name="android.hardware.camera.flash"
+47-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:37:9-53
+48        android:required="false" />
+48-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:38:9-33
+49    <uses-feature
+49-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:39:5-41:36
+50        android:name="android.hardware.screen.landscape"
+50-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:40:9-57
+51        android:required="false" />
+51-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:41:9-33
+52    <uses-feature
+52-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:42:5-44:36
+53        android:name="android.hardware.wifi"
+53-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:43:9-45
+54        android:required="false" />
+54-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:44:9-33
+55
+56    <application
+56-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:8:5-39:19
+57        android:name="com.gymapp.android.GymApplication"
+57-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:9:9-39
+58        android:allowBackup="true"
+58-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:10:9-35
+59        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+59-->[androidx.core:core:1.16.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\1f96cd851d45041c44e7af397efa54cb\transformed\core-1.16.0\AndroidManifest.xml:28:18-86
+60        android:debuggable="true"
+61        android:extractNativeLibs="false"
+62        android:label="@string/app_name"
+62-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:11:9-41
+63        android:supportsRtl="true"
+63-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:12:9-35
+64        android:testOnly="true"
+65        android:theme="@style/Theme.GymApp"
+65-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:13:9-44
+66        android:usesCleartextTraffic="true" >
+66-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:14:9-44
+67        <meta-data
+67-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:17:9-19:71
+68            android:name="com.google.android.geo.API_KEY"
+68-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:18:13-58
+69            android:value="AIzaSyDhto5Ivs70eR_4ValuGdsg-UYNQ95AD6M" />
+69-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:19:13-68
+70
+71        <activity
+71-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:21:9-38:20
+72            android:name="com.gymapp.android.MainActivity"
+72-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:22:13-41
+73            android:exported="true"
+73-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:23:13-36
+74            android:theme="@style/Theme.GymApp" >
+74-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:24:13-48
+75            <intent-filter>
+75-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:25:13-28:29
+76                <action android:name="android.intent.action.MAIN" />
+76-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:26:17-69
+76-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:26:25-66
+77
+78                <category android:name="android.intent.category.LAUNCHER" />
+78-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:27:17-77
+78-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:27:27-74
+79            </intent-filter>
+80
+81            <!-- Deep link handler for payment redirect -->
+82            <intent-filter>
+82-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:31:13-37:29
+83                <action android:name="android.intent.action.VIEW" />
+83-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:32:17-69
+83-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:32:25-66
+84
+85                <category android:name="android.intent.category.DEFAULT" />
+85-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:33:17-76
+85-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:33:27-73
+86                <category android:name="android.intent.category.BROWSABLE" />
+86-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:34:17-78
+86-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:34:27-75
+87                <!-- Matches gymapp://payment/result -->
+88                <data
+88-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:36:17-101
+89                    android:host="payment"
+89-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:36:47-69
+90                    android:pathPrefix="/result"
+90-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:36:70-98
+91                    android:scheme="gymapp" />
+91-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:36:23-46
+92            </intent-filter>
+93        </activity>
+94        <!-- Needs to be explicitly declared on P+ -->
+95        <uses-library
+95-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c8af639d68d79709fa9c316a205150be\transformed\play-services-maps-18.2.0\AndroidManifest.xml:39:9-41:40
+96            android:name="org.apache.http.legacy"
+96-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c8af639d68d79709fa9c316a205150be\transformed\play-services-maps-18.2.0\AndroidManifest.xml:40:13-50
+97            android:required="false" />
+97-->[com.google.android.gms:play-services-maps:18.2.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c8af639d68d79709fa9c316a205150be\transformed\play-services-maps-18.2.0\AndroidManifest.xml:41:13-37
+98
+99        <activity
+99-->[com.google.android.gms:play-services-base:18.0.1] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\004c031938ba56e5addf40b9a7d4f828\transformed\play-services-base-18.0.1\AndroidManifest.xml:20:9-22:45
+100            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+100-->[com.google.android.gms:play-services-base:18.0.1] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\004c031938ba56e5addf40b9a7d4f828\transformed\play-services-base-18.0.1\AndroidManifest.xml:20:19-85
+101            android:exported="false"
+101-->[com.google.android.gms:play-services-base:18.0.1] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\004c031938ba56e5addf40b9a7d4f828\transformed\play-services-base-18.0.1\AndroidManifest.xml:22:19-43
+102            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+102-->[com.google.android.gms:play-services-base:18.0.1] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\004c031938ba56e5addf40b9a7d4f828\transformed\play-services-base-18.0.1\AndroidManifest.xml:21:19-78
+103
+104        <meta-data
+104-->[com.google.android.gms:play-services-basement:18.0.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\9e9ad70ec31b6923b7354bf6fa293a5d\transformed\play-services-basement-18.0.0\AndroidManifest.xml:21:9-23:69
+105            android:name="com.google.android.gms.version"
+105-->[com.google.android.gms:play-services-basement:18.0.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\9e9ad70ec31b6923b7354bf6fa293a5d\transformed\play-services-basement-18.0.0\AndroidManifest.xml:22:13-58
+106            android:value="@integer/google_play_services_version" />
+106-->[com.google.android.gms:play-services-basement:18.0.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\9e9ad70ec31b6923b7354bf6fa293a5d\transformed\play-services-basement-18.0.0\AndroidManifest.xml:23:13-66
+107
+108        <activity
+108-->[androidx.compose.ui:ui-tooling-android:1.10.6] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c4fae7fca82c1af84e82b1ff4787b9de\transformed\ui-tooling\AndroidManifest.xml:23:9-25:39
+109            android:name="androidx.compose.ui.tooling.PreviewActivity"
+109-->[androidx.compose.ui:ui-tooling-android:1.10.6] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c4fae7fca82c1af84e82b1ff4787b9de\transformed\ui-tooling\AndroidManifest.xml:24:13-71
+110            android:exported="true" />
+110-->[androidx.compose.ui:ui-tooling-android:1.10.6] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\c4fae7fca82c1af84e82b1ff4787b9de\transformed\ui-tooling\AndroidManifest.xml:25:13-36
+111
+112        <provider
+112-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\bc968e7e79f565ed7ea9635879ea3c6b\transformed\emoji2-1.4.0\AndroidManifest.xml:24:9-32:20
+113            android:name="androidx.startup.InitializationProvider"
+113-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\bc968e7e79f565ed7ea9635879ea3c6b\transformed\emoji2-1.4.0\AndroidManifest.xml:25:13-67
+114            android:authorities="com.gymapp.android.androidx-startup"
+114-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\bc968e7e79f565ed7ea9635879ea3c6b\transformed\emoji2-1.4.0\AndroidManifest.xml:26:13-68
+115            android:exported="false" >
+115-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\bc968e7e79f565ed7ea9635879ea3c6b\transformed\emoji2-1.4.0\AndroidManifest.xml:27:13-37
+116            <meta-data
+116-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\bc968e7e79f565ed7ea9635879ea3c6b\transformed\emoji2-1.4.0\AndroidManifest.xml:29:13-31:52
+117                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+117-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\bc968e7e79f565ed7ea9635879ea3c6b\transformed\emoji2-1.4.0\AndroidManifest.xml:30:17-75
+118                android:value="androidx.startup" />
+118-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\bc968e7e79f565ed7ea9635879ea3c6b\transformed\emoji2-1.4.0\AndroidManifest.xml:31:17-49
+119            <meta-data
+119-->[androidx.lifecycle:lifecycle-process:2.9.4] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\a56ce50ef2deae75a59c04ed9201d3e3\transformed\lifecycle-process-2.9.4\AndroidManifest.xml:29:13-31:52
+120                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+120-->[androidx.lifecycle:lifecycle-process:2.9.4] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\a56ce50ef2deae75a59c04ed9201d3e3\transformed\lifecycle-process-2.9.4\AndroidManifest.xml:30:17-78
+121                android:value="androidx.startup" />
+121-->[androidx.lifecycle:lifecycle-process:2.9.4] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\a56ce50ef2deae75a59c04ed9201d3e3\transformed\lifecycle-process-2.9.4\AndroidManifest.xml:31:17-49
+122            <meta-data
+122-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:29:13-31:52
+123                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+123-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:30:17-85
+124                android:value="androidx.startup" />
+124-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:31:17-49
+125        </provider>
+126
+127        <uses-library
+127-->[androidx.window:window:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\22503e699668f8dcef88c775a19f72c4\transformed\window-1.5.0\AndroidManifest.xml:23:9-25:40
+128            android:name="androidx.window.extensions"
+128-->[androidx.window:window:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\22503e699668f8dcef88c775a19f72c4\transformed\window-1.5.0\AndroidManifest.xml:24:13-54
+129            android:required="false" />
+129-->[androidx.window:window:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\22503e699668f8dcef88c775a19f72c4\transformed\window-1.5.0\AndroidManifest.xml:25:13-37
+130        <uses-library
+130-->[androidx.window:window:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\22503e699668f8dcef88c775a19f72c4\transformed\window-1.5.0\AndroidManifest.xml:26:9-28:40
+131            android:name="androidx.window.sidecar"
+131-->[androidx.window:window:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\22503e699668f8dcef88c775a19f72c4\transformed\window-1.5.0\AndroidManifest.xml:27:13-51
+132            android:required="false" />
+132-->[androidx.window:window:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\22503e699668f8dcef88c775a19f72c4\transformed\window-1.5.0\AndroidManifest.xml:28:13-37
+133
+134        <activity
+134-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:27:9-34:20
+135            android:name="androidx.test.core.app.InstrumentationActivityInvoker$BootstrapActivity"
+135-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:28:13-99
+136            android:exported="true"
+136-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:29:13-36
+137            android:theme="@style/WhiteBackgroundTheme" >
+137-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:30:13-56
+138            <intent-filter android:priority="-100" >
+138-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:31:13-33:29
+138-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:31:28-51
+139                <category android:name="android.intent.category.LAUNCHER" />
+139-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:27:17-77
+139-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:27:27-74
+140            </intent-filter>
+141        </activity>
+142        <activity
+142-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:35:9-42:20
+143            android:name="androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity"
+143-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:36:13-95
+144            android:exported="true"
+144-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:37:13-36
+145            android:theme="@style/WhiteBackgroundTheme" >
+145-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:38:13-56
+146            <intent-filter android:priority="-100" >
+146-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:31:13-33:29
+146-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:31:28-51
+147                <category android:name="android.intent.category.LAUNCHER" />
+147-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:27:17-77
+147-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:27:27-74
+148            </intent-filter>
+149        </activity>
+150        <activity
+150-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:43:9-50:20
+151            android:name="androidx.test.core.app.InstrumentationActivityInvoker$EmptyFloatingActivity"
+151-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:44:13-103
+152            android:exported="true"
+152-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:45:13-36
+153            android:theme="@style/WhiteBackgroundDialogTheme" >
+153-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:46:13-62
+154            <intent-filter android:priority="-100" >
+154-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:31:13-33:29
+154-->[androidx.test:core:1.5.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\d8603c01db7e50c7e548ef4f5f7699a8\transformed\core-1.5.0\AndroidManifest.xml:31:28-51
+155                <category android:name="android.intent.category.LAUNCHER" />
+155-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:27:17-77
+155-->C:\Users\Administrator\Downloads\LT_Mobile\android\app\src\main\AndroidManifest.xml:27:27-74
+156            </intent-filter>
+157        </activity>
+158        <activity
+158-->[androidx.compose.ui:ui-test-manifest:1.10.6] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\a6eecfee271921d83c63e2310e481b25\transformed\ui-test-manifest-1.10.6\AndroidManifest.xml:23:9-26:79
+159            android:name="androidx.activity.ComponentActivity"
+159-->[androidx.compose.ui:ui-test-manifest:1.10.6] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\a6eecfee271921d83c63e2310e481b25\transformed\ui-test-manifest-1.10.6\AndroidManifest.xml:24:13-63
+160            android:exported="true"
+160-->[androidx.compose.ui:ui-test-manifest:1.10.6] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\a6eecfee271921d83c63e2310e481b25\transformed\ui-test-manifest-1.10.6\AndroidManifest.xml:25:13-36
+161            android:theme="@android:style/Theme.Material.Light.NoActionBar" />
+161-->[androidx.compose.ui:ui-test-manifest:1.10.6] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\a6eecfee271921d83c63e2310e481b25\transformed\ui-test-manifest-1.10.6\AndroidManifest.xml:26:13-76
+162
+163        <receiver
+163-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:34:9-52:20
+164            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+164-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:35:13-76
+165            android:directBootAware="false"
+165-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:36:13-44
+166            android:enabled="true"
+166-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:37:13-35
+167            android:exported="true"
+167-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:38:13-36
+168            android:permission="android.permission.DUMP" >
+168-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:39:13-57
+169            <intent-filter>
+169-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:40:13-42:29
+170                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+170-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:41:17-91
+170-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:41:25-88
+171            </intent-filter>
+172            <intent-filter>
+172-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:43:13-45:29
+173                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+173-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:44:17-85
+173-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:44:25-82
+174            </intent-filter>
+175            <intent-filter>
+175-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:46:13-48:29
+176                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+176-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:47:17-88
+176-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:47:25-85
+177            </intent-filter>
+178            <intent-filter>
+178-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:49:13-51:29
+179                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+179-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:50:17-95
+179-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\35e3e7e72420f5cdf4d074ef6e5141fa\transformed\profileinstaller-1.4.0\AndroidManifest.xml:50:25-92
+180            </intent-filter>
+181        </receiver>
+182
+183        <activity
+183-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:47:9-53:63
+184            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+184-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:48:13-74
+185            android:clearTaskOnLaunch="true"
+185-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:49:13-45
+186            android:screenOrientation="sensorLandscape"
+186-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:50:13-56
+187            android:stateNotNeeded="true"
+187-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:51:13-42
+188            android:theme="@style/zxing_CaptureTheme"
+188-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:52:13-54
+189            android:windowSoftInputMode="stateAlwaysHidden" />
+189-->[com.journeyapps:zxing-android-embedded:4.3.0] C:\Users\Administrator\.gradle\caches\8.10.2\transforms\0b882f6ce94ec06bcced4792857f225e\transformed\zxing-android-embedded-4.3.0\AndroidManifest.xml:53:13-60
+190    </application>
+191
+192</manifest>

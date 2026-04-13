@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.gymapp.android.app-mergeDebugResources-60:/values-ne/values-ne.xml",
+            "outputFile": "com.gymapp.android.app-mergeDebugResources-61:/values-ne/values-ne.xml",
             "map": [
                 {
                     "source": "C:\\Users\\Administrator\\.gradle\\caches\\8.10.2\\transforms\\13fcc3d1864fe39ecf7fccae5cd87fba\\transformed\\foundation\\res\\values-ne\\values-ne.xml",

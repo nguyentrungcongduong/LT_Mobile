@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.gymapp.android.app-mergeDebugResources-60:/values-in/values-in.xml",
+            "outputFile": "com.gymapp.android.app-mergeDebugResources-61:/values-in/values-in.xml",
             "map": [
                 {
                     "source": "C:\\Users\\Administrator\\.gradle\\caches\\8.10.2\\transforms\\004c031938ba56e5addf40b9a7d4f828\\transformed\\play-services-base-18.0.1\\res\\values-in\\values.xml",

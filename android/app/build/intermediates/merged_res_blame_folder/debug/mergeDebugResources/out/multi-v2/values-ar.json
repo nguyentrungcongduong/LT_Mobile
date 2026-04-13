@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.gymapp.android.app-mergeDebugResources-60:/values-ar/values-ar.xml",
+            "outputFile": "com.gymapp.android.app-mergeDebugResources-61:/values-ar/values-ar.xml",
             "map": [
                 {
                     "source": "C:\\Users\\Administrator\\.gradle\\caches\\8.10.2\\transforms\\19f280088b103ae57aa7278e08822f8c\\transformed\\material3\\res\\values-ar\\values-ar.xml",
@@ -103,6 +103,23 @@
                         "startOffsets": "215,1029,1118,3297,3392,3490,3575,3656,10988,11072,11153,11234,11317,11387,11471,11550,11629,11804,11880,11954",
                         "endColumns": "101,88,82,94,97,84,80,105,83,80,80,82,69,83,78,78,73,75,73,120",
                         "endOffsets": "312,1113,1196,3387,3485,3570,3651,3757,11067,11148,11229,11312,11382,11466,11545,11624,11698,11875,11949,12070"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Administrator\\.gradle\\caches\\8.10.2\\transforms\\0b882f6ce94ec06bcced4792857f225e\\transformed\\zxing-android-embedded-4.3.0\\res\\values-ar\\values-ar.xml",
+                    "from": {
+                        "startLines": "2,3,4,5",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,117,167,300",
+                        "endColumns": "61,49,132,109",
+                        "endOffsets": "112,162,295,405"
+                    },
+                    "to": {
+                        "startLines": "117,118,119,120",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "12245,12307,12357,12490",
+                        "endColumns": "61,49,132,109",
+                        "endOffsets": "12302,12352,12485,12595"
                     }
                 }
             ]
