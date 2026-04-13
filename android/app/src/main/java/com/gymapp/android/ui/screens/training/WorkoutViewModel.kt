@@ -35,6 +35,21 @@ class WorkoutViewModel @Inject constructor(
         loadByType("RECOMMENDED")
     }
 
+    var currentPlan by mutableStateOf<WorkoutPlanResponse?>(null)
+
+    fun fetchPlanById(planId: String) {
+        isLoading = true
+        viewModelScope.launch {
+            try {
+                currentPlan = repo.getPlanById(planId)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                errorMessage = e.message
+            }
+            isLoading = false
+        }
+    }
+
     fun loadByType(type: String) {
         selectedType = type
         isLoading = true

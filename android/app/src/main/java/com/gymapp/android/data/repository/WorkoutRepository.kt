@@ -23,6 +23,15 @@ class WorkoutRepository @Inject constructor(
     suspend fun getRecommended(): List<WorkoutPlanResponse> {
         return api.getRecommended().content ?: emptyList()
     }
+    
+    suspend fun getPlanById(id: String): WorkoutPlanResponse? {
+        return try {
+            api.getPlanById(id)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
     suspend fun createWorkoutPlan(request: WorkoutPlanRequest) {
         api.createWorkoutPlan(request)
     }

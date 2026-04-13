@@ -1,21 +1,41 @@
 package com.gymapp.android.ui.screens.training
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 
 @Composable
-fun WorkoutDetailScreenWrapper(planId: String) {
+fun WorkoutDetailScreenWrapper(planId: String, navController: NavController) {
     val viewModel: WorkoutViewModel = androidx.hilt.navigation.compose.hiltViewModel()
 
-    val plan =
-        viewModel.customPlans.find { it.id.toString() == planId }
-            ?: viewModel.recommendedPlans.find { it.id.toString() == planId }
-            ?: viewModel.ptPlans.find { it.id.toString() == planId }
+    LaunchedEffect(planId) {
+        viewModel.fetchPlanById(planId)
+    }
 
-    if (plan == null) {
-        Text("Loading...")
+    val plan = viewModel.currentPlan
+
+    if (viewModel.isLoading) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
         return
     }
 
-    WorkoutDetailScreen(plan)
+    if (plan == null) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("Không tìm thấy bài tập!")
+        }
+        return
+    }
+
+    WorkoutDetailScreen(
+        plan = plan,
+        onBack = { navController.popBackStack() }
+    )
 }

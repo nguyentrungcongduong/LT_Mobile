@@ -37,7 +37,7 @@ import com.gymapp.android.R
 import com.gymapp.android.data.remote.response.WorkoutPlanResponse
 
 @Composable
-fun WorkoutDetailScreen(plan: WorkoutPlanResponse) {
+fun WorkoutDetailScreen(plan: WorkoutPlanResponse, onBack: () -> Unit = {}) {
 
     val checked = remember { mutableStateListOf<Int>() }
 
@@ -59,7 +59,7 @@ fun WorkoutDetailScreen(plan: WorkoutPlanResponse) {
             )
 
             IconButton(
-                onClick = {},
+                onClick = onBack,
                 modifier = Modifier.padding(16.dp)
             ) {
                 Icon(Icons.Default.ArrowBack, contentDescription = null, tint = Color.White)

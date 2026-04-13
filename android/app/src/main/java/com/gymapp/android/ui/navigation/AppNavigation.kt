@@ -133,8 +133,7 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
         ) { backStackEntry ->
 
             val planId = backStackEntry.arguments?.getString("planId")!!
-
-            WorkoutDetailScreenWrapper(planId)
+            WorkoutDetailScreenWrapper(planId = planId, navController = navController)
         }
         composable("membership_packages") {
             com.gymapp.android.ui.screens.membership.MembershipPackagesScreen(

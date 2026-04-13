@@ -9,6 +9,7 @@ import com.gymapp.android.data.remote.response.WorkoutPlanResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface WorkoutApi {
@@ -17,6 +18,11 @@ interface WorkoutApi {
     suspend fun getPlans(
         @Query("type") type: String
     ): PageResponse<WorkoutPlanResponse>
+
+    @GET("api/v1/workout-plans/{id}")
+    suspend fun getPlanById(
+        @Path("id") id: String
+    ): WorkoutPlanResponse
 
     @GET("api/v1/workout-plans/recommended")
     suspend fun getRecommended(): PageResponse<WorkoutPlanResponse>
