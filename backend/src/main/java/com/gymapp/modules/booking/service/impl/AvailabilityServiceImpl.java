@@ -22,17 +22,23 @@ public class AvailabilityServiceImpl implements AvailabilityService {
 
     private final PtAvailabilityRepository availabilityRepository;
     private final com.gymapp.modules.user.repository.PtProfileRepository ptProfileRepository;
+    private final com.gymapp.modules.user.repository.UserRepository userRepository;
 
     @Override
     @Transactional(readOnly = true)
-    public List<PtAvailabilityResponse> getPtAvailability(UUID ptProfileId, LocalDate from, LocalDate to) {
-        // Resolve User ID from PT Profile ID
-        com.gymapp.modules.user.entity.PtProfile profile = ptProfileRepository.findById(ptProfileId)
-                .orElseThrow(() -> new com.gymapp.common.exception.ResourceNotFoundException("PT_PROFILE_NOT_FOUND", "Personal Trainer profile not found"));
-        
-        UUID ptUserId = profile.getUser().getId();
+    public List<PtAvailabilityResponse> getPtAvailability(UUID ptIdOrUserId, LocalDate from, LocalDate to) {
+        UUID userId = ptIdOrUserId;
 
-        return availabilityRepository.findAllByPtIdAndAvailableDateBetween(ptUserId, from, to)
+        // The frontend might pass either PtProfile ID (from user flow) or User ID (from PT flow)
+        // Since UUIDs are globally unique, we can check if it's a profile ID first
+        java.util.Optional<com.gymapp.modules.user.entity.PtProfile> profileOpt =
+                ptProfileRepository.findById(ptIdOrUserId);
+
+        if (profileOpt.isPresent()) {
+            userId = profileOpt.get().getUser().getId();
+        }
+
+        return availabilityRepository.findAllByPtIdAndAvailableDateBetween(userId, from, to)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
@@ -41,6 +47,18 @@ public class AvailabilityServiceImpl implements AvailabilityService {
     @Override
     @Transactional
     public PtAvailabilityResponse createAvailability(UUID ptId, PtAvailabilityRequest request) {
+        // 0. Auto-create PT profile if it doesn't exist yet
+        if (ptProfileRepository.findByUserId(ptId).isEmpty()) {
+            com.gymapp.modules.user.entity.User ptUser = userRepository.findById(ptId)
+                    .orElseThrow(() -> new BadRequestException("USER_NOT_FOUND", "User not found"));
+            com.gymapp.modules.user.entity.PtProfile newProfile = com.gymapp.modules.user.entity.PtProfile.builder()
+                    .user(ptUser)
+                    .bio("")
+                    .pricePerSession(java.math.BigDecimal.ZERO)
+                    .build();
+            ptProfileRepository.save(newProfile);
+        }
+
         // 1. Validate date not in the past
         if (request.getAvailableDate().isBefore(LocalDate.now())) {
             throw new BadRequestException("PAST_DATE", "Cannot set availability in the past");

@@ -266,7 +266,7 @@ fun PtBookingScreen(
                             ) {
                                 items(state.availabilities) { slot ->
                                     SlotItem(
-                                        startTime = slot.startTime,
+                                        timeDisplay = "${slot.startTime.take(5)} - ${slot.endTime.take(5)}",
                                         isBooked = slot.isBooked,
                                         isSelected = selectedSlotId == slot.id,
                                         onClick = { if (!slot.isBooked) viewModel.selectSlot(slot.id) }
@@ -315,7 +315,7 @@ fun PtBookingScreen(
 
 @Composable
 private fun SlotItem(
-    startTime: String,
+    timeDisplay: String,
     isBooked: Boolean,
     isSelected: Boolean,
     onClick: () -> Unit
@@ -352,7 +352,7 @@ private fun SlotItem(
                 Spacer(Modifier.width(6.dp))
             }
             Text(
-                text = startTime,
+                text = timeDisplay,
                 style = MaterialTheme.typography.labelLarge,
                 color = contentColor,
                 textDecoration = if (isBooked) TextDecoration.LineThrough else null
