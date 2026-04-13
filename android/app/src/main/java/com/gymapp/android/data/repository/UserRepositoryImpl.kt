@@ -3,6 +3,7 @@ package com.gymapp.android.data.repository
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.gymapp.android.data.remote.api.ApiResponse
+import com.gymapp.android.data.remote.api.ChangePasswordRequest
 import com.gymapp.android.data.remote.api.UpdateProfileRequest
 import com.gymapp.android.data.remote.api.UserApi
 import com.gymapp.android.data.remote.api.UserDto
@@ -44,10 +45,10 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateProfile(fullName: String?, phone: String?, avatarUrl: String?): Result<User> = withContext(Dispatchers.IO) {
+    override suspend fun updateProfile(fullName: String?, email: String?, phone: String?, avatarUrl: String?): Result<User> = withContext(Dispatchers.IO) {
         try {
-            android.util.Log.d("UserRepository", "Sending update: fullName=$fullName, phone=$phone, avatarUrl=$avatarUrl")
-            val response = userApi.updateProfile(UpdateProfileRequest(fullName, phone, avatarUrl))
+            android.util.Log.d("UserRepository", "Sending update: fullName=$fullName, email=$email, phone=$phone, avatarUrl=$avatarUrl")
+            val response = userApi.updateProfile(UpdateProfileRequest(fullName, email, phone, avatarUrl))
             android.util.Log.d("UserRepository", "Update response code: ${response.code()}")
             android.util.Log.d("UserRepository", "Update response body: ${response.body()}")
             if (response.isSuccessful && response.body()?.success == true) {
@@ -79,6 +80,19 @@ class UserRepositoryImpl @Inject constructor(
                 } else {
                     Result.failure(Exception("Không lấy được url hình ảnh"))
                 }
+            } else {
+                Result.failure(Exception(parseErrorMessage(response)))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun changePassword(oldPass: String, newPass: String): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val response = userApi.changePassword(ChangePasswordRequest(oldPass, newPass))
+            if (response.isSuccessful && response.body()?.success == true) {
+                Result.success(Unit)
             } else {
                 Result.failure(Exception(parseErrorMessage(response)))
             }

@@ -12,8 +12,14 @@ import retrofit2.http.Part
 
 data class UpdateProfileRequest(
     val fullName: String?,
+    val email: String?,
     val phone: String?,
     val avatarUrl: String?
+)
+
+data class ChangePasswordRequest(
+    val oldPassword: String,
+    val newPassword: String
 )
 
 data class UploadAvatarResponse(
@@ -34,4 +40,9 @@ interface UserApi {
     suspend fun uploadAvatar(
         @Part file: MultipartBody.Part
     ): Response<ApiResponse<UploadAvatarResponse>>
+
+    @PUT("api/v1/users/me/password")
+    suspend fun changePassword(
+        @Body request: ChangePasswordRequest
+    ): Response<ApiResponse<Void>>
 }

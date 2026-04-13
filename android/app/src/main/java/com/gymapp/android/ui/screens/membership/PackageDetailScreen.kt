@@ -28,6 +28,12 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gymapp.android.domain.model.membership.PlanType
 import com.gymapp.android.ui.screens.membership.viewmodel.PackageDetailViewModel
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 import java.text.NumberFormat
 import java.util.*
 
@@ -118,24 +124,40 @@ fun PackageDetailScreen(
                         .verticalScroll(rememberScrollState())
                         .padding(bottom = 80.dp)
                 ) {
-                    // Hero Image Placeholder 
+                    // Fallback toạ độ dựa theo Tên gói hoặc Thời hạn chốt theo yêu cầu
+                    val defaultLat = when {
+                        plan.name.contains("12") || plan.durationDays >= 360 -> 10.797037057855999
+                        plan.name.contains("3") || plan.durationDays == 90 -> 10.790856210161808
+                        else -> 10.776354032266614 // Gói 1 tháng hoặc mặc định
+                    }
+                    val defaultLng = when {
+                        plan.name.contains("12") || plan.durationDays >= 360 -> 106.70274181968595
+                        plan.name.contains("3") || plan.durationDays == 90 -> 106.69007773022825
+                        else -> 106.69346708476218
+                    }
+
+                    val lat = plan.branchLatitude ?: defaultLat
+                    val lng = plan.branchLongitude ?: defaultLng
+                    val branchLocation = LatLng(lat, lng) 
+                    val cameraPositionState = rememberCameraPositionState {
+                        position = CameraPosition.fromLatLngZoom(branchLocation, 15f)
+                    }
+
+                    // Interactive Google Map 
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(200.dp)
-                            .background(
-                                brush = Brush.verticalGradient(
-                                    colors = listOf(surfaceVariant, bgColor)
-                                )
-                            ),
-                        contentAlignment = Alignment.Center
+                            .height(250.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.LocationOn,
-                            contentDescription = "Gym Image Placeholder",
-                            tint = primaryColor.copy(alpha = 0.2f),
-                            modifier = Modifier.size(80.dp)
-                        )
+                        GoogleMap(
+                            modifier = Modifier.fillMaxSize(),
+                            cameraPositionState = cameraPositionState
+                        ) {
+                            Marker(
+                                state = MarkerState(position = branchLocation),
+                                title = plan.branchName ?: "Toàn chuỗi chi nhánh"
+                            )
+                        }
                     }
 
                     Column(modifier = Modifier.padding(16.dp)) {

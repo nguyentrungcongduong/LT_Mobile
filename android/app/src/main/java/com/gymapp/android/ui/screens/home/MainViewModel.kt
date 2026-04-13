@@ -16,6 +16,9 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
     private val _userRole = MutableStateFlow<String>("USER")
     val userRole: StateFlow<String> = _userRole.asStateFlow()
+    
+    private val _userAvatar = MutableStateFlow<String?>(null)
+    val userAvatar: StateFlow<String?> = _userAvatar.asStateFlow()
 
     init {
         loadUserRole()
@@ -25,6 +28,7 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             userRepository.getProfile().onSuccess { user ->
                 _userRole.value = user.role
+                _userAvatar.value = user.avatarUrl
             }
         }
     }

@@ -121,6 +121,8 @@ public class MembershipPlanService {
                 .planType(plan.getPlanType())
                 .branchId(plan.getBranch() != null ? plan.getBranch().getId() : null)
                 .branchName(plan.getBranch() != null ? plan.getBranch().getName() : null)
+                .branchLatitude(plan.getBranch() != null ? plan.getBranch().getLatitude() : null)
+                .branchLongitude(plan.getBranch() != null ? plan.getBranch().getLongitude() : null)
                 .isActive(plan.isActive())
                 .createdAt(plan.getCreatedAt())
                 .build();

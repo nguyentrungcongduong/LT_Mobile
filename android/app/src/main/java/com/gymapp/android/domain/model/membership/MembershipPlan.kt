@@ -9,5 +9,7 @@ data class MembershipPlan(
     val planType: PlanType,   // ENUM: SINGLE | ALL
     val branchId: String?,    // UUID, null nếu plan_type = ALL
     val branchName: String?,  // join từ branches, null nếu ALL
+    val branchLatitude: Double?, // DTO từ Backend
+    val branchLongitude: Double?,
     val isActive: Boolean
 )

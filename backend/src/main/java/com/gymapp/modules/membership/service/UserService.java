@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.gymapp.common.exception.ResourceNotFoundException;
+import com.gymapp.modules.membership.dto.ChangePasswordRequest;
 import com.gymapp.modules.membership.dto.UpdateUserGoalRequest;
 import com.gymapp.modules.membership.dto.UserDto;
 import com.gymapp.modules.membership.dto.UserResponse;
@@ -121,6 +122,10 @@ public class UserService implements IUserService {
             System.out.println("Updating phone from " + user.getPhone() + " to " + dto.getPhone());
             user.setPhone(dto.getPhone());
         }
+        if (dto.getEmail() != null) {
+            System.out.println("Updating email from " + user.getEmail() + " to " + dto.getEmail());
+            user.setEmail(dto.getEmail());
+        }
         if (dto.getAge() != null) {
             user.setAge(dto.getAge());
         }
@@ -202,5 +207,24 @@ public class UserService implements IUserService {
         }
 
         return userRepository.save(user);
+    }
+
+    @Override
+    public void changePassword(ChangePasswordRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        String email = auth.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPasswordHash())) {
+            throw new RuntimeException("Mật khẩu hiện tại không đúng");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 }

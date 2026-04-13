@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,6 +40,7 @@ fun MainScreen(
 ) {
     val navController = rememberNavController()
     val userRole by mainViewModel.userRole.collectAsState()
+    val userAvatar by mainViewModel.userAvatar.collectAsState()
 
     val userItems = listOf(
         BottomNavRoute.Dashboard,
@@ -56,7 +58,8 @@ fun MainScreen(
 
     val items = if (userRole == "PT") ptItems else userItems
 
-    var currentRoute by remember { mutableStateOf(BottomNavRoute.Dashboard.route) }
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route ?: BottomNavRoute.Dashboard.route
 
     Scaffold(
         bottomBar = {
@@ -67,9 +70,12 @@ fun MainScreen(
                         label = { Text(screen.title) },
                         selected = currentRoute == screen.route,
                         onClick = {
-                            currentRoute = screen.route
                             navController.navigate(screen.route) {
-                                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                navController.graph.startDestinationRoute?.let { route ->
+                                    popUpTo(route) {
+                                        saveState = true
+                                    }
+                                }
                                 launchSingleTop = true
                                 restoreState = true
                             }
@@ -88,8 +94,45 @@ fun MainScreen(
                 Column(
                     modifier = Modifier.fillMaxSize().padding(16.dp)
                 ) {
-                    Text("Xin chào, bạn 👋", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                    Text("Hôm nay là ngày tập luyện tuyệt vời!", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                if (userRole == "PT") "Xin chào, HLV 👋" else "Xin chào, bạn 👋", 
+                                fontSize = 24.sp, 
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                if (userRole == "PT") "Chúc một ngày làm việc hiệu quả!" else "Hôm nay là ngày tập luyện tuyệt vời!", 
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontSize = 14.sp
+                            )
+                        }
+                        Surface(
+                            shape = androidx.compose.foundation.shape.CircleShape,
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            modifier = Modifier.size(48.dp)
+                        ) {
+                            if (!userAvatar.isNullOrEmpty()) {
+                                coil.compose.AsyncImage(
+                                    model = userAvatar,
+                                    contentDescription = "Avatar",
+                                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            } else {
+                                Icon(
+                                    Icons.Default.Person, 
+                                    contentDescription = "Avatar", 
+                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    modifier = Modifier.padding(12.dp)
+                                )
+                            }
+                        }
+                    }
                     
                     Spacer(modifier = Modifier.height(24.dp))
                     
@@ -128,7 +171,15 @@ fun MainScreen(
                             }
                             
                             Button(
-                                onClick = { navController.navigate(BottomNavRoute.PTBooking.route) },
+                                onClick = {
+                                    navController.navigate(BottomNavRoute.PTBooking.route) {
+                                        navController.graph.startDestinationRoute?.let { route ->
+                                            popUpTo(route) { saveState = true }
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
                                 modifier = Modifier.weight(1f).height(60.dp),
                                 shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(
@@ -140,10 +191,84 @@ fun MainScreen(
                             }
                         }
                     } else if (userRole == "PT") {
-                        // PT Dashboard content
-                        Text("Trạng thái quản lý", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+                        Text("Thống kê nhanh", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text("Chào huấn luyện viên! Chúc bạn có một ngày làm việc hiệu quả.", color = Color.Gray, fontSize = 15.sp)
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Card(modifier = Modifier.weight(1f), colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0))) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text("Ca hôm nay", color = Color.Gray, fontSize = 13.sp)
+                                    Text("2", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFFE65100))
+                                }
+                            }
+                            Card(modifier = Modifier.weight(1f), colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9))) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text("Khách Active", color = Color.Gray, fontSize = 13.sp)
+                                    Text("5", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1B5E20))
+                                }
+                            }
+                        }
+                        
+                        Spacer(modifier = Modifier.height(24.dp))
+                        
+                        Text("Thao tác nhanh", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Button(
+                                onClick = { 
+                                    navController.navigate(BottomNavRoute.PtQueue.route) {
+                                        navController.graph.startDestinationRoute?.let { route ->
+                                            popUpTo(route) { saveState = true }
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                modifier = Modifier.weight(1f).height(56.dp),
+                                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722))
+                            ) {
+                                Text("📅 Lịch hẹn", fontSize = 14.sp)
+                            }
+                            Button(
+                                onClick = { 
+                                    navController.navigate(BottomNavRoute.PtClients.route) {
+                                        navController.graph.startDestinationRoute?.let { route ->
+                                            popUpTo(route) { saveState = true }
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                modifier = Modifier.weight(1f).height(56.dp),
+                                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                            ) {
+                                Text("👥 Clients", fontSize = 14.sp)
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
+                        
+                        Text("Lịch sắp tới", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                        ) {
+                            Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Surface(shape = androidx.compose.foundation.shape.CircleShape, color = Color.White, modifier = Modifier.size(40.dp)) {
+                                    Icon(Icons.Default.DateRange, contentDescription = null, tint = Color(0xFFFF5722), modifier = Modifier.padding(8.dp))
+                                }
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Column {
+                                    Text("14:30 - Tăng cơ bắp", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                    Text("Học viên: Nguyễn Văn A", color = Color.Gray, fontSize = 14.sp)
+                                }
+                            }
+                        }
                     }
                 }
             }

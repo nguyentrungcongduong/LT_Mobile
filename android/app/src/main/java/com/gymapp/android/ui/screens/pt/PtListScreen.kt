@@ -77,13 +77,25 @@ fun PtListScreen(
                 }
             }
             is PtListUiState.Success -> {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    items(state.pts) { pt ->
-                        PtCard(pt = pt, onClick = { onNavigateToBooking(pt.id) })
+                if (state.pts.isEmpty()) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = "Ghi nhận 0 PT, có thể Backend chưa đổ Data cho bảng Trainers", 
+                            color = Tsecondary, 
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(16.dp),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        items(state.pts) { pt ->
+                            PtCard(pt = pt, onClick = { onNavigateToBooking(pt.id) })
+                        }
                     }
                 }
             }
