@@ -28,6 +28,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.gymapp.android.domain.model.User
+import com.gymapp.android.domain.model.goal.ExperienceLevel
+import com.gymapp.android.domain.model.goal.FitnessGoal
 import com.gymapp.android.util.FileUtil
 
 // ---- Light Theme Colors ----
@@ -45,11 +47,8 @@ val DividerColor = Color(0xFFE5E7EB)
 fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel(),
     onLogout: () -> Unit = {},
-<<<<<<< HEAD
-    onNavigateToGoal: () -> Unit = {}
-=======
+    onNavigateToGoal: () -> Unit = {},
     onNavigateToHistory: () -> Unit = {}
->>>>>>> 5176a02814fe8284e5eed8bdc45816add6bf42fc
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val isUploading by viewModel.isUploading.collectAsState()
@@ -214,10 +213,11 @@ fun ProfileScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Badges Row
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             BadgeItem(user.role, PrimaryOrange)
-                            BadgeItem("INTERMEDIATE", PrimaryGreen)
+                            user.experienceLevel?.let { level ->
+                                BadgeItem(level.name, PrimaryGreen)
+                            }
                         }
 
                         Spacer(modifier = Modifier.height(32.dp))
@@ -268,7 +268,13 @@ fun ProfileScreen(
                             Spacer(modifier = Modifier.width(16.dp))
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(text = "Mục tiêu hiện tại", color = TextGray, fontSize = 12.sp)
-                                Text(text = "Tăng cơ bắp", color = TextDark, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                val goalText = when(user.fitnessGoal) {
+                                    FitnessGoal.WEIGHT_LOSS -> "Giảm cân & Mỡ"
+                                    FitnessGoal.MUSCLE_GAIN -> "Tăng cơ bắp"
+                                    FitnessGoal.ENDURANCE -> "Tăng thể lực & Sức bền"
+                                    null -> "Chưa thiết lập"
+                                }
+                                Text(text = goalText, color = TextDark, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                             }
                             Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = TextGray)
                         }

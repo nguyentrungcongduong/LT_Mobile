@@ -425,6 +425,7 @@ fun MainScreen(
             composable(BottomNavRoute.Profile.route) {
                 com.gymapp.android.ui.screens.profile.ProfileScreen(
                     onLogout = onLogout,
+                    onNavigateToGoal = onNavigateToGoal,
                     onNavigateToHistory = { navController.navigate("payment_history") }
                 )
             }

@@ -70,12 +70,13 @@ object NetworkModule {
 
     @Provides
     @Singleton
-<<<<<<< HEAD
     fun provideWorkoutApi(retrofit: Retrofit): WorkoutApi {
         return retrofit.create(WorkoutApi::class.java)
-=======
+    }
+
+    @Provides
+    @Singleton
     fun providePaymentApi(retrofit: Retrofit): com.gymapp.android.data.remote.api.PaymentApi {
         return retrofit.create(com.gymapp.android.data.remote.api.PaymentApi::class.java)
->>>>>>> 5176a02814fe8284e5eed8bdc45816add6bf42fc
     }
 }

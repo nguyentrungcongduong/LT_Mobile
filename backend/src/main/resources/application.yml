@@ -31,6 +31,11 @@ spring:
       pageable:
         one-indexed-parameters: true
         size-parameter: limit
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 5000ms
 
   flyway:
     enabled: true
@@ -48,6 +53,7 @@ jwt:
   secret: ${JWT_SECRET:ThisIsAVeryLongSecretKeyForJWTSigningPleaseChangeInProduction1234567890}
   access-token-expiration-ms: ${JWT_ACCESS_EXPIRE_MS:1800000}     # 30 minutes
   refresh-token-expiration-ms: ${JWT_REFRESH_EXPIRE_MS:604800000}  # 7 days
+  qr-token-expiration-seconds: ${JWT_QR_EXPIRE_S:60}               # 60 seconds
 
 springdoc:
   api-docs:
