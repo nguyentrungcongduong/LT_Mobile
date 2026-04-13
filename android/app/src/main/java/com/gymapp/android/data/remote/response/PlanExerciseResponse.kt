@@ -7,5 +7,8 @@ data class PlanExerciseResponse(
     val reps: Int,
     val restSeconds: Int,
     val orderIndex: Int,
-    val notes: String?
+    val notes: String?,
+    val description: String? = null,
+    val videoUrl: String? = null,
+    val thumbnailUrl: String? = null
 )

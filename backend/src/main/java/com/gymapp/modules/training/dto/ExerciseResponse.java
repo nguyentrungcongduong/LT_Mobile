@@ -11,4 +11,7 @@ public class ExerciseResponse {
     private UUID id;
     private String name;
     private String muscleGroup;
+    private String description;
+    private String videoUrl;
+    private String thumbnailUrl;
 }

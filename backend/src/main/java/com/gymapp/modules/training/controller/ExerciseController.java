@@ -24,7 +24,10 @@ public class ExerciseController {
                 .map(ex -> new ExerciseResponse(
                         ex.getId(),
                         ex.getName(),
-                        ex.getMuscleGroup()))
+                        ex.getMuscleGroup(),
+                        ex.getDescription(),
+                        ex.getVideoUrl(),
+                        ex.getThumbnailUrl()))
                 .toList();
     }
 }

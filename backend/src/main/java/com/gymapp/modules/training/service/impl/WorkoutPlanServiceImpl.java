@@ -181,6 +181,10 @@ public class WorkoutPlanServiceImpl implements WorkoutPlanService {
                         .reps(ptEx.getReps())
                         .restSeconds(ptEx.getRestSeconds())
                         .notes(ptEx.getNotes())
+                        // them
+                        .description(ptEx.getExercise().getDescription())
+                        .videoUrl(ptEx.getExercise().getVideoUrl())
+                        .thumbnailUrl(ptEx.getExercise().getThumbnailUrl())
                         .build()).collect(Collectors.toList()))
                 .build();
     }

@@ -13,4 +13,7 @@ public class PlanExerciseResponse {
     private Integer reps;
     private Integer restSeconds;
     private String notes;
+    private String description;
+    private String videoUrl;
+    private String thumbnailUrl;
 }
