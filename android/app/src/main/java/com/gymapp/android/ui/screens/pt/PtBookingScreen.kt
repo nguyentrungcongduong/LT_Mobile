@@ -252,7 +252,10 @@ fun PtBookingScreen(
                         }
                     }
                     is PtBookingUiState.Success -> {
-                        if (state.availabilities.isEmpty()) {
+                        val slotsForDay = state.availabilities.filter { 
+                            it.availableDate == SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(selectedDate) 
+                        }
+                        if (slotsForDay.isEmpty()) {
                             Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
                                 Text("Không có lịch trống", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
@@ -264,7 +267,7 @@ fun PtBookingScreen(
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                                 userScrollEnabled = false
                             ) {
-                                items(state.availabilities) { slot ->
+                                items(slotsForDay) { slot ->
                                     SlotItem(
                                         timeDisplay = "${slot.startTime.take(5)} - ${slot.endTime.take(5)}",
                                         isBooked = slot.isBooked,

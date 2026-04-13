@@ -264,7 +264,7 @@ fun PtScheduleManagementScreen(
                             verticalArrangement = Arrangement.spacedBy(10.dp),
                             contentPadding = PaddingValues(top = 8.dp, bottom = 80.dp)
                         ) {
-                            items(mySlots) { slot ->
+                            items(slotsForDay) { slot ->
                                 SlotCard(slot = slot)
                             }
                         }
