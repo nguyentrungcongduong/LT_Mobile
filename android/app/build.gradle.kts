@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace = "com.gymapp.android"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.gymapp.android"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -70,6 +70,8 @@ dependencies {
 
     // Hilt DI
     implementation("com.google.dagger:hilt-android:2.50")
+    implementation("androidx.compose.material3:material3:1.4.0")
+    implementation("androidx.compose.ui:ui-test:1.10.6")
     kapt("com.google.dagger:hilt-compiler:2.50")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 

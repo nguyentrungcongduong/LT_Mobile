@@ -93,9 +93,9 @@ public class UserController {
     }
 
     @PutMapping("/me/goal")
-    public UserResponse updateMyGoal(@RequestBody UpdateUserGoalRequest request) {
+    public ApiResponse<UserResponse> updateMyGoal(@RequestBody UpdateUserGoalRequest request) {
         User user = userService.updateMyGoal(request);
-        return UserResponse.fromUser(user);
+        return ApiResponse.ok(UserResponse.fromUser(user));
     }
 
     @PutMapping("/me/password")

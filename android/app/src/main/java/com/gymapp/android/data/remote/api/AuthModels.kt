@@ -1,6 +1,8 @@
 package com.gymapp.android.data.remote.api
 
 import com.google.gson.annotations.SerializedName
+import com.gymapp.android.domain.model.goal.ExperienceLevel
+import com.gymapp.android.domain.model.goal.FitnessGoal
 
 data class ApiResponse<T>(
     val success: Boolean,
@@ -26,7 +28,9 @@ data class UserDto(
     val fullName: String?,
     val phone: String?,
     val role: String,
-    val avatarUrl: String?
+    val avatarUrl: String?,
+    val experienceLevel: ExperienceLevel,
+    val fitnessGoal: FitnessGoal
 )
 
 data class LoginRequest(

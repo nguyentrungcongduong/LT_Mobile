@@ -7,6 +7,7 @@ import com.gymapp.android.data.remote.api.ChangePasswordRequest
 import com.gymapp.android.data.remote.api.UpdateProfileRequest
 import com.gymapp.android.data.remote.api.UserApi
 import com.gymapp.android.data.remote.api.UserDto
+import com.gymapp.android.data.remote.dto.user.UpdateUserGoalRequest
 import com.gymapp.android.domain.model.User
 import com.gymapp.android.domain.repository.UserRepository
 import kotlinx.coroutines.Dispatchers
@@ -107,7 +108,9 @@ class UserRepositoryImpl @Inject constructor(
         fullName = fullName,
         phone = phone,
         role = role,
-        avatarUrl = avatarUrl
+        avatarUrl = avatarUrl,
+        experienceLevel = experienceLevel,
+        fitnessGoal = fitnessGoal
     )
 
     private fun <T> parseErrorMessage(response: Response<ApiResponse<T>>): String {
@@ -124,4 +127,25 @@ class UserRepositoryImpl @Inject constructor(
             "Lỗi kết nối server"
         }
     }
+    override suspend fun updateGoal(request: UpdateUserGoalRequest): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            android.util.Log.d("UserRepository", "Updating goal: $request")
+
+            val response = userApi.updateGoal(request)
+
+            android.util.Log.d("UserRepository", "UpdateGoal response code: ${response.code()}")
+            android.util.Log.d("UserRepository", "UpdateGoal response body: ${response.body()}")
+            android.util.Log.d("UserRepository", "UpdateGoal error: ${response.errorBody()?.string()}")
+
+            if (response.isSuccessful && response.body()?.success == true) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception(parseErrorMessage(response)))
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("UserRepository", "UpdateGoal exception: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
+
 }

@@ -1,0 +1,7 @@
+R_DEF: Internal format may change without notice
+local
+drawable banner1
+drawable banner2
+drawable banner3
+string app_name
+style Theme.GymApp
