@@ -26,11 +26,12 @@ class MainViewModel @Inject constructor(
     val userAvatar: StateFlow<String?> = _userAvatar.asStateFlow()
 
     init {
-        loadUserRole()
+        fetchProfile()
     }
     private val _needSetupGoal = MutableStateFlow(false)
     val needSetupGoal: StateFlow<Boolean> = _needSetupGoal.asStateFlow()
-    private fun loadUserRole() {
+    
+    fun fetchProfile() {
         viewModelScope.launch {
             userRepository.getProfile().onSuccess { user ->
                 _userRole.value = user.role

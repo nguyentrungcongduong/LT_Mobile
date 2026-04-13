@@ -70,6 +70,12 @@ fun MainScreen(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: BottomNavRoute.Dashboard.route
 
+    LaunchedEffect(currentRoute) {
+        if (currentRoute == BottomNavRoute.Dashboard.route) {
+            mainViewModel.fetchProfile()
+        }
+    }
+
     Scaffold(
         bottomBar = {
             NavigationBar {
