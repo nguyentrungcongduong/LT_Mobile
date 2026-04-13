@@ -12,4 +12,5 @@ public class PaymentStatusResponse {
     private UUID paymentId;
     private PaymentStatus status;
     private String bookingStatus;
+    private UUID bookingId;
 }

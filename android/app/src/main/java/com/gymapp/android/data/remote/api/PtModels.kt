@@ -17,7 +17,8 @@ data class BookingsResponse(
 
 data class BookingCreateRequest(
     @SerializedName("pt_id") val ptId: String,
-    @SerializedName("availability_id") val availabilityId: String
+    @SerializedName("availability_id") val availabilityId: String,
+    @SerializedName("payment_provider") val paymentProvider: String
 )
 
 data class BookingCreateResponse(

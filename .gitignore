@@ -1,8 +1,11 @@
-.idea/
-.vscode/
-*.iml
-.DS_Store
+# Gradle
+.gradle/
+**/.gradle/
 
+# Build outputs
+android/app/build/
+build/
 
-/android/app/build
-/android/.gradle
+# Kotlin kapt/cache
+**/kapt3/
+**/intermediates/

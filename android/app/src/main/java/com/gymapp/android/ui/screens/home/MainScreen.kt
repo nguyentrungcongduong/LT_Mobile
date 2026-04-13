@@ -221,6 +221,7 @@
                         androidx.navigation.navArgument("lastSessionAt") { type = androidx.navigation.NavType.StringType }
                     )
                 ) {
+<<<<<<< HEAD
                     com.gymapp.android.ui.screens.pt.ClientProgressScreen(
                         onNavigateBack = { navController.popBackStack() }
                     )
@@ -258,6 +259,210 @@
                 }
                 }
             }
+=======
+                    Text("Xin chào, bạn 👋", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                    Text("Hôm nay là ngày tập luyện tuyệt vời!", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    
+                    Spacer(modifier = Modifier.height(24.dp))
+                    
+                    // Banner Hội Viên
+                    if (userRole == "USER") {
+                        Card(
+                            onClick = onNavigateToActiveMembership,
+                            modifier = Modifier.fillMaxWidth().height(100.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFF1B5E20))
+                        ) {
+                            Column(
+                                modifier = Modifier.fillMaxSize().padding(16.dp),
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text("Hội viên của tôi", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                                Text("Nhấn vào đây để xem chi tiết & QR", color = Color(0xFFC8E6C9), fontSize = 14.sp)
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
+                    }
+
+                    // Quick Actions
+                    if (userRole == "USER") {
+                        Text("Thao tác nhanh", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            Button(
+                                onClick = onNavigateToPackages,
+                                modifier = Modifier.weight(1f).height(60.dp),
+                                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722))
+                            ) {
+                                Text("🎫 Mua gói HV", fontSize = 16.sp)
+                            }
+                            
+                            Button(
+                                onClick = { navController.navigate(BottomNavRoute.PTBooking.route) },
+                                modifier = Modifier.weight(1f).height(60.dp),
+                                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                            ) {
+                                Text("🏋️ Thuê PT", fontSize = 16.sp)
+                            }
+                        }
+                    } else if (userRole == "PT") {
+                        // PT Dashboard content
+                        Text("Trạng thái quản lý", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text("Chào huấn luyện viên! Chúc bạn có một ngày làm việc hiệu quả.", color = Color.Gray, fontSize = 15.sp)
+                    }
+                }
+            }
+            composable(BottomNavRoute.PTBooking.route) {
+                com.gymapp.android.ui.screens.pt.PtListScreen(
+                    onNavigateToBooking = { ptId ->
+                        navController.navigate("pt_booking/$ptId")
+                    }
+                )
+            }
+            composable(
+                route = "pt_booking/{ptId}",
+                arguments = listOf(androidx.navigation.navArgument("ptId") { type = androidx.navigation.NavType.StringType })
+            ) { backStackEntry ->
+                com.gymapp.android.ui.screens.pt.PtBookingScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onNext = { ptId -> 
+                        navController.navigate("pt_booking_confirm/$ptId")
+                    }
+                )
+            }
+            composable(
+                route = "pt_booking_confirm/{ptId}",
+                arguments = listOf(androidx.navigation.navArgument("ptId") { type = androidx.navigation.NavType.StringType })
+            ) { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    try {
+                        navController.getBackStackEntry("pt_booking/{ptId}")
+                    } catch (e: Exception) {
+                        backStackEntry
+                    }
+                }
+                val sharedViewModel: com.gymapp.android.ui.screens.pt.PtBookingViewModel = androidx.hilt.navigation.compose.hiltViewModel(parentEntry)
+
+                com.gymapp.android.ui.screens.pt.PtBookingConfirmScreen(
+                    viewModel = sharedViewModel,
+                    onNavigateBack = { navController.popBackStack() },
+                    onBookingSuccess = { paymentUrl, bookingId ->
+                        val encodedUrl = android.util.Base64.encodeToString(paymentUrl.toByteArray(), android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP)
+                        navController.navigate("pt_payment_webview/$encodedUrl")
+                    }
+                )
+            }
+            composable(
+                route = "pt_payment_webview/{encodedUrl}",
+                arguments = listOf(androidx.navigation.navArgument("encodedUrl") { type = androidx.navigation.NavType.StringType })
+            ) { backStackEntry ->
+                val encodedUrl = backStackEntry.arguments?.getString("encodedUrl") ?: ""
+                com.gymapp.android.ui.screens.pt.PaymentWebViewScreen(
+                    encodedUrl = encodedUrl,
+                    onNavigateBack = { navController.popBackStack() },
+                    onPaymentResultReceived = { bookingId ->
+                        navController.navigate("pt_payment_result/$bookingId") {
+                            popUpTo("pt_booking_confirm/{ptId}") { inclusive = true } // close payment view
+                        }
+                    }
+                )
+            }
+            composable(
+                route = "pt_payment_result/{bookingId}",
+                arguments = listOf(androidx.navigation.navArgument("bookingId") { type = androidx.navigation.NavType.StringType }),
+                deepLinks = listOf(androidx.navigation.navDeepLink { uriPattern = "gymapp://payment/result?booking_id={bookingId}" })
+            ) { backStackEntry ->
+                val bookingId = backStackEntry.arguments?.getString("bookingId") ?: ""
+                com.gymapp.android.ui.screens.pt.PaymentResultScreen(
+                    bookingId = bookingId,
+                    onNavigateHome = {
+                        navController.navigate(BottomNavRoute.Dashboard.route) {
+                            popUpTo(BottomNavRoute.Dashboard.route) { inclusive = true }
+                        }
+                    },
+                    onRetry = {
+                        navController.popBackStack("pt_booking/{ptId}", inclusive = false)
+                    },
+                    onCancel = {
+                        navController.navigate(BottomNavRoute.Dashboard.route) {
+                            popUpTo(BottomNavRoute.Dashboard.route) { inclusive = true }
+                        }
+                    }
+                )
+            }
+            composable(BottomNavRoute.UserBookings.route) {
+                com.gymapp.android.ui.screens.pt.UserBookingsScreen(
+                    onNavigateToCancel = { route ->
+                        navController.navigate(route)
+                    }
+                )
+            }
+            composable(BottomNavRoute.PtQueue.route) {
+                com.gymapp.android.ui.screens.pt.PtQueueScreen()
+            }
+            composable(BottomNavRoute.PtClients.route) {
+                com.gymapp.android.ui.screens.pt.PtClientsScreen(
+                    onNavigateToClientProgress = { userId, clientName, totalSessions, lastSessionAt ->
+                        val encodedName = java.net.URLEncoder.encode(clientName, "UTF-8")
+                        val dateStr = lastSessionAt ?: "none"
+                        navController.navigate("client_progress/$userId/$encodedName/$totalSessions/$dateStr")
+                    }
+                )
+            }
+            composable(
+                route = "client_progress/{userId}/{clientName}/{totalSessions}/{lastSessionAt}",
+                arguments = listOf(
+                    androidx.navigation.navArgument("userId") { type = androidx.navigation.NavType.StringType },
+                    androidx.navigation.navArgument("clientName") { type = androidx.navigation.NavType.StringType },
+                    androidx.navigation.navArgument("totalSessions") { type = androidx.navigation.NavType.LongType },
+                    androidx.navigation.navArgument("lastSessionAt") { type = androidx.navigation.NavType.StringType }
+                )
+            ) {
+                com.gymapp.android.ui.screens.pt.ClientProgressScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            composable(
+                route = "cancel_booking/{bookingId}/{ptName}/{scheduledAt}/{amount}",
+                arguments = listOf(
+                    androidx.navigation.navArgument("bookingId") { type = androidx.navigation.NavType.StringType },
+                    androidx.navigation.navArgument("ptName") { type = androidx.navigation.NavType.StringType },
+                    androidx.navigation.navArgument("scheduledAt") { type = androidx.navigation.NavType.StringType },
+                    androidx.navigation.navArgument("amount") { type = androidx.navigation.NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val bookingId = backStackEntry.arguments?.getString("bookingId") ?: ""
+                val ptName = backStackEntry.arguments?.getString("ptName") ?: ""
+                val scheduledAt = backStackEntry.arguments?.getString("scheduledAt") ?: ""
+                val amount = backStackEntry.arguments?.getString("amount") ?: "0"
+                
+                com.gymapp.android.ui.screens.pt.PtBookingCancelScreen(
+                    bookingId = bookingId,
+                    ptName = ptName,
+                    scheduledAt = scheduledAt,
+                    amount = amount,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            composable(BottomNavRoute.Profile.route) {
+                com.gymapp.android.ui.screens.profile.ProfileScreen(
+                    onLogout = onLogout,
+                    onNavigateToHistory = { navController.navigate("payment_history") }
+                )
+            }
+            composable(route = "payment_history") {
+                com.gymapp.android.ui.screens.pt.PaymentHistoryScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+>>>>>>> 5176a02814fe8284e5eed8bdc45816add6bf42fc
         }
 
 
