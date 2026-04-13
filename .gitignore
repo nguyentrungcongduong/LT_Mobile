@@ -1,8 +1,18 @@
+# IDE
 .idea/
 .vscode/
 *.iml
+
+# OS
 .DS_Store
 
+# Gradle
+.gradle/
+**/.gradle/
 
-/android/app/build
-/android/.gradle
+# Build outputs
+build/
+**/build/
+
+# Android
+local.properties

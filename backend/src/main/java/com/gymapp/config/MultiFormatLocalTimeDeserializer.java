@@ -19,10 +19,18 @@ public class MultiFormatLocalTimeDeserializer extends JsonDeserializer<LocalTime
                 String fieldName = p.getCurrentName();
                 p.nextToken();
                 switch (fieldName) {
-                    case "hour": hour = p.getIntValue(); break;
-                    case "minute": minute = p.getIntValue(); break;
-                    case "second": second = p.getIntValue(); break;
-                    case "nano": nano = p.getIntValue(); break;
+                    case "hour":
+                        hour = p.getIntValue();
+                        break;
+                    case "minute":
+                        minute = p.getIntValue();
+                        break;
+                    case "second":
+                        second = p.getIntValue();
+                        break;
+                    case "nano":
+                        nano = p.getIntValue();
+                        break;
                 }
             }
             return LocalTime.of(hour, minute, second, nano);
@@ -38,7 +46,8 @@ public class MultiFormatLocalTimeDeserializer extends JsonDeserializer<LocalTime
             int minute = p.nextIntValue(0);
             int second = p.hasToken(JsonToken.END_ARRAY) ? 0 : p.nextIntValue(0);
             int nano = p.hasToken(JsonToken.END_ARRAY) ? 0 : p.nextIntValue(0);
-            while (p.nextToken() != JsonToken.END_ARRAY);
+            while (p.nextToken() != JsonToken.END_ARRAY)
+                ;
             return LocalTime.of(hour, minute, second, nano);
         }
         return (LocalTime) ctxt.handleUnexpectedToken(LocalTime.class, p);
