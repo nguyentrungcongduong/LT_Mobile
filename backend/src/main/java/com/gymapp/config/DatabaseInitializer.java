@@ -21,12 +21,12 @@ public class DatabaseInitializer implements CommandLineRunner {
     public void run(String... args) {
         log.info(">>> START INIT DATABASE");
 
-        if (userRepository.count() == 0) {
-            log.info(">>> No users found. Initializing default ADMIN account...");
+        if (userRepository.findByEmail("superadmin@gmail.com").isEmpty()) {
+            log.info(">>> Admin account not found. Initializing default ADMIN account...");
 
             User adminUser = User.builder()
-                    .email("admin@gmail.com")
-                    .passwordHash(passwordEncoder.encode("12345678"))
+                    .email("superadmin@gmail.com")
+                    .passwordHash(passwordEncoder.encode("Admin@12345"))
                     .fullName("Super Admin")
                     .phone("0123456789")
                     .role(UserRole.ADMIN)
@@ -35,7 +35,7 @@ public class DatabaseInitializer implements CommandLineRunner {
 
             userRepository.save(adminUser);
         } else {
-            log.info(">>> Database already initialized (users count: {})", userRepository.count());
+            log.info(">>> Database already initialized (Admin exists)");
         }
 
         log.info(">>> END INIT DATABASE");

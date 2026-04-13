@@ -40,6 +40,7 @@ fun MainScreen(
     onNavigateToWorkout: () -> Unit = {},
     onNavigateToQrDisplay: () -> Unit = {},
     onNavigateToQrScan: () -> Unit = {},
+    onNavigateToPtApproval: () -> Unit = {},
     mainViewModel: MainViewModel = androidx.hilt.navigation.compose.hiltViewModel()
 ) {
     val navController = rememberNavController()
@@ -67,7 +68,16 @@ fun MainScreen(
         BottomNavRoute.Profile
     )
 
-    val items = if (userRole == "PT") ptItems else userItems
+    val adminItems = listOf(
+        BottomNavRoute.Dashboard,
+        BottomNavRoute.Profile
+    )
+
+    val items = when (userRole) {
+        "PT" -> ptItems
+        "ADMIN" -> adminItems
+        else -> userItems
+    }
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: BottomNavRoute.Dashboard.route
@@ -301,6 +311,50 @@ fun MainScreen(
                                     Text("14:30 - Tăng cơ bắp", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                                     Text("Học viên: Nguyễn Văn A", color = Color.Gray, fontSize = 14.sp)
                                 }
+                            }
+                        }
+                    } else if (userRole == "ADMIN") {
+                        Text("Tổng quan Hệ Thống", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Card(modifier = Modifier.weight(1f), colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD))) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text("Check-in", color = Color.Gray, fontSize = 13.sp)
+                                    Text("128", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1565C0))
+                                }
+                            }
+                            Card(modifier = Modifier.weight(1f), colors = CardDefaults.cardColors(containerColor = Color(0xFFFCE4EC))) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text("Đăng ký mới", color = Color.Gray, fontSize = 13.sp)
+                                    Text("15", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFFC2185B))
+                                }
+                            }
+                        }
+                        
+                        Spacer(modifier = Modifier.height(24.dp))
+                        
+                        Text("Quản lý & Vận hành", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Button(
+                                onClick = onNavigateToQrScan,
+                                modifier = Modifier.weight(1f).height(56.dp),
+                                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2))
+                            ) {
+                                Text("📷 Quét Cửa", fontSize = 14.sp)
+                            }
+                            
+                            Button(
+                                onClick = onNavigateToPtApproval,
+                                modifier = Modifier.weight(1f).height(56.dp),
+                                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                            ) {
+                                Text("✅ Duyệt PT", fontSize = 14.sp)
                             }
                         }
                     }

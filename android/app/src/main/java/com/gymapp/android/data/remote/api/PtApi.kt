@@ -65,4 +65,15 @@ interface PtApi {
     suspend fun getClientProgress(
         @Path("user_id") userId: String
     ): Response<ApiResponse<ClientProgressDto>>
+
+    @PATCH("api/v1/admin/pts/{pt_id}/approve")
+    suspend fun approvePt(
+        @Path("pt_id") ptId: String
+    ): Response<ApiResponse<Map<String, Any>>>
+
+    @PATCH("api/v1/admin/pts/{pt_id}/suspend")
+    suspend fun suspendPt(
+        @Path("pt_id") ptId: String,
+        @Body request: Any // SuspendReq if needed, or empty map
+    ): Response<ApiResponse<Map<String, Any>>>
 }

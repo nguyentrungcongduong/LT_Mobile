@@ -77,21 +77,21 @@ class MembershipRepositoryImpl @Inject constructor(
     override suspend fun getActiveMembership(): Result<ActiveMembership> = withContext(Dispatchers.IO) {
         kotlinx.coroutines.delay(1000) // Giả lập mạng chậm 1s
         
-        // Uncomment dòng dưới đây để test giao diện EmptyState (chưa có gói)
-        // return@withContext Result.failure(Exception("NO_MEMBERSHIP_FOUND"))
+        // Return EmptyState (chưa có gói)
+        return@withContext Result.failure(Exception("NO_MEMBERSHIP_FOUND"))
         
-        Result.success(
-            ActiveMembership(
-                id = "c0000000-0000-0000-0000-000000000001", // UUID - memberships.id
-                planName = "Premium",                        // plan_name join từ membership_plans
-                planType = com.gymapp.android.domain.model.membership.PlanType.ALL,
-                branchName = null,  // null khi plan_type = ALL (theo DB)
-                status = com.gymapp.android.domain.model.membership.MembershipStatus.ACTIVE,
-                startDate = java.time.LocalDate.now().minusDays(18), // DATE
-                endDate = java.time.LocalDate.now().plusDays(72),    // DATE
-                daysLeft = 72  // tính server-side
-            )
-        )
+//        Result.success(
+//            ActiveMembership(
+//                id = "c0000000-0000-0000-0000-000000000001", // UUID - memberships.id
+//                planName = "Premium",                        // plan_name join từ membership_plans
+//                planType = com.gymapp.android.domain.model.membership.PlanType.ALL,
+//                branchName = null,  // null khi plan_type = ALL (theo DB)
+//                status = com.gymapp.android.domain.model.membership.MembershipStatus.ACTIVE,
+//                startDate = java.time.LocalDate.now().minusDays(18), // DATE
+//                endDate = java.time.LocalDate.now().plusDays(72),    // DATE
+//                daysLeft = 72  // tính server-side
+//            )
+//        )
     }
 
     private fun <T, R> handleResponse(

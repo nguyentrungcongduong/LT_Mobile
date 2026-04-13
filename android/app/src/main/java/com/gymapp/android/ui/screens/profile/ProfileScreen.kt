@@ -222,61 +222,95 @@ fun ProfileScreen(
 
                         Spacer(modifier = Modifier.height(32.dp))
 
-                        // Stats Row
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            StatCard(modifier = Modifier.weight(1f), value = "24", label = "Buổi tập", valueColor = TextDark)
-                            StatCard(modifier = Modifier.weight(1f), value = "7", label = "Ngày streak", valueColor = PrimaryOrange)
-                            StatCard(modifier = Modifier.weight(1f), value = "36h", label = "Tổng giờ", valueColor = TextDark)
-                        }
-
-                        //cap nhat muc tieu
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Button(
-                            onClick = onNavigateToGoal,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1A1A1A))
-                        ) {
-                            Text(
-                                text = "Cập nhật mục tiêu (Goal)",
-                                color = Color(0xFFFF5722),
-                                fontSize = 16.sp
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // Goal Card
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(CardBackground, RoundedCornerShape(16.dp))
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier.size(44.dp).background(Color(0xFFFFF0EC), RoundedCornerShape(12.dp)),
-                                contentAlignment = Alignment.Center
+                        // Logic UI theo Role
+                        if (user.role == "PT") {
+                            // PT View
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
-                                Icon(Icons.Default.AdsClick, contentDescription = null, tint = PrimaryOrange)
+                                StatCard(modifier = Modifier.weight(1f), value = "12", label = "Học viên", valueColor = TextDark)
+                                StatCard(modifier = Modifier.weight(1f), value = "4.9", label = "Đánh giá ⭐️", valueColor = PrimaryOrange)
+                                StatCard(modifier = Modifier.weight(1f), value = "150+", label = "Tiết dạy", valueColor = TextDark)
                             }
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(text = "Mục tiêu hiện tại", color = TextGray, fontSize = 12.sp)
-                                val goalText = when(user.fitnessGoal) {
-                                    FitnessGoal.WEIGHT_LOSS -> "Giảm cân & Mỡ"
-                                    FitnessGoal.MUSCLE_GAIN -> "Tăng cơ bắp"
-                                    FitnessGoal.ENDURANCE -> "Tăng thể lực & Sức bền"
-                                    null -> "Chưa thiết lập"
+                            
+                            Spacer(modifier = Modifier.height(16.dp))
+                            
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(CardBackground, RoundedCornerShape(16.dp))
+                                    .padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier.size(44.dp).background(Color(0xFFE8F5E9), RoundedCornerShape(12.dp)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(Icons.Default.VerifiedUser, contentDescription = null, tint = PrimaryGreen)
                                 }
-                                Text(text = goalText, color = TextDark, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(text = "Chuyên môn chính", color = TextGray, fontSize = 12.sp)
+                                    Text(text = "Bodybuilding & Fitness", color = TextDark, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                }
                             }
-                            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = TextGray)
+                        } else {
+                            // User View (Mặc định)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                StatCard(modifier = Modifier.weight(1f), value = "24", label = "Buổi tập", valueColor = TextDark)
+                                StatCard(modifier = Modifier.weight(1f), value = "7", label = "Ngày streak", valueColor = PrimaryOrange)
+                                StatCard(modifier = Modifier.weight(1f), value = "36h", label = "Tổng giờ", valueColor = TextDark)
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Button(
+                                onClick = onNavigateToGoal,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(56.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1A1A1A))
+                            ) {
+                                Text(
+                                    text = "Cập nhật mục tiêu (Goal)",
+                                    color = Color(0xFFFF5722),
+                                    fontSize = 16.sp
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            // Goal Card
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(CardBackground, RoundedCornerShape(16.dp))
+                                    .padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier.size(44.dp).background(Color(0xFFFFF0EC), RoundedCornerShape(12.dp)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(Icons.Default.AdsClick, contentDescription = null, tint = PrimaryOrange)
+                                }
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(text = "Mục tiêu hiện tại", color = TextGray, fontSize = 12.sp)
+                                    val goalText = when(user.fitnessGoal) {
+                                        FitnessGoal.WEIGHT_LOSS -> "Giảm cân & Mỡ"
+                                        FitnessGoal.MUSCLE_GAIN -> "Tăng cơ bắp"
+                                        FitnessGoal.ENDURANCE -> "Tăng thể lực & Sức bền"
+                                        null -> "Chưa thiết lập"
+                                    }
+                                    Text(text = goalText, color = TextDark, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                }
+                                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = TextGray)
+                            }
                         }
 
                         Spacer(modifier = Modifier.height(32.dp))

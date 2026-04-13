@@ -23,4 +23,6 @@ interface PtRepository {
     suspend fun getPtBookings(status: String?, upcomingOnly: Boolean?, page: Int, size: Int): Result<PageResponse<BookingDto>>
     suspend fun getPtClients(status: String?, page: Int, size: Int): Result<PageResponse<ClientDto>>
     suspend fun getClientProgress(userId: String): Result<ClientProgressDto>
+    suspend fun approvePt(ptId: String): Result<Map<String, Any>>
+    suspend fun suspendPt(ptId: String, reason: String): Result<Map<String, Any>>
 }

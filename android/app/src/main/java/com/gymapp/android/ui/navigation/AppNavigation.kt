@@ -112,7 +112,13 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
                 },
                 onNavigateToWorkout = { navController.navigate(Route.WorkoutList.route) },
                 onNavigateToQrDisplay = { navController.navigate("qr_display") },
-                onNavigateToQrScan = { navController.navigate("qr_scan") }
+                onNavigateToQrScan = { navController.navigate("qr_scan") },
+                onNavigateToPtApproval = { navController.navigate("admin_pt_approval") }
+            )
+        }
+        composable("admin_pt_approval") {
+            com.gymapp.android.ui.screens.admin.pt.AdminPtApprovalScreen(
+                onNavigateBack = { navController.popBackStack() }
             )
         }
         composable("qr_display") {

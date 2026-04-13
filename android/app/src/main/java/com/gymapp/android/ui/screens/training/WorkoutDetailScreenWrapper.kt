@@ -36,6 +36,10 @@ fun WorkoutDetailScreenWrapper(planId: String, navController: NavController) {
 
     WorkoutDetailScreen(
         plan = plan,
-        onBack = { navController.popBackStack() }
+        onBack = { navController.popBackStack() },
+        onComplete = {
+            viewModel.completePlan(plan.id)
+            navController.popBackStack()
+        }
     )
 }

@@ -27,37 +27,7 @@ class PtRepositoryImpl @Inject constructor(
     private val gson = Gson()
 
     override suspend fun getPtList(page: Int, size: Int): Result<PageResponse<PtPublicDto>> = withContext(Dispatchers.IO) {
-        val mockPts = listOf(
-            PtPublicDto(
-                id = "pt1-0000-0000-0000-000000000001",
-                fullName = "Trần Thanh Phong",
-                avatarUrl = "https://i.pinimg.com/736x/55/b7/c7/55b7c7b80562e6ae5f00e0b3c6bf48ba.jpg",
-                specializations = listOf("Tăng cơ", "Giảm mỡ"),
-                price = 500000.0,
-                rating = 4.9,
-                reviewCount = 120
-            ),
-            PtPublicDto(
-                id = "pt2-0000-0000-0000-000000000002",
-                fullName = "Lê Mai Trang",
-                avatarUrl = "https://i.pinimg.com/236x/fd/f0/54/fdf0547aa5b161c6b162f4b46c071d05.jpg",
-                specializations = listOf("Yoga", "Kéo giãn"),
-                price = 400000.0,
-                rating = 4.8,
-                reviewCount = 85
-            ),
-            PtPublicDto(
-                id = "pt3-0000-0000-0000-000000000003",
-                fullName = "Nguyễn Hùng Vĩ",
-                avatarUrl = "https://i.pinimg.com/236x/d4/dc/49/d4dc497de252ea9d67bd4ece60cf475e.jpg",
-                specializations = listOf("Street Workout", "Boxing"),
-                price = 600000.0,
-                rating = 5.0,
-                reviewCount = 200
-            )
-        )
-        
-        Result.success(PageResponse(content = mockPts))
+        handleApiCall { ptApi.getPts(page, size) }
     }
     
     override suspend fun getPtDetail(ptId: String): Result<PtPublicDto> = withContext(Dispatchers.IO) {
@@ -90,6 +60,14 @@ class PtRepositoryImpl @Inject constructor(
 
     override suspend fun getClientProgress(userId: String): Result<ClientProgressDto> = withContext(Dispatchers.IO) {
         handleApiCall { ptApi.getClientProgress(userId) }
+    }
+
+    override suspend fun approvePt(ptId: String): Result<Map<String, Any>> = withContext(Dispatchers.IO) {
+        handleApiCall { ptApi.approvePt(ptId) }
+    }
+
+    override suspend fun suspendPt(ptId: String, reason: String): Result<Map<String, Any>> = withContext(Dispatchers.IO) {
+        handleApiCall { ptApi.suspendPt(ptId, mapOf("reason" to reason)) }
     }
 
     private suspend fun <T> handleApiCall(apiCall: suspend () -> Response<ApiResponse<T>>): Result<T> {

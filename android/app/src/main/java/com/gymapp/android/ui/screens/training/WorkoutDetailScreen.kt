@@ -33,11 +33,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 import com.gymapp.android.R
 import com.gymapp.android.data.remote.response.WorkoutPlanResponse
 
 @Composable
-fun WorkoutDetailScreen(plan: WorkoutPlanResponse, onBack: () -> Unit = {}) {
+fun WorkoutDetailScreen(
+    plan: WorkoutPlanResponse,
+    onBack: () -> Unit = {},
+    onComplete: () -> Unit = {}
+) {
+    val context = LocalContext.current
 
     val checked = remember { mutableStateListOf<Int>() }
 
@@ -75,12 +82,12 @@ fun WorkoutDetailScreen(plan: WorkoutPlanResponse, onBack: () -> Unit = {}) {
 
             Column(modifier = Modifier.padding(16.dp)) {
 
-                Text("DAY 1", fontSize = 26.sp, fontWeight = FontWeight.Bold)
+                Text(plan.name ?: "Chưa có tên", fontSize = 26.sp, fontWeight = FontWeight.Bold)
 
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
-                    "Chest",
+                    plan.planType?.replace("_", " ") ?: "GENERAL",
                     color = Color(0xFF2979FF),
                     modifier = Modifier
                         .background(Color(0xFFE3F2FD), RoundedCornerShape(20.dp))
@@ -98,13 +105,13 @@ fun WorkoutDetailScreen(plan: WorkoutPlanResponse, onBack: () -> Unit = {}) {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column {
-                        Text("Equipment", color = Color.Gray, fontSize = 12.sp)
-                        Text("Default", fontWeight = FontWeight.Medium)
+                        Text("Cấp độ", color = Color.Gray, fontSize = 12.sp)
+                        Text(plan.targetLevel ?: "Mọi cấp độ", fontWeight = FontWeight.Medium)
                     }
 
                     Column {
-                        Text("1RM", color = Color.Gray, fontSize = 12.sp)
-                        Text("35 kg", fontWeight = FontWeight.Medium)
+                        Text("Thời lượng", color = Color.Gray, fontSize = 12.sp)
+                        Text("${plan.exercises.size * 5} phút", fontWeight = FontWeight.Medium)
                     }
                 }
 
@@ -137,12 +144,12 @@ fun WorkoutDetailScreen(plan: WorkoutPlanResponse, onBack: () -> Unit = {}) {
                 // BUTTON START / COMPLETE
                 Button(
                     onClick = {
-                        val done = checked.size
-                        val total = plan.exercises.size
-
-                        println("Hoàn thành $done/$total bài")
-
-                        // CALL API workout log
+                        if (checked.isEmpty()) {
+                            Toast.makeText(context, "Hãy đánh dấu ít nhất 1 bài tập!", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                        onComplete()
+                        Toast.makeText(context, "Tuyệt vời! Đã lưu tiến độ tập.", Toast.LENGTH_SHORT).show()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -150,7 +157,8 @@ fun WorkoutDetailScreen(plan: WorkoutPlanResponse, onBack: () -> Unit = {}) {
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F51B5))
                 ) {
-                    Text("START (${checked.size}/${plan.exercises.size})", fontSize = 16.sp)
+                    val text = if (checked.size == plan.exercises.size) "🎉 HOÀN THÀNH BÀI TẬP" else "💾 LƯU TIẾN ĐỘ (${checked.size}/${plan.exercises.size})"
+                    Text(text, fontSize = 16.sp)
                 }
             }
         }

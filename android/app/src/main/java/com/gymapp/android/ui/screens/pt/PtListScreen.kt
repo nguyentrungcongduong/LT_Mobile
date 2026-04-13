@@ -209,7 +209,7 @@ private fun PtCard(pt: PtPublicDto, onClick: () -> Unit) {
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 modifier = Modifier.height(36.dp)
             ) {
-                Text("Xem chi tiết", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                Text("Đặt lịch ngay", fontSize = 13.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
