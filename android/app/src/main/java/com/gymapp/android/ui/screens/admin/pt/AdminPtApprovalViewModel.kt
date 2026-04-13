@@ -37,26 +37,26 @@ class AdminPtApprovalViewModel @Inject constructor(
         }
     }
 
+    private val _toastMessage = kotlinx.coroutines.flow.MutableSharedFlow<String>()
+    val toastMessage: kotlinx.coroutines.flow.SharedFlow<String> = _toastMessage
+
     fun approvePt(ptId: String) {
         viewModelScope.launch {
             val result = ptRepository.approvePt(ptId)
-            result.onSuccess {
-                loadPts() // Reload list after approval
-            }.onFailure { e ->
-                // Wait, should we notify? Flow can emit side effect. Just reloading is fine or emit error
-                _uiState.value = AdminPtApprovalUiState.Error(e.message ?: "Lỗi khi duyệt PT")
+            result.onFailure { e ->
+                _toastMessage.emit(e.message ?: "Lỗi chưa rõ khi duyêt")
             }
+            loadPts()
         }
     }
 
     fun suspendPt(ptId: String) {
         viewModelScope.launch {
             val result = ptRepository.suspendPt(ptId, "Admin đình chỉ")
-            result.onSuccess {
-                loadPts() // Reload list
-            }.onFailure { e ->
-                _uiState.value = AdminPtApprovalUiState.Error(e.message ?: "Lỗi khi đình chỉ PT")
+            result.onFailure { e ->
+                _toastMessage.emit(e.message ?: "Lỗi chưa rõ khi đình chỉ")
             }
+            loadPts()
         }
     }
 }

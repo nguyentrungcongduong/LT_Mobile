@@ -147,5 +147,22 @@ class UserRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
     }
-
+    
+    override suspend fun getAdminDashboardStats(): Result<com.gymapp.android.data.remote.api.AdminDashboardStatsDto> = withContext(Dispatchers.IO) {
+        try {
+            val response = userApi.getAdminDashboardStats()
+            if (response.isSuccessful && response.body()?.success == true) {
+                val data = response.body()?.data
+                if (data != null) {
+                    Result.success(data)
+                } else {
+                    Result.failure(Exception("Phản hồi không có dữ liệu"))
+                }
+            } else {
+                Result.failure(Exception(parseErrorMessage(response)))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

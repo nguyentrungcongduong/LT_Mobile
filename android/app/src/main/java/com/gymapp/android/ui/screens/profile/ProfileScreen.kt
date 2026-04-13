@@ -255,6 +255,27 @@ fun ProfileScreen(
                                     Text(text = "Bodybuilding & Fitness", color = TextDark, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                                 }
                             }
+                        } else if (user.role == "ADMIN") {
+                            // Admin View
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(CardBackground, RoundedCornerShape(16.dp))
+                                    .padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier.size(44.dp).background(Color(0xFFE8EAF6), RoundedCornerShape(12.dp)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(Icons.Default.AdminPanelSettings, contentDescription = null, tint = Color(0xFF3F51B5))
+                                }
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(text = "Quyền hạn", color = TextGray, fontSize = 12.sp)
+                                    Text(text = "Toàn quyền quản trị hệ thống", color = TextDark, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
                         } else {
                             // User View (Mặc định)
                             Row(

@@ -94,5 +94,6 @@ data class PtPublicDto(
     val specializations: List<String>?,
     @SerializedName("ratingAvg") val rating: Double,
     @SerializedName("totalReviews") val reviewCount: Int,
-    @SerializedName("pricePerSession") val price: Double
+    @SerializedName("pricePerSession") val price: Double,
+    @SerializedName("approved") val isApproved: Boolean = false
 )

@@ -52,6 +52,14 @@ interface UserApi {
     suspend fun updateGoal(
         @Body request: UpdateUserGoalRequest
     ): Response<ApiResponse<UserResponse>>
+
+    @GET("api/v1/admin/dashboard/stats")
+    suspend fun getAdminDashboardStats(): Response<ApiResponse<AdminDashboardStatsDto>>
 }
+
+data class AdminDashboardStatsDto(
+    val totalCheckins: Long,
+    val newRegistrations: Long
+)
 
 

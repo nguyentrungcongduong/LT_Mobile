@@ -47,6 +47,7 @@ fun MainScreen(
     val userRole by mainViewModel.userRole.collectAsState()
     val userAvatar by mainViewModel.userAvatar.collectAsState()
     val needSetupGoal by mainViewModel.needSetupGoal.collectAsState()
+    val adminStats by mainViewModel.adminStats.collectAsState()
 
     LaunchedEffect(needSetupGoal) {
         if (needSetupGoal) {
@@ -320,13 +321,13 @@ fun MainScreen(
                             Card(modifier = Modifier.weight(1f), colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD))) {
                                 Column(modifier = Modifier.padding(16.dp)) {
                                     Text("Check-in", color = Color.Gray, fontSize = 13.sp)
-                                    Text("128", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1565C0))
+                                    Text(adminStats?.totalCheckins?.toString() ?: "...", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1565C0))
                                 }
                             }
                             Card(modifier = Modifier.weight(1f), colors = CardDefaults.cardColors(containerColor = Color(0xFFFCE4EC))) {
                                 Column(modifier = Modifier.padding(16.dp)) {
-                                    Text("Đăng ký mới", color = Color.Gray, fontSize = 13.sp)
-                                    Text("15", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFFC2185B))
+                                    Text("Tổng Thành viên", color = Color.Gray, fontSize = 13.sp)
+                                    Text(adminStats?.newRegistrations?.toString() ?: "...", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFFC2185B))
                                 }
                             }
                         }

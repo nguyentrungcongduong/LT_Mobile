@@ -25,6 +25,9 @@ class MainViewModel @Inject constructor(
     private val _userAvatar = MutableStateFlow<String?>(null)
     val userAvatar: StateFlow<String?> = _userAvatar.asStateFlow()
 
+    private val _adminStats = MutableStateFlow<com.gymapp.android.data.remote.api.AdminDashboardStatsDto?>(null)
+    val adminStats: StateFlow<com.gymapp.android.data.remote.api.AdminDashboardStatsDto?> = _adminStats.asStateFlow()
+
     init {
         fetchProfile()
     }
@@ -45,11 +48,27 @@ class MainViewModel @Inject constructor(
                     Prefs.hasSetupGoal(context, user.id)
 
                 _needSetupGoal.value = needFromServer && !hasSetupLocal
+
+                if (user.role == "ADMIN") {
+                    fetchAdminStats()
+                }
             }
                 .onFailure {
                     _needSetupGoal.value = false
                 }
 
+        }
+    }
+
+    private fun fetchAdminStats() {
+        viewModelScope.launch {
+            userRepository.getAdminDashboardStats()
+                .onSuccess { stats ->
+                    _adminStats.value = stats
+                }
+                .onFailure {
+                    // Ignore or handle
+                }
         }
     }
 }

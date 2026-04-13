@@ -10,4 +10,5 @@ interface UserRepository {
     suspend fun uploadAvatar(file: File): Result<String>
     suspend fun changePassword(oldPass: String, newPass: String): Result<Unit>
     suspend fun updateGoal(request: UpdateUserGoalRequest): Result<Unit>
+    suspend fun getAdminDashboardStats(): Result<com.gymapp.android.data.remote.api.AdminDashboardStatsDto>
 }
