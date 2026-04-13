@@ -81,20 +81,20 @@ public class PaymentController {
     }
 
     @GetMapping("/vnpay-return")
-    public ResponseEntity<Void> vnpayReturn(@RequestParam Map<String, String> allParams) {
+    public ResponseEntity<String> vnpayReturn(@RequestParam Map<String, String> allParams) {
         String paymentIdStr = allParams.get("vnp_TxnRef");
         return handleReturnUrl(PaymentProvider.VNPAY, allParams, paymentIdStr,
                 paymentProperties.getVnpay().getMobileRedirectUrl());
     }
 
     @GetMapping("/momo-return")
-    public ResponseEntity<Void> momoReturn(@RequestParam Map<String, String> allParams) {
+    public ResponseEntity<String> momoReturn(@RequestParam Map<String, String> allParams) {
         String paymentIdStr = allParams.get("orderId");
         return handleReturnUrl(PaymentProvider.MOMO, allParams, paymentIdStr,
                 paymentProperties.getMomo().getMobileRedirectUrl());
     }
 
-    private ResponseEntity<Void> handleReturnUrl(PaymentProvider provider, Map<String, String> params,
+    private ResponseEntity<String> handleReturnUrl(PaymentProvider provider, Map<String, String> params,
             String paymentIdStr, String redirectUrl) {
         try {
             paymentService.confirmPayment(provider, params);
@@ -110,15 +110,42 @@ public class PaymentController {
             log.warn("Failed to retrieve bookingId for payment: {}", paymentIdStr);
         }
 
-        return generateRedirectHtml(redirectUrl, "booking_id", bookingId);
+        return generateDeepLinkPage(redirectUrl, "booking_id", bookingId);
     }
 
-    private ResponseEntity<Void> generateRedirectHtml(String baseUri, String paramKey, String paramValue) {
-        String finalUrl = baseUri + (baseUri.contains("?") ? "&" : "?") + paramKey + "=" + paramValue;
+    private ResponseEntity<String> generateDeepLinkPage(String baseUri, String paramKey, String paramValue) {
+        String deepLinkUrl = baseUri + (baseUri.contains("?") ? "&" : "?") + paramKey + "=" + paramValue;
 
-        return ResponseEntity.status(HttpStatus.FOUND)
-                .header(HttpHeaders.LOCATION, finalUrl)
-                .build();
+        String html = "<!DOCTYPE html><html><head>" +
+                "<meta charset=\"UTF-8\">" +
+                "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">" +
+                "<title>Đang xử lý thanh toán...</title>" +
+                "<style>" +
+                "body{font-family:sans-serif;display:flex;flex-direction:column;align-items:center;" +
+                "justify-content:center;min-height:100vh;margin:0;background:#f0f4f8;color:#333;}" +
+                "h2{margin-bottom:8px;}" +
+                "p{color:#666;font-size:14px;}" +
+                ".btn{margin-top:24px;padding:14px 28px;background:#1976D2;color:#fff;" +
+                "border:none;border-radius:8px;font-size:16px;cursor:pointer;text-decoration:none;}" +
+                "</style>" +
+                "<script>" +
+                "window.onload = function() {" +
+                "  window.location.href = '" + deepLinkUrl + "';" +
+                "  setTimeout(function() {" +
+                "    document.getElementById('manual-btn').style.display = 'inline-block';" +
+                "  }, 2000);" +
+                "};" +
+                "</script>" +
+                "</head><body>" +
+                "<h2>✅ Thanh toán thành công!</h2>" +
+                "<p>Đang chuyển bạn về ứng dụng...</p>" +
+                "<a id=\"manual-btn\" class=\"btn\" href=\"" + deepLinkUrl + "\" style=\"display:none\">" +
+                "Quay về ứng dụng</a>" +
+                "</body></html>";
+
+        return ResponseEntity.ok()
+                .header("Content-Type", "text/html; charset=UTF-8")
+                .body(html);
     }
 
     @GetMapping("/alls")

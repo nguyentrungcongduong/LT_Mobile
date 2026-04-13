@@ -1,6 +1,6 @@
 package com.gymapp.modules.user.controller;
 
-import com.gymapp.modules.user.dto.CheckinLogResponse;
+import com.gymapp.modules.user.dto.response.CheckinLogResponse;
 import com.gymapp.modules.user.service.CheckinQrService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

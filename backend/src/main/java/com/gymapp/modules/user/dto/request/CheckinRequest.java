@@ -1,4 +1,4 @@
-package com.gymapp.modules.user.dto;
+package com.gymapp.modules.user.dto.request;
 
 import lombok.Data;
 
