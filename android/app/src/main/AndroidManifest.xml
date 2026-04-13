@@ -12,6 +12,11 @@
         android:theme="@style/Theme.GymApp"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDhto5Ivs70eR_4ValuGdsg-UYNQ95AD6M" />
+            
         <activity
             android:name=".MainActivity"
             android:exported="true"

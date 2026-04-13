@@ -13,6 +13,7 @@ import lombok.Setter;
 @Builder
 public class UserUpdateDto {
     private String fullName;
+    private String email;
     private String phone;
     private Double weight;
     private Double height;

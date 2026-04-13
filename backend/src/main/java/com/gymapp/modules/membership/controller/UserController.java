@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.gymapp.common.response.ApiResponse;
 import com.gymapp.modules.membership.dto.UpdateUserGoalRequest;
+import com.gymapp.modules.membership.dto.ChangePasswordRequest;
 import com.gymapp.modules.membership.dto.UserDto;
 import com.gymapp.modules.membership.dto.UserResponse;
 import com.gymapp.modules.membership.dto.UserUpdateDto;
@@ -95,5 +96,11 @@ public class UserController {
     public ApiResponse<UserResponse> updateMyGoal(@RequestBody UpdateUserGoalRequest request) {
         User user = userService.updateMyGoal(request);
         return ApiResponse.ok(UserResponse.fromUser(user));
+    }
+
+    @PutMapping("/me/password")
+    public ApiResponse<Void> changePassword(@RequestBody @Valid ChangePasswordRequest request) {
+        userService.changePassword(request);
+        return ApiResponse.ok(null, "Đổi mật khẩu thành công");
     }
 }

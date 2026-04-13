@@ -23,6 +23,8 @@ public class MembershipPlanResponse {
     private PlanType planType;
     private UUID branchId;
     private String branchName;
+    private BigDecimal branchLatitude;
+    private BigDecimal branchLongitude;
     private boolean isActive;
     private OffsetDateTime createdAt;
 }

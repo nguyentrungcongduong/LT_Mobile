@@ -1,267 +1,147 @@
-    package com.gymapp.android.ui.screens.home
+package com.gymapp.android.ui.screens.home
 
-    import androidx.compose.foundation.layout.*
-    import androidx.compose.foundation.shape.RoundedCornerShape
-    import androidx.compose.ui.graphics.Color
-    import androidx.compose.material.icons.Icons
-    import androidx.compose.material.icons.filled.Home
-    import androidx.compose.material.icons.filled.Person
-    import androidx.compose.material.icons.filled.Star
-    import androidx.compose.material.icons.filled.DateRange
-    import androidx.compose.material.icons.filled.AddCircle
-    import androidx.compose.material3.*
-    import androidx.compose.runtime.*
-    import androidx.compose.ui.Alignment
-    import androidx.compose.ui.Modifier
-    import androidx.navigation.NavHostController
-    import androidx.navigation.compose.NavHost
-    import androidx.navigation.compose.composable
-    import androidx.compose.ui.text.font.FontWeight
-    import androidx.compose.ui.unit.dp
-    import androidx.compose.ui.unit.sp
-    import androidx.navigation.compose.rememberNavController
+import androidx.compose.foundation.layout.*
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
 
-    sealed class BottomNavRoute(val route: String, val title: String, val icon: androidx.compose.ui.graphics.vector.ImageVector) {
-        object Dashboard : BottomNavRoute("dashboard", "Trang Chủ", Icons.Default.Home)
-        object PTBooking : BottomNavRoute("booking", "Thuê PT", Icons.Default.Star)
-        object Profile : BottomNavRoute("profile", "Cá nhân", Icons.Default.Person)
-        object UserBookings : BottomNavRoute("user_bookings", "Lịch", Icons.Default.DateRange)
-        object PtQueue : BottomNavRoute("pt_queue", "Lịch hẹn", Icons.Default.DateRange)
-        object PtClients : BottomNavRoute("pt_clients", "Clients", Icons.Default.AddCircle) // Assuming Icons.Default.AddCircle as Group isn't imported
+sealed class BottomNavRoute(val route: String, val title: String, val icon: androidx.compose.ui.graphics.vector.ImageVector) {
+    object Dashboard : BottomNavRoute("dashboard", "Trang Chủ", Icons.Default.Home)
+    object PTBooking : BottomNavRoute("booking", "Thuê PT", Icons.Default.Star)
+    object Profile : BottomNavRoute("profile", "Cá nhân", Icons.Default.Person)
+    object UserBookings : BottomNavRoute("user_bookings", "Lịch", Icons.Default.DateRange)
+    object PtQueue : BottomNavRoute("pt_queue", "Lịch hẹn", Icons.Default.DateRange)
+    object PtClients : BottomNavRoute("pt_clients", "Clients", Icons.Default.AddCircle) // Assuming Icons.Default.AddCircle as Group isn't imported
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainScreen(
+    onNavigateToPackages: () -> Unit = {},
+    onNavigateToActiveMembership: () -> Unit = {},
+    onLogout: () -> Unit = {},
+    onNavigateToGoal: () -> Unit = {},
+    onNavigateToWorkout: () -> Unit = {},
+    mainViewModel: MainViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+) {
+    val navController = rememberNavController()
+    val userRole by mainViewModel.userRole.collectAsState()
+    val userAvatar by mainViewModel.userAvatar.collectAsState()
+    val needSetupGoal by mainViewModel.needSetupGoal.collectAsState()
+
+    LaunchedEffect(needSetupGoal) {
+        if (needSetupGoal) {
+            onNavigateToGoal()
+        }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun MainScreen(
-        onNavigateToPackages: () -> Unit = {},
-        onNavigateToActiveMembership: () -> Unit = {},
-        onLogout: () -> Unit = {},
-        onNavigateToGoal: () -> Unit = {},
-        onNavigateToWorkout: () -> Unit = {},
-        mainViewModel: MainViewModel = androidx.hilt.navigation.compose.hiltViewModel()
-    ) {
-        val navController = rememberNavController()
-        val userRole by mainViewModel.userRole.collectAsState()
-        val needSetupGoal by mainViewModel.needSetupGoal.collectAsState()
+    val userItems = listOf(
+        BottomNavRoute.Dashboard,
+        BottomNavRoute.PTBooking,
+        BottomNavRoute.UserBookings,
+        BottomNavRoute.Profile
+    )
 
-        LaunchedEffect(needSetupGoal) {
-            if (needSetupGoal) {
-                onNavigateToGoal()
+    val ptItems = listOf(
+        BottomNavRoute.Dashboard,
+        BottomNavRoute.PtQueue,
+        BottomNavRoute.PtClients,
+        BottomNavRoute.Profile
+    )
+
+    val items = if (userRole == "PT") ptItems else userItems
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route ?: BottomNavRoute.Dashboard.route
+
+    Scaffold(
+        bottomBar = {
+            NavigationBar {
+                items.forEach { screen ->
+                    NavigationBarItem(
+                        icon = { Icon(screen.icon, contentDescription = screen.title) },
+                        label = { Text(screen.title) },
+                        selected = currentRoute == screen.route,
+                        onClick = {
+                            navController.navigate(screen.route) {
+                                navController.graph.startDestinationRoute?.let { route ->
+                                    popUpTo(route) {
+                                        saveState = true
+                                    }
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    )
+                }
             }
         }
-
-        val userItems = listOf(
-            BottomNavRoute.Dashboard,
-            BottomNavRoute.PTBooking,
-            BottomNavRoute.UserBookings,
-            BottomNavRoute.Profile
-        )
-
-        val ptItems = listOf(
-            BottomNavRoute.Dashboard,
-            BottomNavRoute.PtQueue,
-            BottomNavRoute.PtClients,
-            BottomNavRoute.Profile
-        )
-
-        val items = if (userRole == "PT") ptItems else userItems
-
-        var currentRoute by remember { mutableStateOf(BottomNavRoute.Dashboard.route) }
-
-        Scaffold(
-            bottomBar = {
-                NavigationBar {
-                    items.forEach { screen ->
-                        NavigationBarItem(
-                            icon = { Icon(screen.icon, contentDescription = screen.title) },
-                            label = { Text(screen.title) },
-                            selected = currentRoute == screen.route,
-                            onClick = {
-                                currentRoute = screen.route
-                                navController.navigate(screen.route) {
-                                    popUpTo(navController.graph.startDestinationId) { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            }
-                        )
-                    }
-                }
-            }
-        ) { innerPadding ->
-            NavHost(
-                navController = navController,
-                startDestination = BottomNavRoute.Dashboard.route,
-                modifier = Modifier.padding(innerPadding)
-            ) {
-                composable(BottomNavRoute.Dashboard.route) {
-                    Column(
-                        modifier = Modifier.fillMaxSize().padding(16.dp)
-                    ) {
-                        Text("Xin chào, bạn 👋", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                        Text("Hôm nay là ngày tập luyện tuyệt vời!", color = Color.Gray)
-
-                        Spacer(modifier = Modifier.height(24.dp))
-
-                        // Banner Hội Viên
-                        if (userRole == "USER") {
-                            Card(
-                                onClick = onNavigateToActiveMembership,
-                                modifier = Modifier.fillMaxWidth().height(100.dp),
-                                colors = CardDefaults.cardColors(containerColor = Color(0xFF1B5E20))
-                            ) {
-                                Column(
-                                    modifier = Modifier.fillMaxSize().padding(16.dp),
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    Text("Hội viên của tôi", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                                    Text("Nhấn vào đây để xem chi tiết & QR", color = Color(0xFFC8E6C9), fontSize = 14.sp)
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(24.dp))
-                        }
-
-                        // Quick Actions
-                        if (userRole == "USER") {
-                            Text("Thao tác nhanh", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                                Button(
-                                    onClick = onNavigateToPackages,
-                                    modifier = Modifier.weight(1f).height(60.dp),
-                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722))
-                                ) {
-                                    Text("🎫 Mua gói HV", fontSize = 16.sp)
-                                }
-
-                                Button(
-                                    onClick = { navController.navigate(BottomNavRoute.PTBooking.route) },
-                                    modifier = Modifier.weight(1f).height(60.dp),
-                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E2E2E))
-                                ) {
-                                    Text("🏋️ Thuê PT", fontSize = 16.sp)
-                                }
-                                Button(
-                                    onClick = onNavigateToWorkout,   // THÊM NÚT NÀY
-                                    modifier = Modifier.weight(1f).height(60.dp),
-                                    shape = RoundedCornerShape(12.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F51B5))
-                                ) {
-                                    Text("🏋️ Luyện tập", fontSize = 16.sp)
-                                }
-                            }
-                        } else if (userRole == "PT") {
-                            // PT Dashboard content
-                            Text("Trạng thái quản lý", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text("Chào huấn luyện viên! Chúc bạn có một ngày làm việc hiệu quả.", color = Color.Gray, fontSize = 15.sp)
-                        }
-                    }
-                }
-                composable(BottomNavRoute.PTBooking.route) {
-                    com.gymapp.android.ui.screens.pt.PtListScreen(
-                        onNavigateToBooking = { ptId ->
-                            navController.navigate("pt_booking/$ptId")
-                        }
-                    )
-                }
-                composable(
-                    route = "pt_booking/{ptId}",
-                    arguments = listOf(androidx.navigation.navArgument("ptId") { type = androidx.navigation.NavType.StringType })
-                ) { backStackEntry ->
-                    com.gymapp.android.ui.screens.pt.PtBookingScreen(
-                        onNavigateBack = { navController.popBackStack() },
-                        onNext = { ptId ->
-                            navController.navigate("pt_booking_confirm/$ptId")
-                        }
-                    )
-                }
-                composable(
-                    route = "pt_booking_confirm/{ptId}",
-                    arguments = listOf(androidx.navigation.navArgument("ptId") { type = androidx.navigation.NavType.StringType })
-                ) { backStackEntry ->
-                    com.gymapp.android.ui.screens.pt.PtBookingConfirmScreen(
-                        onNavigateBack = { navController.popBackStack() },
-                        onBookingSuccess = { paymentUrl ->
-                            // Open payment URL or success screen
-                            // For now we just go back to clean the flow
-                            navController.popBackStack("booking", inclusive = false)
-                        }
-                    )
-                }
-                composable(BottomNavRoute.UserBookings.route) {
-                    com.gymapp.android.ui.screens.pt.UserBookingsScreen(
-                        onNavigateToCancel = { route ->
-                            navController.navigate(route)
-                        }
-                    )
-                }
-                composable(BottomNavRoute.PtQueue.route) {
-                    com.gymapp.android.ui.screens.pt.PtQueueScreen()
-                }
-                composable(BottomNavRoute.PtClients.route) {
-                    com.gymapp.android.ui.screens.pt.PtClientsScreen(
-                        onNavigateToClientProgress = { userId, clientName, totalSessions, lastSessionAt ->
-                            val encodedName = java.net.URLEncoder.encode(clientName, "UTF-8")
-                            val dateStr = lastSessionAt ?: "none"
-                            navController.navigate("client_progress/$userId/$encodedName/$totalSessions/$dateStr")
-                        }
-                    )
-                }
-                composable(
-                    route = "client_progress/{userId}/{clientName}/{totalSessions}/{lastSessionAt}",
-                    arguments = listOf(
-                        androidx.navigation.navArgument("userId") { type = androidx.navigation.NavType.StringType },
-                        androidx.navigation.navArgument("clientName") { type = androidx.navigation.NavType.StringType },
-                        androidx.navigation.navArgument("totalSessions") { type = androidx.navigation.NavType.LongType },
-                        androidx.navigation.navArgument("lastSessionAt") { type = androidx.navigation.NavType.StringType }
-                    )
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = BottomNavRoute.Dashboard.route,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable(BottomNavRoute.Dashboard.route) {
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(16.dp)
                 ) {
-<<<<<<< HEAD
-                    com.gymapp.android.ui.screens.pt.ClientProgressScreen(
-                        onNavigateBack = { navController.popBackStack() }
-                    )
-                }
-                composable(
-                    route = "cancel_booking/{bookingId}/{ptName}/{scheduledAt}/{amount}",
-                    arguments = listOf(
-                        androidx.navigation.navArgument("bookingId") { type = androidx.navigation.NavType.StringType },
-                        androidx.navigation.navArgument("ptName") { type = androidx.navigation.NavType.StringType },
-                        androidx.navigation.navArgument("scheduledAt") { type = androidx.navigation.NavType.StringType },
-                        androidx.navigation.navArgument("amount") { type = androidx.navigation.NavType.StringType }
-                    )
-                ) { backStackEntry ->
-                    val bookingId = backStackEntry.arguments?.getString("bookingId") ?: ""
-                    val ptName = backStackEntry.arguments?.getString("ptName") ?: ""
-                    val scheduledAt = backStackEntry.arguments?.getString("scheduledAt") ?: ""
-                    val amount = backStackEntry.arguments?.getString("amount") ?: "0"
-
-                    com.gymapp.android.ui.screens.pt.PtBookingCancelScreen(
-                        bookingId = bookingId,
-                        ptName = ptName,
-                        scheduledAt = scheduledAt,
-                        amount = amount,
-                        onNavigateBack = { navController.popBackStack() }
-                    )
-                }
-                composable(BottomNavRoute.Profile.route) {
-                    com.gymapp.android.ui.screens.profile.ProfileScreen(
-                        onLogout = onLogout,
-                        onNavigateToGoal = {
-                            onNavigateToGoal()
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                if (userRole == "PT") "Xin chào, HLV 👋" else "Xin chào, bạn 👋", 
+                                fontSize = 24.sp, 
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                if (userRole == "PT") "Chúc một ngày làm việc hiệu quả!" else "Hôm nay là ngày tập luyện tuyệt vời!", 
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontSize = 14.sp
+                            )
                         }
-
-                    )
-                }
-                }
-            }
-=======
-                    Text("Xin chào, bạn 👋", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                    Text("Hôm nay là ngày tập luyện tuyệt vời!", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Surface(
+                            shape = androidx.compose.foundation.shape.CircleShape,
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            modifier = Modifier.size(48.dp)
+                        ) {
+                            if (!userAvatar.isNullOrEmpty()) {
+                                coil.compose.AsyncImage(
+                                    model = userAvatar,
+                                    contentDescription = "Avatar",
+                                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            } else {
+                                Icon(
+                                    Icons.Default.Person, 
+                                    contentDescription = "Avatar", 
+                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    modifier = Modifier.padding(12.dp)
+                                )
+                            }
+                        }
+                    }
                     
                     Spacer(modifier = Modifier.height(24.dp))
                     
@@ -300,7 +180,15 @@
                             }
                             
                             Button(
-                                onClick = { navController.navigate(BottomNavRoute.PTBooking.route) },
+                                onClick = {
+                                    navController.navigate(BottomNavRoute.PTBooking.route) {
+                                        navController.graph.startDestinationRoute?.let { route ->
+                                            popUpTo(route) { saveState = true }
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
                                 modifier = Modifier.weight(1f).height(60.dp),
                                 shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(
@@ -310,12 +198,95 @@
                             ) {
                                 Text("🏋️ Thuê PT", fontSize = 16.sp)
                             }
+                            
+                            Button(
+                                onClick = onNavigateToWorkout,
+                                modifier = Modifier.weight(1f).height(60.dp),
+                                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F51B5))
+                            ) {
+                                Text("🔥 Tập luyện", fontSize = 16.sp)
+                            }
                         }
                     } else if (userRole == "PT") {
-                        // PT Dashboard content
-                        Text("Trạng thái quản lý", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+                        Text("Thống kê nhanh", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text("Chào huấn luyện viên! Chúc bạn có một ngày làm việc hiệu quả.", color = Color.Gray, fontSize = 15.sp)
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Card(modifier = Modifier.weight(1f), colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0))) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text("Ca hôm nay", color = Color.Gray, fontSize = 13.sp)
+                                    Text("2", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFFE65100))
+                                }
+                            }
+                            Card(modifier = Modifier.weight(1f), colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9))) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text("Khách Active", color = Color.Gray, fontSize = 13.sp)
+                                    Text("5", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1B5E20))
+                                }
+                            }
+                        }
+                        
+                        Spacer(modifier = Modifier.height(24.dp))
+                        
+                        Text("Thao tác nhanh", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Button(
+                                onClick = { 
+                                    navController.navigate(BottomNavRoute.PtQueue.route) {
+                                        navController.graph.startDestinationRoute?.let { route ->
+                                            popUpTo(route) { saveState = true }
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                modifier = Modifier.weight(1f).height(56.dp),
+                                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722))
+                            ) {
+                                Text("📅 Lịch hẹn", fontSize = 14.sp)
+                            }
+                            Button(
+                                onClick = { 
+                                    navController.navigate(BottomNavRoute.PtClients.route) {
+                                        navController.graph.startDestinationRoute?.let { route ->
+                                            popUpTo(route) { saveState = true }
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                modifier = Modifier.weight(1f).height(56.dp),
+                                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                            ) {
+                                Text("👥 Clients", fontSize = 14.sp)
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
+                        
+                        Text("Lịch sắp tới", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                        ) {
+                            Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Surface(shape = androidx.compose.foundation.shape.CircleShape, color = Color.White, modifier = Modifier.size(40.dp)) {
+                                    Icon(Icons.Default.DateRange, contentDescription = null, tint = Color(0xFFFF5722), modifier = Modifier.padding(8.dp))
+                                }
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Column {
+                                    Text("14:30 - Tăng cơ bắp", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                    Text("Học viên: Nguyễn Văn A", color = Color.Gray, fontSize = 14.sp)
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -462,7 +433,7 @@
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
->>>>>>> 5176a02814fe8284e5eed8bdc45816add6bf42fc
         }
-
+    }
+}
 

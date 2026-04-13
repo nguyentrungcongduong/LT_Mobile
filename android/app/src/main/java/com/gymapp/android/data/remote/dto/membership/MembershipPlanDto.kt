@@ -17,6 +17,8 @@ data class MembershipPlanDto(
     @SerializedName("plan_type") val planType: String, // "SINGLE" | "ALL"
     @SerializedName("branch_id") val branchId: String?, // UUID, null nếu ALL
     @SerializedName("branch_name") val branchName: String?,
+    val branchLatitude: Double?,
+    val branchLongitude: Double?,
     @SerializedName("is_active") val isActive: Boolean
 ) {
     fun toDomainModel(): MembershipPlan {
@@ -29,6 +31,8 @@ data class MembershipPlanDto(
             planType = try { PlanType.valueOf(planType) } catch (e: Exception) { PlanType.SINGLE },
             branchId = branchId,
             branchName = branchName,
+            branchLatitude = branchLatitude,
+            branchLongitude = branchLongitude,
             isActive = isActive
         )
     }

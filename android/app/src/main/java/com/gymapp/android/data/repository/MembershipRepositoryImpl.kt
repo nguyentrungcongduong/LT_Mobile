@@ -34,6 +34,8 @@ class MembershipRepositoryImpl @Inject constructor(
                 planType = com.gymapp.android.domain.model.membership.PlanType.SINGLE,
                 branchId = "b0000000-0000-0000-0000-000000000001", // UUID
                 branchName = "Chi nhánh Q1",
+                branchLatitude = 10.776354032266614,
+                branchLongitude = 106.69346708476218,
                 isActive = true
             ),
             MembershipPlan(
@@ -45,6 +47,8 @@ class MembershipRepositoryImpl @Inject constructor(
                 planType = com.gymapp.android.domain.model.membership.PlanType.ALL,
                 branchId = null,           // NULL khi plan_type = ALL (theo DB)
                 branchName = null,         // NULL khi plan_type = ALL
+                branchLatitude = null,
+                branchLongitude = null,
                 isActive = true
             ),
             MembershipPlan(
@@ -56,6 +60,8 @@ class MembershipRepositoryImpl @Inject constructor(
                 planType = com.gymapp.android.domain.model.membership.PlanType.ALL,
                 branchId = null,
                 branchName = null,
+                branchLatitude = null,
+                branchLongitude = null,
                 isActive = true
             )
         )

@@ -66,7 +66,7 @@ public class WorkoutPlanServiceImpl implements WorkoutPlanService {
                 .orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND", "User not found"));
 
         if (request.getPlanType() == WpType.PT_ASSIGNED && creator.getRole() != UserRole.PT) {
-            throw new ForbiddenException("Only PTs can create assigned plans.");
+            throw new ForbiddenException("FORBIDDEN_ACTION", "Only PTs can create assigned plans.");
         }
 
         User assignedTo = null;
@@ -106,7 +106,7 @@ public class WorkoutPlanServiceImpl implements WorkoutPlanService {
                 .orElseThrow(() -> new ResourceNotFoundException("PLAN_NOT_FOUND", "Workout plan not found"));
 
         if (!plan.getCreatedBy().getId().equals(currentUserId)) {
-            throw new ForbiddenException("Only the creator can update the plan");
+            throw new ForbiddenException("FORBIDDEN_ACTION", "Only the creator can update the plan");
         }
 
         plan.setName(request.getName());
@@ -138,7 +138,7 @@ public class WorkoutPlanServiceImpl implements WorkoutPlanService {
         boolean isAssignee = plan.getAssignedTo() != null && plan.getAssignedTo().getId().equals(currentUserId);
 
         if (!isCreator && !isAssignee) {
-            throw new ForbiddenException("You don't have access to this plan.");
+            throw new ForbiddenException("FORBIDDEN_ACTION", "You don't have access to this plan.");
         }
 
         return mapToResponse(plan);

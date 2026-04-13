@@ -48,14 +48,14 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun updateProfile(fullName: String, phone: String) {
+    fun updateProfile(fullName: String, email: String, phone: String) {
         val currentState = _uiState.value
         if (currentState !is ProfileUiState.Success) return
 
         _isUpdating.value = true
         viewModelScope.launch {
-            android.util.Log.d("ProfileViewModel", "Updating profile: fullName=$fullName, phone=$phone")
-            userRepository.updateProfile(fullName, phone, currentState.user.avatarUrl).onSuccess { user ->
+            android.util.Log.d("ProfileViewModel", "Updating profile: fullName=$fullName, email=$email, phone=$phone")
+            userRepository.updateProfile(fullName, email, phone, currentState.user.avatarUrl).onSuccess { user ->
                 android.util.Log.d("ProfileViewModel", "Update success: $user")
                 _uiState.value = ProfileUiState.Success(user)
                 _isUpdating.value = false
@@ -80,6 +80,21 @@ class ProfileViewModel @Inject constructor(
             }.onFailure { _ ->
                 _isUploading.value = false
             }
+        }
+    }
+
+    fun changePassword(oldPass: String, newPass: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        _isUpdating.value = true
+        viewModelScope.launch {
+            userRepository.changePassword(oldPass, newPass)
+                .onSuccess {
+                    _isUpdating.value = false
+                    onSuccess()
+                }
+                .onFailure { error ->
+                    _isUpdating.value = false
+                    onError(error.message ?: "Đã có lỗi xảy ra khi đổi mật khẩu")
+                }
         }
     }
 }

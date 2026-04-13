@@ -9,6 +9,7 @@ import com.gymapp.modules.membership.dto.UpdateUserGoalRequest;
 import com.gymapp.modules.membership.dto.UserDto;
 import com.gymapp.modules.membership.dto.UserResponse;
 import com.gymapp.modules.membership.dto.UserUpdateDto;
+import com.gymapp.modules.membership.dto.ChangePasswordRequest;
 import com.gymapp.modules.user.entity.User;
 
 public interface IUserService {
@@ -27,4 +28,6 @@ public interface IUserService {
     String uploadAvatar(MultipartFile file);
 
     User updateMyGoal(UpdateUserGoalRequest request);
+
+    void changePassword(ChangePasswordRequest request);
 }
