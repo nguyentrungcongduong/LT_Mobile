@@ -23,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -63,7 +64,7 @@ public class WorkoutPlanServiceImpl implements WorkoutPlanService {
     public WorkoutPlanResponse createWorkoutPlan(UUID currentUserId, WorkoutPlanRequest request) {
         User creator = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND", "User not found"));
-                
+
         if (request.getPlanType() == WpType.PT_ASSIGNED && creator.getRole() != UserRole.PT) {
             throw new ForbiddenException("Only PTs can create assigned plans.");
         }
@@ -86,6 +87,9 @@ public class WorkoutPlanServiceImpl implements WorkoutPlanService {
                 .assignedTo(assignedTo)
                 .isActive(true)
                 .exercises(new ArrayList<>())
+                .scheduledDate(request.getScheduledDate() != null
+                        ? LocalDate.parse(request.getScheduledDate())
+                        : null)
                 .build();
 
         List<PlanExercise> exercises = mapRequestExercises(request.getExercises(), plan);
@@ -108,7 +112,7 @@ public class WorkoutPlanServiceImpl implements WorkoutPlanService {
         plan.setName(request.getName());
         plan.setDescription(request.getDescription());
         plan.setTargetLevel(request.getTargetLevel());
-        
+
         // Update assigned user if changed
         if (request.getPlanType() == WpType.PT_ASSIGNED && request.getAssignedTo() != null) {
             User assignedTo = userRepository.findById(request.getAssignedTo())
@@ -141,7 +145,8 @@ public class WorkoutPlanServiceImpl implements WorkoutPlanService {
     }
 
     private List<PlanExercise> mapRequestExercises(List<PlanExerciseRequest> requestExercises, WorkoutPlan plan) {
-        if (requestExercises == null || requestExercises.isEmpty()) return new ArrayList<>();
+        if (requestExercises == null || requestExercises.isEmpty())
+            return new ArrayList<>();
         return requestExercises.stream().map(req -> {
             Exercise exercise = exerciseRepository.findById(req.getExerciseId())
                     .orElseThrow(() -> new ResourceNotFoundException("EXERCISE_NOT_FOUND", "Exercise not found"));
@@ -167,6 +172,7 @@ public class WorkoutPlanServiceImpl implements WorkoutPlanService {
                 .targetLevel(plan.getTargetLevel())
                 .assignedToName(plan.getAssignedTo() != null ? plan.getAssignedTo().getFullName() : null)
                 .createdByName(plan.getCreatedBy().getFullName())
+                .scheduledDate(plan.getScheduledDate())
                 .exercises(plan.getExercises().stream().map(ptEx -> PlanExerciseResponse.builder()
                         .orderIndex(ptEx.getOrderIndex())
                         .exerciseName(ptEx.getExercise().getName())
@@ -175,8 +181,11 @@ public class WorkoutPlanServiceImpl implements WorkoutPlanService {
                         .reps(ptEx.getReps())
                         .restSeconds(ptEx.getRestSeconds())
                         .notes(ptEx.getNotes())
-                        .build()
-                ).collect(Collectors.toList()))
+                        // them
+                        .description(ptEx.getExercise().getDescription())
+                        .videoUrl(ptEx.getExercise().getVideoUrl())
+                        .thumbnailUrl(ptEx.getExercise().getThumbnailUrl())
+                        .build()).collect(Collectors.toList()))
                 .build();
     }
 }

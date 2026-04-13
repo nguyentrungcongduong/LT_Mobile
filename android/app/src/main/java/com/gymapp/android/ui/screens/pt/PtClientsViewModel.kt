@@ -34,7 +34,7 @@ class PtClientsViewModel @Inject constructor(
         viewModelScope.launch {
             ptRepository.getPtClients(null, 0, 50)
                 .onSuccess { response ->
-                    _uiState.value = PtClientsUiState.Success(response.content)
+                    _uiState.value = PtClientsUiState.Success(response.content?: emptyList())
                 }
                 .onFailure { error ->
                     _uiState.value = PtClientsUiState.Error(error.message ?: "Lỗi tải dữ liệu clients")

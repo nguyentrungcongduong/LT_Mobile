@@ -36,7 +36,11 @@ import com.gymapp.android.util.FileUtil
 fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel(),
     onLogout: () -> Unit = {},
+<<<<<<< HEAD
+    onNavigateToGoal: () -> Unit = {}
+=======
     onNavigateToHistory: () -> Unit = {}
+>>>>>>> 5176a02814fe8284e5eed8bdc45816add6bf42fc
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val isUploading by viewModel.isUploading.collectAsState()
@@ -193,6 +197,23 @@ fun ProfileScreen(
                             Text("Chỉnh sửa thông tin", fontSize = 16.sp)
                         }
 
+                        //cap nhat muc tieu
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Button(
+                            onClick = onNavigateToGoal,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1A1A1A))
+                        ) {
+                            Text(
+                                text = "Cập nhật mục tiêu (Goal)",
+                                color = Color(0xFFFF5722),
+                                fontSize = 16.sp
+                            )
+                        }
                         Spacer(modifier = Modifier.height(16.dp))
 
                         if (user.role == "USER") {

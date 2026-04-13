@@ -18,4 +18,5 @@ public class WorkoutPlanRequest {
     private TargetLevel targetLevel;
     private UUID assignedTo;
     private List<PlanExerciseRequest> exercises;
+    private String scheduledDate;
 }

@@ -6,7 +6,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "plan_exercises", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"plan_id", "order_index"})
+        @UniqueConstraint(columnNames = { "plan_id", "order_index" })
 })
 @Getter
 @Setter

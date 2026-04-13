@@ -34,8 +34,8 @@ class PtListViewModel @Inject constructor(
         viewModelScope.launch {
             ptRepository.getPtList(0, 50)
                 .onSuccess { response: com.gymapp.android.data.remote.api.PageResponse<PtPublicDto> ->
-                    println(">>> PtList Success: ${response.content.size} items")
-                    _uiState.value = PtListUiState.Success(response.content)
+                    println(">>> PtList Success: ${response.content?.size} items")
+                    _uiState.value = PtListUiState.Success(response.content ?: emptyList<PtPublicDto>())
                 }
                 .onFailure { error ->
                     println(">>> PtList Error: ${error.message}")

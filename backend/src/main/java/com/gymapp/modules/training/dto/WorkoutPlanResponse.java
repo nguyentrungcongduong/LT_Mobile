@@ -4,6 +4,8 @@ import com.gymapp.modules.training.enums.WpType;
 import com.gymapp.modules.training.enums.TargetLevel;
 import lombok.Builder;
 import lombok.Data;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,4 +20,5 @@ public class WorkoutPlanResponse {
     private String assignedToName;
     private String createdByName;
     private List<PlanExerciseResponse> exercises;
+    private LocalDate scheduledDate;
 }
