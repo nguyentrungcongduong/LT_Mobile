@@ -36,11 +36,20 @@ fun MainScreen(
     onNavigateToPackages: () -> Unit = {},
     onNavigateToActiveMembership: () -> Unit = {},
     onLogout: () -> Unit = {},
+    onNavigateToGoal: () -> Unit = {},
+    onNavigateToWorkout: () -> Unit = {},
     mainViewModel: MainViewModel = androidx.hilt.navigation.compose.hiltViewModel()
 ) {
     val navController = rememberNavController()
     val userRole by mainViewModel.userRole.collectAsState()
     val userAvatar by mainViewModel.userAvatar.collectAsState()
+    val needSetupGoal by mainViewModel.needSetupGoal.collectAsState()
+
+    LaunchedEffect(needSetupGoal) {
+        if (needSetupGoal) {
+            onNavigateToGoal()
+        }
+    }
 
     val userItems = listOf(
         BottomNavRoute.Dashboard,
@@ -188,6 +197,15 @@ fun MainScreen(
                                 )
                             ) {
                                 Text("🏋️ Thuê PT", fontSize = 16.sp)
+                            }
+                            
+                            Button(
+                                onClick = onNavigateToWorkout,
+                                modifier = Modifier.weight(1f).height(60.dp),
+                                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F51B5))
+                            ) {
+                                Text("🔥 Tập luyện", fontSize = 16.sp)
                             }
                         }
                     } else if (userRole == "PT") {
