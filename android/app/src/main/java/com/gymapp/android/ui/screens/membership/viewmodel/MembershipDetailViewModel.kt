@@ -50,7 +50,7 @@ class MembershipDetailViewModel @Inject constructor(
                 }
             } else {
                 val errorMsg = result.exceptionOrNull()?.message ?: "Đã có lỗi xảy ra. Vui lòng thử lại."
-                if (errorMsg.contains("NO_MEMBERSHIP_FOUND", ignoreCase = true) || errorMsg.contains("trống")) {
+                if (errorMsg.contains("NO_MEMBERSHIP", ignoreCase = true) || errorMsg.contains("No membership found", ignoreCase = true) || errorMsg.contains("trống")) {
                     _uiState.update { MembershipDetailUiState.Empty }
                 } else {
                     _uiState.update { MembershipDetailUiState.Error(errorMsg) }

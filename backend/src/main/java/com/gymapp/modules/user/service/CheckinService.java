@@ -1,7 +1,7 @@
-package com.gymapp.modules.checkin.service;
+package com.gymapp.modules.user.service;
 
-import com.gymapp.modules.checkin.entity.Checkin;
-import com.gymapp.modules.checkin.repository.CheckinRepository;
+import com.gymapp.modules.user.entity.Checkin;
+import com.gymapp.modules.user.repository.CheckinRepository;
 import com.gymapp.modules.membership.entity.Membership;
 import com.gymapp.modules.membership.enums.MembershipStatus;
 import com.gymapp.modules.membership.repository.MembershipRepository;

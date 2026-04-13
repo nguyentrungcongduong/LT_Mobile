@@ -1,12 +1,12 @@
-package com.gymapp.modules.checkin.service;
+package com.gymapp.modules.user.service;
 
 import com.gymapp.common.exception.BadRequestException;
 import com.gymapp.common.exception.UnauthorizedException;
 import com.gymapp.common.security.JwtUtil;
-import com.gymapp.modules.checkin.dto.CheckinLogResponse;
-import com.gymapp.modules.checkin.dto.QrTokenResponse;
-import com.gymapp.modules.checkin.entity.CheckinLog;
-import com.gymapp.modules.checkin.repository.CheckinLogRepository;
+import com.gymapp.modules.user.dto.CheckinLogResponse;
+import com.gymapp.modules.user.dto.QrTokenResponse;
+import com.gymapp.modules.user.entity.CheckinLog;
+import com.gymapp.modules.user.repository.CheckinLogRepository;
 import com.gymapp.modules.membership.enums.MembershipStatus;
 import com.gymapp.modules.membership.repository.MembershipRepository;
 import com.gymapp.modules.user.entity.User;

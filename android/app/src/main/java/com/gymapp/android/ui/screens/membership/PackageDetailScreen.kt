@@ -36,6 +36,13 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import java.text.NumberFormat
 import java.util.*
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,6 +51,16 @@ fun PackageDetailScreen(
     onNavigateBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    var showPaymentDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState.gatewayUrl) {
+        uiState.gatewayUrl?.let { url ->
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            context.startActivity(intent)
+            viewModel.clearGatewayUrl()
+        }
+    }
 
     // Theo chuẩn ui_standar.md (Modern Dark + Bold Typography)
     val bgColor = Color(0xFF0D0D0D)
@@ -84,7 +101,7 @@ fun PackageDetailScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Button(
-                            onClick = { /* Handle Payment via Mock later */ },
+                            onClick = { showPaymentDialog = true },
                             colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -92,7 +109,7 @@ fun PackageDetailScreen(
                             shape = RoundedCornerShape(percent = 50)
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                val btnText = if (uiState.isCurrentUserPlan) "Gia hạn ngay - $formattedPrice" else "Mua ngay - $formattedPrice"
+                                val btnText = if (uiState.isCurrentUserPlan) "Gia hạn ngay - $formattedPrice" else "Đăng ký ngay - $formattedPrice"
                                 Text(btnText, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
                                 
                                 val descText = if (uiState.isCurrentUserPlan && uiState.activeUntil != null) {
@@ -299,6 +316,44 @@ fun PackageDetailScreen(
                 }
             }
         }
+    }
+
+    if (showPaymentDialog && uiState.plan != null) {
+        AlertDialog(
+            onDismissRequest = { showPaymentDialog = false },
+            title = { Text("Chọn phương thức thanh toán", color = textColor) },
+            text = {
+                Column {
+                    Button(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                        onClick = {
+                            showPaymentDialog = false
+                            viewModel.initiatePayment("VNPAY", uiState.plan!!.id)
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF005BAA))
+                    ) {
+                        Text("Thanh toán qua VNPAY", color = Color.White)
+                    }
+                    Button(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                        onClick = {
+                            showPaymentDialog = false
+                            viewModel.initiatePayment("MOMO", uiState.plan!!.id)
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA50064))
+                    ) {
+                        Text("Thanh toán qua MoMo", color = Color.White)
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showPaymentDialog = false }) {
+                    Text("Hủy", color = textMuted)
+                }
+            },
+            containerColor = surfaceColor
+        )
     }
 }
 

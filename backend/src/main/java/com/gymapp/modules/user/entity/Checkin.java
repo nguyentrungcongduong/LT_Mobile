@@ -1,4 +1,4 @@
-package com.gymapp.modules.checkin.entity;
+package com.gymapp.modules.user.entity;
 
 import com.gymapp.modules.user.entity.User;
 import jakarta.persistence.*;

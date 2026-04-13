@@ -1,7 +1,7 @@
 package com.gymapp.modules.user.controller;
 
 import com.gymapp.common.response.ApiResponse;
-import com.gymapp.modules.checkin.repository.CheckinLogRepository;
+import com.gymapp.modules.user.repository.CheckinLogRepository;
 import com.gymapp.modules.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

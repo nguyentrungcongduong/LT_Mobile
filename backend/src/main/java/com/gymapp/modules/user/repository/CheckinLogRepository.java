@@ -1,6 +1,6 @@
-package com.gymapp.modules.checkin.repository;
+package com.gymapp.modules.user.repository;
 
-import com.gymapp.modules.checkin.entity.CheckinLog;
+import com.gymapp.modules.user.entity.CheckinLog;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,4 +1,4 @@
-package com.gymapp.modules.checkin.dto;
+package com.gymapp.modules.user.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

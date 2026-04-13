@@ -1,6 +1,6 @@
-package com.gymapp.modules.checkin.repository;
+package com.gymapp.modules.user.repository;
 
-import com.gymapp.modules.checkin.entity.Checkin;
+import com.gymapp.modules.user.entity.Checkin;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -1,10 +1,10 @@
-package com.gymapp.modules.checkin.controller;
+package com.gymapp.modules.user.controller;
 
-import com.gymapp.modules.checkin.dto.CheckinLogResponse;
-import com.gymapp.modules.checkin.dto.CheckinVerifyRequest;
-import com.gymapp.modules.checkin.dto.QrTokenResponse;
-import com.gymapp.modules.checkin.service.CheckinQrService;
-import com.gymapp.modules.checkin.service.CheckinService;
+import com.gymapp.modules.user.dto.CheckinLogResponse;
+import com.gymapp.modules.user.dto.CheckinVerifyRequest;
+import com.gymapp.modules.user.dto.QrTokenResponse;
+import com.gymapp.modules.user.service.CheckinQrService;
+import com.gymapp.modules.user.service.CheckinService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -50,7 +50,7 @@ public class CheckinController {
      * API check-in cũ (giữ lại để không break mobile client cũ).
      */
     @PostMapping
-    public ResponseEntity<?> checkin(@RequestBody com.gymapp.modules.checkin.dto.CheckinRequest request) {
+    public ResponseEntity<?> checkin(@RequestBody com.gymapp.modules.user.dto.CheckinRequest request) {
         try {
             String result = checkinService.checkin(request.getQrData());
             return ResponseEntity.ok(result);

@@ -13,4 +13,6 @@ interface MembershipRepository {
     suspend fun getMembershipPlanById(id: String): Result<MembershipPlan?>
 
     suspend fun getActiveMembership(): Result<ActiveMembership>
+
+    suspend fun registerMembership(planId: String): Result<ActiveMembership>
 }
