@@ -1,76 +1,135 @@
 // src/pages/DashboardPage.tsx
 import React from 'react';
-import { Card, Statistic, Tag } from 'antd';
+import { Card, Table, Button, Tag, Space, Typography } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import {
   UserOutlined,
   CalendarOutlined,
   CreditCardOutlined,
   TeamOutlined,
-  ArrowUpOutlined,
+  ReloadOutlined,
+  PlusOutlined,
 } from '@ant-design/icons';
+import StatsCard from '@/components/common/StatsCard';
 
-const stats = [
-  { title: 'Tổng hội viên', value: 1240, trend: 12.5, icon: <UserOutlined />, color: '#1677ff', bg: '#eff6ff' },
-  { title: 'Bookings hôm nay', value: 48, trend: -3.2, icon: <CalendarOutlined />, color: '#16a34a', bg: '#f0fdf4' },
-  { title: 'Doanh thu tháng', value: '85M₫', trend: 8.1, icon: <CreditCardOutlined />, color: '#ea580c', bg: '#fff7ed' },
-  { title: 'PT hoạt động', value: 12, trend: 0, icon: <TeamOutlined />, color: '#7c3aed', bg: '#faf5ff' },
-];
+const { Title, Text } = Typography;
+
+interface BookingData {
+  id: string;
+  name: string;
+  service: string;
+  time: string;
+  status: string;
+}
 
 const DashboardPage: React.FC = () => {
+  // Định nghĩa kiểu rõ ràng cho dataSource để fix lỗi implicit any
+  const dataSource: BookingData[] = []; 
+
+  const columns: ColumnsType<BookingData> = [
+    {
+      title: 'Hội viên',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: 'Dịch vụ',
+      dataIndex: 'service',
+      key: 'service',
+    },
+    {
+      title: 'Thời gian',
+      dataIndex: 'time',
+      key: 'time',
+    },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: string) => (
+        <Tag color="blue">{status}</Tag>
+      ),
+    },
+  ];
+
   return (
-    <div>
-      {/* Stats grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-        {stats.map((s) => (
-          <Card
-            key={s.title}
-            className="rounded-xl shadow-sm hover:shadow-md transition-shadow"
-            bodyStyle={{ padding: '20px' }}
-          >
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-sm text-gray-500 mb-2">{s.title}</p>
-                <Statistic
-                  value={s.value}
-                  valueStyle={{ fontSize: '1.6rem', fontWeight: 700, color: '#111827' }}
-                />
-                <div className="flex items-center gap-1 mt-2">
-                  <Tag
-                    color={s.trend >= 0 ? 'green' : 'red'}
-                    icon={<ArrowUpOutlined rotate={s.trend < 0 ? 180 : 0} />}
-                    className="!m-0 !text-xs"
-                  >
-                    {Math.abs(s.trend)}%
-                  </Tag>
-                  <span className="text-xs text-gray-400">tháng trước</span>
-                </div>
-              </div>
-              <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
-                style={{ background: s.bg, color: s.color }}
-              >
-                {s.icon}
-              </div>
-            </div>
-          </Card>
-        ))}
+    <div className="space-y-6">
+      {/* ── Page Header ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <Title level={2} className="!mb-1">Tổng quan hệ thống</Title>
+          <Text type="secondary">Chào mừng bạn trở lại, hệ thống đang hoạt động ổn định.</Text>
+        </div>
+        <Space>
+          <Button icon={<ReloadOutlined />}>Làm mới</Button>
+          <Button type="primary" icon={<PlusOutlined />}>Đăng ký mới</Button>
+        </Space>
       </div>
 
-      {/* Placeholder chart row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      {/* ── Stats Grid ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <StatsCard
+          title="Tổng hội viên"
+          value={1240}
+          trend={12.5}
+          color="blue"
+          prefix={<UserOutlined />}
+        />
+        <StatsCard
+          title="Bookings hôm nay"
+          value={48}
+          trend={-3.2}
+          color="green"
+          prefix={<CalendarOutlined />}
+        />
+        <StatsCard
+          title="Doanh thu tháng"
+          value="85.4M"
+          suffix="₫"
+          trend={8.1}
+          color="orange"
+          prefix={<CreditCardOutlined />}
+        />
+        <StatsCard
+          title="PT đang hoạt động"
+          value={12}
+          trend={0}
+          color="purple"
+          prefix={<TeamOutlined />}
+        />
+      </div>
+
+      {/* ── Content Grid ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Section: Placeholder for Chart */}
         <Card
-          title="Doanh thu 6 tháng"
-          className="lg:col-span-2 rounded-xl shadow-sm"
-          bodyStyle={{ height: 240, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          title="Phân tích doanh thu"
+          className="lg:col-span-2 rounded-xl shadow-sm border-none"
+          styles={{ body: { height: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center' } }}
         >
-          <p className="text-gray-400">Chart — coming in WEB-09</p>
+          <div className="text-center">
+            <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CreditCardOutlined style={{ fontSize: '24px' }} />
+            </div>
+            <Text type="secondary">Biểu đồ doanh thu sẽ sớm cập nhật tại WEB-09</Text>
+          </div>
         </Card>
+
+        {/* Side Section: Recent Bookings Placeholder Table */}
         <Card
-          title="Trạng thái booking"
-          className="rounded-xl shadow-sm"
-          bodyStyle={{ height: 240, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          title="Đặt lịch gần đây"
+          extra={<Button type="link" className="!p-0">Xem tất cả</Button>}
+          className="rounded-xl shadow-sm border-none"
+          styles={{ body: { padding: 0 } }}
         >
-          <p className="text-gray-400">Pie chart — coming in WEB-09</p>
+          <Table
+            dataSource={dataSource}
+            columns={columns}
+            pagination={false}
+            size="middle"
+            locale={{ emptyText: 'Chưa có lịch đặt mới hôm nay' }}
+            rowKey="id"
+          />
         </Card>
       </div>
     </div>
