@@ -2,6 +2,8 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { authService } from '@/features/auth/services/authService';
+import { broadcastLogout } from '@/lib/broadcastAuth';
+import { ROUTES } from '@/constants/routes';
 
 export const useLogout = () => {
   const navigate = useNavigate();
@@ -11,10 +13,11 @@ export const useLogout = () => {
     try {
       await authService.logout();
     } catch {
-      // Ignore, vẫn logout phía client
+      // Ignore API error — vẫn logout phía client
     } finally {
       clearAuth();
-      navigate('/login', { replace: true });
+      broadcastLogout();           // Thông báo tất cả tab khác logout
+      navigate(ROUTES.LOGIN, { replace: true });
     }
   };
 };
