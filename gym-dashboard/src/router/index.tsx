@@ -1,12 +1,13 @@
 // src/router/index.tsx
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import AdminGuard from './AdminGuard';
+import DashboardLayout from '@/components/layout/DashboardLayout';
 import LoginPage from '@/pages/LoginPage';
 import DashboardPage from '@/pages/DashboardPage';
 import ForbiddenPage from '@/pages/ForbiddenPage';
 
 const router = createBrowserRouter([
-  // ─── Public ───────────────────────────────────────────────────────
+  // ─── Public ─────────────────────────────────────────────────────────
   {
     path: '/login',
     element: <LoginPage />,
@@ -16,38 +17,44 @@ const router = createBrowserRouter([
     element: <ForbiddenPage />,
   },
 
-  // ─── Admin (protected) ────────────────────────────────────────────
+  // ─── Admin (protected + layout) ──────────────────────────────────────
   {
     element: <AdminGuard />,
     children: [
       {
-        path: '/admin',
-        element: <Navigate to="/admin/dashboard" replace />,
-      },
-      {
-        // Layout shell — sẽ add DashboardLayout ở WEB-05
-        path: '/admin',
+        element: <DashboardLayout />,
         children: [
-          { path: 'dashboard', element: <DashboardPage /> },
-          // [WEB-06] Users, Bookings, Payments, Analytics sẽ thêm ở đây
+          {
+            path: '/admin',
+            element: <Navigate to="/admin/dashboard" replace />,
+          },
+          {
+            path: '/admin/dashboard',
+            element: <DashboardPage />,
+          },
+          // ── Feature routes (thêm dần ở WEB-08+) ────────────────────
+          // { path: '/admin/users',    element: <UsersPage /> },
+          // { path: '/admin/bookings', element: <BookingsPage /> },
+          // { path: '/admin/payments', element: <PaymentsPage /> },
+          // { path: '/admin/analytics',element: <AnalyticsPage /> },
         ],
       },
     ],
   },
 
-  // ─── Root redirect ─────────────────────────────────────────────────
+  // ─── Root redirect ───────────────────────────────────────────────────
   {
     path: '/',
     element: <Navigate to="/admin/dashboard" replace />,
   },
 
-  // ─── 404 ───────────────────────────────────────────────────────────
+  // ─── 404 ─────────────────────────────────────────────────────────────
   {
     path: '*',
     element: (
       <div className="flex h-screen flex-col items-center justify-center bg-gray-50 gap-3">
-        <span className="text-6xl font-bold text-gray-200">404</span>
-        <p className="text-gray-500">Trang không tồn tại</p>
+        <span className="text-8xl font-bold text-gray-200">404</span>
+        <p className="text-gray-500 text-lg">Trang không tồn tại</p>
       </div>
     ),
   },
