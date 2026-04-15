@@ -7,6 +7,7 @@
 import axios from 'axios';
 import type { InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '@/stores/authStore';
+import { tokenStorage } from '@/lib/tokenStorage';
 import { ROUTES } from '@/constants/routes';
 
 // ─── Extend axios config to support _retry flag ──────────────────────────────
@@ -77,16 +78,22 @@ api.interceptors.response.use(
         const baseURL =
           import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1';
 
+        const savedRefreshToken = tokenStorage.getRefreshToken();
+        if (!savedRefreshToken) throw new Error('No refresh token');
+
         const refreshRes = await axios.post<{
           success: true;
           data: { access_token: string; refresh_token: string };
         }>(
           `${baseURL}/auth/refresh`,
-          {},
+          { refreshToken: savedRefreshToken }, // BE reads from @RequestBody (camelCase)
           { withCredentials: true }
         );
 
-        const { access_token } = refreshRes.data.data;
+        const { access_token, refresh_token: newRefreshToken } = refreshRes.data.data;
+
+        // Rotate refresh token nếu backend trả về token mới
+        if (newRefreshToken) tokenStorage.setRefreshToken(newRefreshToken);
         const currentUser = useAuthStore.getState().user;
 
         if (currentUser) {
@@ -100,9 +107,10 @@ api.interceptors.response.use(
         return api(originalRequest);
 
       } catch (refreshError) {
-        // Refresh failed → clear session + redirect to login
+        // Refresh failed → clear session + localStorage + redirect to login
         processQueue(refreshError, null);
         useAuthStore.getState().clearAuth();
+        tokenStorage.clearRefreshToken();
         window.location.href = ROUTES.LOGIN;
         return Promise.reject(refreshError);
 
