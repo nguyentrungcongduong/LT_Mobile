@@ -50,7 +50,13 @@ public class FirebaseConfig {
             log.info("Firebase Admin SDK initialized successfully");
 
         } catch (IOException e) {
-            log.error("Failed to initialize Firebase Admin SDK: {}. FCM push notifications will be disabled.",
+            log.error("Failed to initialize Firebase Admin SDK (IO error): {}. FCM push notifications will be disabled.",
+                    e.getMessage());
+        } catch (IllegalArgumentException e) {
+            log.error("Failed to initialize Firebase Admin SDK (invalid/empty JSON): {}. FCM push notifications will be disabled.",
+                    e.getMessage());
+        } catch (Exception e) {
+            log.error("Failed to initialize Firebase Admin SDK (unexpected error): {}. FCM push notifications will be disabled.",
                     e.getMessage());
         }
     }
