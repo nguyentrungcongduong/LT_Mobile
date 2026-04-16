@@ -73,7 +73,6 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.50")
     implementation("androidx.compose.material3:material3:1.4.0")
     implementation("androidx.compose.ui:ui-test:1.10.6")
-    implementation("com.google.firebase:firebase-messaging-ktx:25.0.1")
     kapt("com.google.dagger:hilt-compiler:2.50")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
