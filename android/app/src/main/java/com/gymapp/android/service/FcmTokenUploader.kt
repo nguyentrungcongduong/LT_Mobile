@@ -4,7 +4,6 @@ import com.gymapp.android.data.remote.api.UserApi
 import com.gymapp.android.data.remote.api.UpdateFcmTokenRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 

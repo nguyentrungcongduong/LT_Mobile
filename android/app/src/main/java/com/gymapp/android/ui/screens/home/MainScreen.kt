@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -146,10 +147,10 @@ fun MainScreen(
                             // Notification bell
                             androidx.compose.material3.IconButton(onClick = onNavigateToNotifications) {
                                 androidx.compose.material3.Icon(
-                                    androidx.compose.material.icons.Icons.Default.Notifications,
+                                    imageVector = Icons.Default.NotificationsNone,
                                     contentDescription = "Thông báo",
                                     tint = MaterialTheme.colorScheme.onSurface,
-                                    modifier = androidx.compose.ui.Modifier.size(26.dp)
+                                    modifier = Modifier.size(26.dp)
                                 )
                             }
                             Surface(

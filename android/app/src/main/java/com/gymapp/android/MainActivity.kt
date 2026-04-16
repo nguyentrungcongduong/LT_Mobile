@@ -10,11 +10,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.lifecycleScope
 import com.gymapp.android.data.local.TokenStorage
 import com.gymapp.android.service.FcmTokenUploader
 import com.gymapp.android.ui.navigation.AppNavigation
 import com.gymapp.android.ui.theme.GymAppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -36,17 +39,16 @@ class MainActivity : ComponentActivity() {
         }
 
         // Upload FCM token nếu user đã login
-        // (chỉ hoạt động khi đã có google-services.json + google-services plugin)
         if (tokenStorage.getAccessToken() != null) {
             try {
                 com.google.firebase.messaging.FirebaseMessaging.getInstance()
                     .token.addOnSuccessListener { token ->
-                        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                        lifecycleScope.launch(Dispatchers.IO) {
                             fcmTokenUploader.upload(token)
                         }
                     }
             } catch (e: Exception) {
-                android.util.Log.w("MainActivity", "Firebase not initialized (missing google-services.json?): ${e.message}")
+                android.util.Log.w("MainActivity", "Firebase init skipped: ${e.message}")
             }
         }
 
