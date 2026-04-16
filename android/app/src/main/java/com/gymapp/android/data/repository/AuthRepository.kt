@@ -11,6 +11,8 @@ import com.gymapp.android.data.remote.api.RegisterRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Response
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
@@ -26,8 +28,12 @@ class AuthRepository @Inject constructor(
         try {
             val response = authApi.login(request)
             handleAuthResponse(response)
+        } catch (e: SocketTimeoutException) {
+            Result.failure(Exception("Kết nối quá chậm hoặc máy chủ không phản hồi. Vui lòng thử lại."))
+        } catch (e: UnknownHostException) {
+            Result.failure(Exception("Không có kết nối mạng. Vui lòng kiểm tra WiFi hoặc dữ liệu di động."))
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.failure(Exception("Đã xảy ra lỗi: ${e.message ?: "Vui lòng thử lại."}"))
         }
     }
 
@@ -35,8 +41,12 @@ class AuthRepository @Inject constructor(
         try {
             val response = authApi.register(request)
             handleAuthResponse(response)
+        } catch (e: SocketTimeoutException) {
+            Result.failure(Exception("Kết nối quá chậm hoặc máy chủ không phản hồi. Vui lòng thử lại."))
+        } catch (e: UnknownHostException) {
+            Result.failure(Exception("Không có kết nối mạng. Vui lòng kiểm tra WiFi hoặc dữ liệu di động."))
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.failure(Exception("Đã xảy ra lỗi: ${e.message ?: "Vui lòng thử lại."}"))
         }
     }
 
@@ -59,13 +69,42 @@ class AuthRepository @Inject constructor(
             if (!errorBody.isNullOrEmpty()) {
                 val type = object : TypeToken<ApiResponse<Any>>() {}.type
                 val errorResponse: ApiResponse<Any> = gson.fromJson(errorBody, type)
-                errorResponse.message ?: "Đã có lỗi xảy ra"
+                mapErrorToVietnamese(errorResponse.message, response.code())
             } else {
-                response.body()?.message ?: "Đã có lỗi xảy ra"
+                mapErrorToVietnamese(response.body()?.message, response.code())
             }
         } catch (e: Exception) {
-            "Lỗi kết nối server"
+            "Không thể kết nối đến máy chủ. Vui lòng thử lại."
         }
+    }
+
+    private fun mapErrorToVietnamese(message: String?, httpCode: Int): String {
+        // Nếu backend đã trả về tiếng Việt thì dùng luôn
+        if (message != null && containsVietnamese(message)) return message
+
+        return when {
+            httpCode == 401 -> "Email hoặc mật khẩu không chính xác."
+            httpCode == 403 -> "Bạn không có quyền thực hiện thao tác này."
+            httpCode == 404 -> "Không tìm thấy tài nguyên yêu cầu."
+            httpCode == 409 -> "Email này đã được đăng ký. Vui lòng dùng email khác."
+            httpCode == 422 -> "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại."
+            httpCode >= 500 -> "Đã có lỗi xảy ra phía máy chủ. Vui lòng thử lại sau."
+            message?.contains("Bad credentials", ignoreCase = true) == true ->
+                "Email hoặc mật khẩu không chính xác."
+            message?.contains("User is disabled", ignoreCase = true) == true ->
+                "Tài khoản của bạn đã bị vô hiệu hóa."
+            message?.contains("Account locked", ignoreCase = true) == true ->
+                "Tài khoản tạm thời bị khóa. Vui lòng thử lại sau."
+            message?.contains("expired", ignoreCase = true) == true ->
+                "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+            else -> message ?: "Đã có lỗi xảy ra. Vui lòng thử lại."
+        }
+    }
+
+    /** Kiểm tra chuỗi có chứa ký tự tiếng Việt không */
+    private fun containsVietnamese(text: String): Boolean {
+        return text.any { it in "àáâãèéêìíòóôõùúýăđơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ" +
+                "ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚÝĂĐƠƯẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼẾỀỂỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỲỴỶỸ" }
     }
 
     suspend fun logout() = withContext(Dispatchers.IO) {

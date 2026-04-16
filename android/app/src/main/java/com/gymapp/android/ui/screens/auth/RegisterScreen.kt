@@ -24,7 +24,7 @@ import com.gymapp.android.data.remote.api.RegisterRequest
 @Composable
 fun RegisterScreen(
     onNavigateBack: () -> Unit,
-    onRegisterSuccess: () -> Unit,
+    onRegisterSuccess: (isPt: Boolean) -> Unit,
     viewModel: AuthViewModel = hiltViewModel()
 ) {
     var fullName by remember { mutableStateOf("") }
@@ -44,7 +44,7 @@ fun RegisterScreen(
     LaunchedEffect(authState) {
         if (authState is AuthState.Success) {
             Toast.makeText(context, "Tạo tài khoản thành công!", Toast.LENGTH_SHORT).show()
-            onRegisterSuccess()
+            onRegisterSuccess(isPtRole)
             viewModel.resetState()
         } else if (authState is AuthState.Error) {
             Toast.makeText(context, authState.message, Toast.LENGTH_LONG).show()

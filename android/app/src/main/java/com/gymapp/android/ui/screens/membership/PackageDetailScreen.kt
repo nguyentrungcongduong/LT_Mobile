@@ -36,8 +36,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import java.text.NumberFormat
 import java.util.*
-import android.content.Intent
-import android.net.Uri
+import android.util.Base64
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -48,7 +47,8 @@ import androidx.compose.runtime.setValue
 @Composable
 fun PackageDetailScreen(
     viewModel: PackageDetailViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onNavigateToPayment: (encodedUrl: String) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -56,8 +56,12 @@ fun PackageDetailScreen(
 
     LaunchedEffect(uiState.gatewayUrl) {
         uiState.gatewayUrl?.let { url ->
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-            context.startActivity(intent)
+            // Encode URL để truyền an toàn qua NavArgs
+            val encodedUrl = Base64.encodeToString(
+                url.toByteArray(),
+                Base64.URL_SAFE or Base64.NO_WRAP
+            )
+            onNavigateToPayment(encodedUrl)
             viewModel.clearGatewayUrl()
         }
     }

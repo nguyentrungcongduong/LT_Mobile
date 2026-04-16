@@ -57,7 +57,7 @@ public class GlobalExceptionHandler {
         log.warn("Authentication exception: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
-                .body(ApiResponse.error("UNAUTHORIZED", "Authentication failed or token invalid"));
+                .body(ApiResponse.error("UNAUTHORIZED", "Email hoặc mật khẩu không chính xác."));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
@@ -65,7 +65,7 @@ public class GlobalExceptionHandler {
         log.warn("Access denied: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
-                .body(ApiResponse.error("FORBIDDEN", "You do not have permission to perform this action"));
+                .body(ApiResponse.error("FORBIDDEN", "Bạn không có quyền thực hiện thao tác này."));
     }
 
     // ── Handle Generic Uncaught Exceptions ───────────────────────────────────
@@ -75,6 +75,6 @@ public class GlobalExceptionHandler {
         log.error("Uncaught server error", ex);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("INTERNAL_SERVER_ERROR", "An unexpected error occurred"));
+                .body(ApiResponse.error("INTERNAL_SERVER_ERROR", "Đã có lỗi xảy ra phía máy chủ. Vui lòng thử lại sau."));
     }
 }

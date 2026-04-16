@@ -55,6 +55,7 @@ fun MainScreen(
 
     LaunchedEffect(needSetupGoal) {
         if (needSetupGoal) {
+            mainViewModel.onGoalNavigated() // reset trước để không trigger lại
             onNavigateToGoal()
         }
     }

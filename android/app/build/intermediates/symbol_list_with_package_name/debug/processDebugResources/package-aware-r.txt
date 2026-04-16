@@ -382,6 +382,7 @@ layout notification_template_part_chronometer
 layout notification_template_part_time
 layout zxing_barcode_scanner
 layout zxing_capture
+raw firebase_common_keep
 raw zxing_beep
 string androidx_compose_foundation_autofill
 string androidx_compose_ui_autofill
@@ -419,6 +420,12 @@ string default_error_message
 string default_popup_window_title
 string define_zxingandroidembedded
 string dropdown_menu
+string fcm_fallback_notification_channel_label
+string gcm_defaultSenderId
+string google_api_key
+string google_app_id
+string google_crash_reporting_api_key
+string google_storage_bucket
 string in_progress
 string indeterminate
 string library_zxingandroidembedded_author
@@ -498,6 +505,7 @@ string m3c_wide_navigation_rail_close_rail
 string m3c_wide_navigation_rail_pane_title
 string navigation_menu
 string not_selected
+string project_id
 string range_end
 string range_start
 string selected

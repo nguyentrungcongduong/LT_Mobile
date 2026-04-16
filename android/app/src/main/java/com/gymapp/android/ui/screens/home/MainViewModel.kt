@@ -43,15 +43,11 @@ class MainViewModel @Inject constructor(
                 _userRole.value = user.role
                 _userAvatar.value = user.avatarUrl
                 _currentUserId.value = user.id
-                
-                val needFromServer =
-                    user.experienceLevel == null ||
-                            user.fitnessGoal == null
 
-                val hasSetupLocal =
-                    Prefs.hasSetupGoal(context, user.id)
-
-                _needSetupGoal.value = needFromServer && !hasSetupLocal
+                // Chỉ hiện GoalScreen nếu chưa từng setup (check local Prefs)
+                // Không phụ thuộc server vì server có thể trả null dù đã setup → gây loop
+                val hasSetupLocal = Prefs.hasSetupGoal(context, user.id)
+                _needSetupGoal.value = !hasSetupLocal
 
                 if (user.role == "ADMIN") {
                     fetchAdminStats()
@@ -62,6 +58,11 @@ class MainViewModel @Inject constructor(
                 }
 
         }
+    }
+
+    /** Gọi sau khi đã navigate đến GoalScreen để tránh trigger lại */
+    fun onGoalNavigated() {
+        _needSetupGoal.value = false
     }
 
     private fun fetchAdminStats() {

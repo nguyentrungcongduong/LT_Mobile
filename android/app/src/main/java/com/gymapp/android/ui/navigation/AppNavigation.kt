@@ -21,13 +21,14 @@ import com.gymapp.android.ui.screens.training.WorkoutMenuScreen
 import com.gymapp.android.ui.screens.training.WorkoutScreen
 import com.gymapp.android.ui.screens.checkin.QrDisplayScreen
 import com.gymapp.android.ui.screens.checkin.QrScanScreen
+import com.gymapp.android.ui.screens.pt.PaymentWebViewScreen
 import kotlinx.coroutines.flow.collectLatest
 
 sealed class Route(val route: String) {
     object Login : Route("login")
     object Register : Route("register")
     object Main : Route("main")
-    object Goal : Route("goal")
+    object Goal : Route("goal/{isPt}")
     object WorkoutList : Route("workout")
     object WorkoutDetail : Route("workout/{planId}")
     object CreateSchedule : Route("create_schedule")
@@ -83,21 +84,28 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
                 onNavigateBack = {
                     navController.popBackStack()
                 },
-                onRegisterSuccess = {
-                    navController.navigate(Route.Goal.route) {
+                onRegisterSuccess = { isPt ->
+                    navController.navigate("goal/$isPt") {
                         popUpTo(Route.Login.route) { inclusive = true }
                     }
                 }
             )
         }
-        composable(Route.Goal.route) {
-            com.gymapp.android.ui.screens.home.GoalScreen(
-                onDone = {
-                    navController.navigate(Route.Main.route) {
-                        popUpTo(Route.Goal.route) { inclusive = true }
-                    }
+        composable(
+            route = "goal/{isPt}",
+            arguments = listOf(navArgument("isPt") { type = NavType.BoolType; defaultValue = false })
+        ) { backStackEntry ->
+            val isPt = backStackEntry.arguments?.getBoolean("isPt") ?: false
+            val onDone: () -> Unit = {
+                navController.navigate(Route.Main.route) {
+                    popUpTo("goal/{isPt}") { inclusive = true }
                 }
-            )
+            }
+            if (isPt) {
+                com.gymapp.android.ui.screens.home.PtProfileSetupScreen(onDone = onDone)
+            } else {
+                com.gymapp.android.ui.screens.home.GoalScreen(onDone = onDone)
+            }
         }
         composable(Route.Main.route) {
             MainScreen(
@@ -110,7 +118,7 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
                     }
                 },
                 onNavigateToGoal = {
-                    navController.navigate(Route.Goal.route)
+                    navController.navigate("goal/false")
                 },
                 onNavigateToWorkout = { navController.navigate(Route.WorkoutList.route) },
                 onNavigateToQrDisplay = { navController.navigate("qr_display") },
@@ -159,7 +167,10 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
             arguments = listOf(androidx.navigation.navArgument("planId") { type = androidx.navigation.NavType.StringType })
         ) {
             com.gymapp.android.ui.screens.membership.PackageDetailScreen(
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToPayment = { encodedUrl ->
+                    navController.navigate("payment_webview/$encodedUrl")
+                }
             )
         }
 
@@ -173,6 +184,21 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
                 },
                 onNavigateToQrDisplay = {
                     navController.navigate("qr_display")
+                }
+            )
+        }
+        composable(
+            route = "payment_webview/{encodedUrl}",
+            arguments = listOf(navArgument("encodedUrl") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val encodedUrl = backStackEntry.arguments?.getString("encodedUrl") ?: ""
+            PaymentWebViewScreen(
+                encodedUrl = encodedUrl,
+                onNavigateBack = { navController.popBackStack() },
+                onPaymentResultReceived = { _ ->
+                    navController.navigate("active_membership") {
+                        popUpTo("membership_packages") { inclusive = false }
+                    }
                 }
             )
         }

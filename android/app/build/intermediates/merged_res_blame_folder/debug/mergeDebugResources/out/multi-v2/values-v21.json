@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.gymapp.android.app-mergeDebugResources-61:/values-v21/values-v21.xml",
+            "outputFile": "com.gymapp.android.app-mergeDebugResources-64:/values-v21/values-v21.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Administrator\\.gradle\\caches\\8.10.2\\transforms\\1f96cd851d45041c44e7af397efa54cb\\transformed\\core-1.16.0\\res\\values-v21\\values-v21.xml",
+                    "source": "C:\\Users\\congd\\.gradle\\caches\\8.10.2\\transforms\\c41018b84a7a54889b3de3526e8a031a\\transformed\\core-1.16.0\\res\\values-v21\\values-v21.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,13",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4",
@@ -23,7 +23,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Administrator\\.gradle\\caches\\8.10.2\\transforms\\d8603c01db7e50c7e548ef4f5f7699a8\\transformed\\core-1.5.0\\res\\values-v21\\values.xml",
+                    "source": "C:\\Users\\congd\\.gradle\\caches\\8.10.2\\transforms\\e683210b6f149bc3463427ed19817cdd\\transformed\\core-1.5.0\\res\\values-v21\\values.xml",
                     "from": {
                         "startLines": "4,13",
                         "startColumns": "0,0",

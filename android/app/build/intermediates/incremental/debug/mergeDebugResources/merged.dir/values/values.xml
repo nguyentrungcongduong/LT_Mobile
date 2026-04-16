@@ -257,6 +257,12 @@
     <string name="default_popup_window_title" ns2:ignore="ExtraTranslation">"Pop-Up Window"</string>
     <string name="define_zxingandroidembedded" translatable="false"/>
     <string name="dropdown_menu">"Dropdown menu"</string>
+    <string name="fcm_fallback_notification_channel_label">Miscellaneous</string>
+    <string name="gcm_defaultSenderId" translatable="false">515831200158</string>
+    <string name="google_api_key" translatable="false">AIzaSyALmRDbZvSGjWKhM4OOILjkrZoCJLV_xqg</string>
+    <string name="google_app_id" translatable="false">1:515831200158:android:442e15fa595bf4b7833e8f</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyALmRDbZvSGjWKhM4OOILjkrZoCJLV_xqg</string>
+    <string name="google_storage_bucket" translatable="false">gymap-41a11.firebasestorage.app</string>
     <string name="in_progress">In progress</string>
     <string name="indeterminate">Partially checked</string>
     <string name="library_zxingandroidembedded_author" translatable="false">JourneyApps</string>
@@ -340,6 +346,7 @@
     <string name="m3c_wide_navigation_rail_pane_title">"Navigation rail"</string>
     <string name="navigation_menu">"Navigation menu"</string>
     <string name="not_selected">Not selected</string>
+    <string name="project_id" translatable="false">gymap-41a11</string>
     <string name="range_end">"Range end"</string>
     <string name="range_start">"Range start"</string>
     <string name="selected">Selected</string>

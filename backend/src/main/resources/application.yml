@@ -79,7 +79,7 @@ cloudinary:
 
 payment:
   vnpay:
-    tmn-code: ${VNPAY_TMN_CODE:HIH4PO2}
+    tmn-code: ${VNPAY_TMN_CODE:HIIH4PO2}
     hash-secret: ${VNPAY_HASH_SECRET:2K225CSQ0N8UPZCQN51QYROBB3VUK27J}
     base-url: ${VNPAY_BASE_URL:https://sandbox.vnpayment.vn/paymentv2/vpcpay.html}
     return-url: ${VNPAY_RETURN_URL:https://hyphen-tasty-treadmill.ngrok-free.dev/api/v1/payments/vnpay-return}

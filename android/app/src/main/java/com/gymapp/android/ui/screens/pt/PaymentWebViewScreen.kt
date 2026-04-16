@@ -1,8 +1,14 @@
 package com.gymapp.android.ui.screens.pt
 
+import android.content.Intent
+import android.net.Uri
+import android.os.Message
+import android.webkit.CookieManager
 import android.webkit.WebResourceRequest
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.FrameLayout
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -78,132 +84,167 @@ fun PaymentWebViewScreen(
                     color = MaterialTheme.colorScheme.primary
                 )
             }
+
+            // Dùng FrameLayout làm container để stack nhiều WebView (main + popup)
+            // BẮT BUỘC: popup WebView phải được addView vào đây thì mới nhận được input
             AndroidView(
                 factory = { context ->
-                    WebView(context).apply {
-                        settings.apply {
-                            javaScriptEnabled = true
-                            domStorageEnabled = true
-                            databaseEnabled = true
-                            setSupportZoom(true)
-                            builtInZoomControls = true
-                            displayZoomControls = false
-                            // Bắt buộc để WebView tự xử lý popup (window.open)
-                            // thay vì chuyển sang Chrome bên ngoài
-                            setSupportMultipleWindows(true)
-                            javaScriptCanOpenWindowsAutomatically = true
-                        }
+                    val frameLayout = FrameLayout(context)
 
-                        webViewClient = object : WebViewClient() {
-                            override fun onPageFinished(view: WebView?, url: String?) {
-                                isLoading = false
+                    // Helper: tạo WebView với đầy đủ settings cần thiết cho VNPay/MoMo
+                    fun buildWebView(onPageDone: (() -> Unit)? = null): WebView {
+                        return WebView(context).apply {
+                            settings.apply {
+                                javaScriptEnabled = true
+                                domStorageEnabled = true
+                                databaseEnabled = true
+                                setSupportZoom(true)
+                                builtInZoomControls = true
+                                displayZoomControls = false
+                                setSupportMultipleWindows(true)
+                                javaScriptCanOpenWindowsAutomatically = true
+                                // VNPay load mix HTTP + HTTPS (logo ngân hàng, redirect...)
+                                mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                                useWideViewPort = true
+                                loadWithOverviewMode = true
+                                @Suppress("DEPRECATION")
+                                saveFormData = true
                             }
 
-                            override fun shouldOverrideUrlLoading(
-                                view: WebView?,
-                                request: WebResourceRequest?
-                            ): Boolean {
-                                val loadingUrl = request?.url.toString()
+                            // BẮT BUỘC: bật cookie để VNPay submit form hoạt động
+                            val cookieManager = CookieManager.getInstance()
+                            cookieManager.setAcceptCookie(true)
+                            cookieManager.setAcceptThirdPartyCookies(this, true)
 
-                                // Bắt deep link callback từ app
-                                if (loadingUrl.startsWith("gymapp://payment/result")) {
-                                    val uri = android.net.Uri.parse(loadingUrl)
-                                    val bookingId = uri.getQueryParameter("booking_id") ?: ""
-                                    onPaymentResultReceived(bookingId)
-                                    return true
+                            webViewClient = object : WebViewClient() {
+                                override fun onPageFinished(view: WebView?, url: String?) {
+                                    onPageDone?.invoke()
                                 }
 
-                                // Bắt các scheme không phải HTTP/HTTPS (vnpay://, momo://, intent://…)
-                                if (!loadingUrl.startsWith("http://") && !loadingUrl.startsWith("https://")) {
-                                    try {
-                                        if (loadingUrl.startsWith("intent://")) {
-                                            val intent = android.content.Intent.parseUri(
-                                                loadingUrl,
-                                                android.content.Intent.URI_INTENT_SCHEME
-                                            )
-                                            val fallbackUrl = intent.getStringExtra("browser_fallback_url")
-                                            when {
-                                                intent.resolveActivity(context.packageManager) != null -> {
-                                                    context.startActivity(intent)
-                                                }
-                                                fallbackUrl != null -> {
-                                                    view?.loadUrl(fallbackUrl)
-                                                }
-                                                intent.`package` != null -> {
-                                                    context.startActivity(
-                                                        android.content.Intent(
-                                                            android.content.Intent.ACTION_VIEW,
-                                                            android.net.Uri.parse("market://details?id=${intent.`package`}")
-                                                        )
-                                                    )
-                                                }
-                                            }
-                                        } else {
-                                            context.startActivity(
-                                                android.content.Intent(
-                                                    android.content.Intent.ACTION_VIEW,
-                                                    android.net.Uri.parse(loadingUrl)
+                                override fun shouldOverrideUrlLoading(
+                                    view: WebView?,
+                                    request: WebResourceRequest?
+                                ): Boolean {
+                                    val loadingUrl = request?.url.toString()
+
+                                    // Bypass trang cảnh báo của ngrok (hiện sau khi VNPay redirect về return-url)
+                                    // Ngrok chặn browser access → cần header "ngrok-skip-browser-warning"
+                                    if (loadingUrl.contains("ngrok-free.dev") || loadingUrl.contains("ngrok.io")) {
+                                        view?.loadUrl(
+                                            loadingUrl,
+                                            mapOf("ngrok-skip-browser-warning" to "true")
+                                        )
+                                        return true
+                                    }
+
+                                    // Bắt deep link callback thanh toán thành công/thất bại
+                                    if (loadingUrl.startsWith("gymapp://payment/result")) {
+                                        val uri = Uri.parse(loadingUrl)
+                                        val bookingId = uri.getQueryParameter("booking_id") ?: ""
+                                        onPaymentResultReceived(bookingId)
+                                        return true
+                                    }
+
+                                    // Bắt các scheme không phải HTTP/HTTPS (vnpay://, momo://, intent://…)
+                                    if (!loadingUrl.startsWith("http://") && !loadingUrl.startsWith("https://")) {
+                                        try {
+                                            if (loadingUrl.startsWith("intent://")) {
+                                                val intent = Intent.parseUri(
+                                                    loadingUrl,
+                                                    Intent.URI_INTENT_SCHEME
                                                 )
-                                            )
+                                                val fallbackUrl = intent.getStringExtra("browser_fallback_url")
+                                                when {
+                                                    intent.resolveActivity(context.packageManager) != null ->
+                                                        context.startActivity(intent)
+                                                    fallbackUrl != null ->
+                                                        view?.loadUrl(fallbackUrl)
+                                                    intent.`package` != null ->
+                                                        context.startActivity(
+                                                            Intent(
+                                                                Intent.ACTION_VIEW,
+                                                                Uri.parse("market://details?id=${intent.`package`}")
+                                                            )
+                                                        )
+                                                }
+                                            } else {
+                                                context.startActivity(
+                                                    Intent(Intent.ACTION_VIEW, Uri.parse(loadingUrl))
+                                                )
+                                            }
+                                        } catch (e: Exception) {
+                                            android.widget.Toast.makeText(
+                                                context,
+                                                "Không thể mở ứng dụng ngoài",
+                                                android.widget.Toast.LENGTH_SHORT
+                                            ).show()
                                         }
-                                    } catch (e: Exception) {
-                                        android.widget.Toast.makeText(
-                                            context,
-                                            "Không thể mở ứng dụng ngoài",
-                                            android.widget.Toast.LENGTH_SHORT
-                                        ).show()
+                                        return true
                                     }
-                                    return true
-                                }
 
-                                // Để WebView tự tải các URL HTTP/HTTPS (không chuyển sang Chrome)
-                                return false
+                                    // HTTP/HTTPS → để WebView tự tải (KHÔNG mở Chrome ngoài)
+                                    return false
+                                }
                             }
                         }
-
-                        // WebChromeClient: bắt window.open() của VNPay sandbox
-                        // Nếu không có cái này, VNPay sandbox sẽ mở Chrome bên ngoài
-                        webChromeClient = object : android.webkit.WebChromeClient() {
-                            override fun onCreateWindow(
-                                view: WebView?,
-                                isDialog: Boolean,
-                                isUserGesture: Boolean,
-                                resultMsg: android.os.Message?
-                            ): Boolean {
-                                // Tạo WebView phụ để hứng popup, rồi redirect về WebView cha
-                                val popupWebView = WebView(context).apply {
-                                    settings.javaScriptEnabled = true
-                                    webViewClient = object : WebViewClient() {
-                                        override fun shouldOverrideUrlLoading(
-                                            popupView: WebView?,
-                                            request: WebResourceRequest?
-                                        ): Boolean {
-                                            val popupUrl = request?.url.toString()
-                                            // Callback từ VNPay → xử lý kết quả
-                                            if (popupUrl.startsWith("gymapp://payment/result")) {
-                                                val uri = android.net.Uri.parse(popupUrl)
-                                                val bookingId = uri.getQueryParameter("booking_id") ?: ""
-                                                onPaymentResultReceived(bookingId)
-                                                return true
-                                            }
-                                            // Redirect HTTP/HTTPS → load vào WebView cha
-                                            if (popupUrl.startsWith("http://") || popupUrl.startsWith("https://")) {
-                                                view?.loadUrl(popupUrl)
-                                                return true
-                                            }
-                                            return false
-                                        }
-                                    }
-                                }
-                                val transport = resultMsg?.obj as? WebView.WebViewTransport
-                                transport?.webView = popupWebView
-                                resultMsg?.sendToTarget()
-                                return true
-                            }
-                        }
-
-                        loadUrl(url)
                     }
+
+                    // ── Main WebView ─────────────────────────────────────────
+                    val mainWebView = buildWebView(onPageDone = { isLoading = false })
+
+                    mainWebView.webChromeClient = object : android.webkit.WebChromeClient() {
+                        /**
+                         * VNPay sandbox dùng window.open() để mở trang OTP/3DS của ngân hàng.
+                         * Phải addView popup vào frameLayout → popup mới hiển thị và nhận input.
+                         * Nếu không addView → popup WebView tồn tại nhưng bị detached → click không ăn.
+                         */
+                        override fun onCreateWindow(
+                            view: WebView?,
+                            isDialog: Boolean,
+                            isUserGesture: Boolean,
+                            resultMsg: Message?
+                        ): Boolean {
+                            val popupWebView = buildWebView()
+
+                            // Cho popup tự đóng (khi ngân hàng gọi window.close())
+                            popupWebView.webChromeClient = object : android.webkit.WebChromeClient() {
+                                override fun onCloseWindow(window: WebView?) {
+                                    frameLayout.removeView(window)
+                                }
+                            }
+
+                            // ADD vào FrameLayout - đây là điều quan trọng nhất!
+                            frameLayout.addView(
+                                popupWebView,
+                                FrameLayout.LayoutParams(
+                                    FrameLayout.LayoutParams.MATCH_PARENT,
+                                    FrameLayout.LayoutParams.MATCH_PARENT
+                                )
+                            )
+
+                            // Kết nối popup WebView với message transport của VNPay
+                            val transport = resultMsg?.obj as? WebView.WebViewTransport
+                            transport?.webView = popupWebView
+                            resultMsg?.sendToTarget()
+                            return true
+                        }
+
+                        override fun onCloseWindow(window: WebView?) {
+                            frameLayout.removeView(window)
+                        }
+                    }
+
+                    // Add main WebView vào container trước
+                    frameLayout.addView(
+                        mainWebView,
+                        FrameLayout.LayoutParams(
+                            FrameLayout.LayoutParams.MATCH_PARENT,
+                            FrameLayout.LayoutParams.MATCH_PARENT
+                        )
+                    )
+
+                    mainWebView.loadUrl(url)
+                    frameLayout
                 },
                 modifier = Modifier.fillMaxSize()
             )
