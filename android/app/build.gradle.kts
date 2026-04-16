@@ -73,6 +73,7 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.50")
     implementation("androidx.compose.material3:material3:1.4.0")
     implementation("androidx.compose.ui:ui-test:1.10.6")
+    implementation("com.google.firebase:firebase-messaging-ktx:25.0.1")
     kapt("com.google.dagger:hilt-compiler:2.50")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
@@ -106,6 +107,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
     // Firebase BOM + Cloud Messaging (FCM)
-    implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
-    implementation("com.google.firebase:firebase-messaging-ktx")
+    // firebase-messaging-ktx was merged into firebase-messaging since BOM 32.0.0
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+    implementation("com.google.firebase:firebase-messaging")
 }
