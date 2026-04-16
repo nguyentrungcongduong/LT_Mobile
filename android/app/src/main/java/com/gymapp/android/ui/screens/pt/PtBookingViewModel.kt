@@ -3,6 +3,8 @@ package com.gymapp.android.ui.screens.pt
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gymapp.android.data.remote.api.BatchBookingCreateRequest
+import com.gymapp.android.data.remote.api.BatchBookingCreateResponse
 import com.gymapp.android.data.remote.api.BookingCreateRequest
 import com.gymapp.android.data.remote.api.BookingCreateResponse
 import com.gymapp.android.data.remote.api.PtAvailabilityDto
@@ -21,7 +23,10 @@ sealed class PtBookingUiState {
     object Loading : PtBookingUiState()
     data class Success(val availabilities: List<PtAvailabilityDto>) : PtBookingUiState()
     data class Error(val message: String) : PtBookingUiState()
+    // Single booking (old flow giữ lại)
     data class BookingSuccess(val response: BookingCreateResponse) : PtBookingUiState()
+    // Batch booking mới
+    data class BatchBookingSuccess(val response: BatchBookingCreateResponse) : PtBookingUiState()
 }
 
 @HiltViewModel
@@ -38,8 +43,9 @@ class PtBookingViewModel @Inject constructor(
     private val _selectedDate = MutableStateFlow(Calendar.getInstance().time)
     val selectedDate: StateFlow<Date> = _selectedDate.asStateFlow()
 
-    private val _selectedSlotId = MutableStateFlow<String?>(null)
-    val selectedSlotId: StateFlow<String?> = _selectedSlotId.asStateFlow()
+    // Multi-select: Set của slotId đã chọn
+    private val _selectedSlotIds = MutableStateFlow<Set<String>>(emptySet())
+    val selectedSlotIds: StateFlow<Set<String>> = _selectedSlotIds.asStateFlow()
 
     private val _selectedProvider = MutableStateFlow<String?>("VNPAY")
     val selectedProvider: StateFlow<String?> = _selectedProvider.asStateFlow()
@@ -54,26 +60,30 @@ class PtBookingViewModel @Inject constructor(
 
     init {
         loadPtDetail()
-        loadAvailability()
+        loadMonthAvailability()
     }
 
     private fun loadPtDetail() {
         viewModelScope.launch {
             ptRepository.getPtDetail(ptId)
-                .onSuccess { detail ->
-                    _ptDetail.value = detail
-                }
+                .onSuccess { detail -> _ptDetail.value = detail }
         }
     }
 
     fun selectDate(date: Date) {
         _selectedDate.value = date
-        _selectedSlotId.value = null
-        loadAvailability()
+        // Không reset slot đã chọn, user có thể chọn slot từ nhiều ngày
     }
 
-    fun selectSlot(slotId: String) {
-        _selectedSlotId.value = slotId
+    /** Toggle slot: nếu đã chọn thì bỏ, chưa chọn thì thêm */
+    fun toggleSlot(slotId: String) {
+        val current = _selectedSlotIds.value.toMutableSet()
+        if (current.contains(slotId)) {
+            current.remove(slotId)
+        } else {
+            current.add(slotId)
+        }
+        _selectedSlotIds.value = current
     }
 
     fun selectProvider(provider: String) {
@@ -84,29 +94,29 @@ class PtBookingViewModel @Inject constructor(
         val next = _viewingMonth.value.clone() as Calendar
         next.add(Calendar.MONTH, 1)
         _viewingMonth.value = next
+        loadMonthAvailability()
     }
 
     fun prevMonth() {
         val prev = _viewingMonth.value.clone() as Calendar
         prev.add(Calendar.MONTH, -1)
         _viewingMonth.value = prev
+        loadMonthAvailability()
     }
 
-    fun loadAvailability() {
-        val selectedDateVal = _selectedDate.value
-        val toDateStr = dateFormat.format(selectedDateVal)
-        
-        // Calculate fromDate (Selected Date - 1 day)
-        val cal = Calendar.getInstance().apply { 
-            time = selectedDateVal
-            add(Calendar.DAY_OF_YEAR, -1) 
-        }
-        val fromDateStr = dateFormat.format(cal.time)
-        
+    /** Load toàn bộ lịch trống trong tháng đang xem */
+    fun loadMonthAvailability() {
+        val month = _viewingMonth.value.clone() as Calendar
+        month.set(Calendar.DAY_OF_MONTH, 1)
+        val fromStr = dateFormat.format(month.time)
+
+        month.set(Calendar.DAY_OF_MONTH, month.getActualMaximum(Calendar.DAY_OF_MONTH))
+        val toStr = dateFormat.format(month.time)
+
         _uiState.value = PtBookingUiState.Loading
         viewModelScope.launch {
-            ptRepository.getAvailability(ptId, fromDateStr, toDateStr)
-                .onSuccess { availabilities: List<PtAvailabilityDto> ->
+            ptRepository.getAvailability(ptId, fromStr, toStr)
+                .onSuccess { availabilities ->
                     _uiState.value = PtBookingUiState.Success(availabilities)
                 }
                 .onFailure { error ->
@@ -115,22 +125,43 @@ class PtBookingViewModel @Inject constructor(
         }
     }
 
+    // Alias giữ backward compat
+    fun loadAvailability() = loadMonthAvailability()
+
+    /** Đặt nhiều buổi cùng lúc → 1 thanh toán */
+    fun confirmBatchBooking() {
+        val slotIds = _selectedSlotIds.value.toList()
+        if (slotIds.isEmpty()) return
+        val provider = _selectedProvider.value ?: "VNPAY"
+        _uiState.value = PtBookingUiState.Loading
+        viewModelScope.launch {
+            ptRepository.createBatchBookings(
+                BatchBookingCreateRequest(ptId, slotIds, provider)
+            ).onSuccess { response ->
+                _uiState.value = PtBookingUiState.BatchBookingSuccess(response)
+            }.onFailure { error ->
+                _uiState.value = PtBookingUiState.Error(error.message ?: "Lỗi đặt lịch")
+            }
+        }
+    }
+
+    /** Đặt 1 buổi (giữ backward compat) */
     fun confirmBooking() {
-        val slotId = _selectedSlotId.value ?: return
+        val slotId = _selectedSlotIds.value.firstOrNull() ?: return
         val provider = _selectedProvider.value ?: "VNPAY"
         _uiState.value = PtBookingUiState.Loading
         viewModelScope.launch {
             ptRepository.createBooking(BookingCreateRequest(ptId, slotId, provider))
-                .onSuccess { response ->
-                    _uiState.value = PtBookingUiState.BookingSuccess(response)
-                }
-                .onFailure { error ->
-                    _uiState.value = PtBookingUiState.Error(error.message ?: "Lỗi đặt lịch")
-                }
+                .onSuccess { response -> _uiState.value = PtBookingUiState.BookingSuccess(response) }
+                .onFailure { error -> _uiState.value = PtBookingUiState.Error(error.message ?: "Lỗi đặt lịch") }
         }
     }
 
     fun resetUiState() {
         _uiState.value = PtBookingUiState.Idle
+    }
+
+    fun clearSelectedSlots() {
+        _selectedSlotIds.value = emptySet()
     }
 }

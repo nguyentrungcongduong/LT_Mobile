@@ -4,7 +4,10 @@ import com.gymapp.common.exception.BadRequestException;
 import com.gymapp.common.exception.ConflictException;
 import com.gymapp.modules.booking.dto.PtAvailabilityRequest;
 import com.gymapp.modules.booking.dto.PtAvailabilityResponse;
+import com.gymapp.modules.booking.entity.Booking;
 import com.gymapp.modules.booking.entity.PtAvailability;
+import com.gymapp.modules.booking.enums.BookingStatus;
+import com.gymapp.modules.booking.repository.BookingRepository;
 import com.gymapp.modules.booking.repository.PtAvailabilityRepository;
 import com.gymapp.modules.booking.service.AvailabilityService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +26,7 @@ public class AvailabilityServiceImpl implements AvailabilityService {
     private final PtAvailabilityRepository availabilityRepository;
     private final com.gymapp.modules.user.repository.PtProfileRepository ptProfileRepository;
     private final com.gymapp.modules.user.repository.UserRepository userRepository;
+    private final BookingRepository bookingRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -96,12 +100,28 @@ public class AvailabilityServiceImpl implements AvailabilityService {
     }
 
     private PtAvailabilityResponse mapToResponse(PtAvailability a) {
-        return PtAvailabilityResponse.builder()
+        PtAvailabilityResponse.PtAvailabilityResponseBuilder builder = PtAvailabilityResponse.builder()
                 .id(a.getId())
                 .availableDate(a.getAvailableDate())
                 .startTime(a.getStartTime())
                 .endTime(a.getEndTime())
-                .isBooked(a.isBooked())
-                .build();
+                .isBooked(a.isBooked());
+
+        // Nếu slot đã có booking, lấy thông tin học viên
+        if (a.isBooked()) {
+            bookingRepository.findFirstByAvailabilityIdAndStatusIn(
+                    a.getId(),
+                    List.of(BookingStatus.PENDING, BookingStatus.CONFIRMED)
+            ).ifPresent(booking -> {
+                if (booking.getUser() != null) {
+                    builder.bookedByName(booking.getUser().getFullName());
+                    builder.bookedByAvatar(booking.getUser().getAvatarUrl());
+                    builder.bookingId(booking.getId());
+                }
+            });
+        }
+
+        return builder.build();
     }
 }
+

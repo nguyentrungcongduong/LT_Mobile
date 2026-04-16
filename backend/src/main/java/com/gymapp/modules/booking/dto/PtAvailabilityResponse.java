@@ -24,4 +24,16 @@ public class PtAvailabilityResponse {
 
     @JsonProperty("is_booked")
     private boolean isBooked;
+
+    /** Tên học viên đã đặt slot này (null nếu còn trống) */
+    @JsonProperty("booked_by_name")
+    private String bookedByName;
+
+    /** Avatar URL của học viên (null nếu còn trống) */
+    @JsonProperty("booked_by_avatar")
+    private String bookedByAvatar;
+
+    /** booking_id tương ứng (null nếu còn trống) */
+    @JsonProperty("booking_id")
+    private UUID bookingId;
 }

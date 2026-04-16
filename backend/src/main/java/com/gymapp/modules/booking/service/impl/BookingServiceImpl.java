@@ -63,7 +63,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingMapper bookingMapper;
 
     private static final BigDecimal COMMISSION_RATE = new BigDecimal("0.20");
-    private static final List<BookingStatus> VALID_PROGRESS_STATUSES = List.of(BookingStatus.COMPLETED);
+    private static final List<BookingStatus> VALID_PROGRESS_STATUSES = List.of(BookingStatus.PENDING, BookingStatus.CONFIRMED, BookingStatus.COMPLETED);
 
     @Override
     @Transactional
@@ -120,7 +120,7 @@ public class BookingServiceImpl implements BookingService {
                 .platformFee(platformFee)
                 .ptAmount(ptAmount)
                 .status(BookingStatus.PENDING)
-                .expiresAt(OffsetDateTime.now().plusMinutes(15))
+                .expiresAt(OffsetDateTime.now().plusHours(24))
                 .build();
 
         booking = bookingRepository.save(booking);
@@ -147,6 +147,102 @@ public class BookingServiceImpl implements BookingService {
                 .status(booking.getStatus())
                 .paymentUrl(initiateResponse.getGatewayUrl())
                 .expiresAt(booking.getExpiresAt())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public BatchBookingResponse createBatchBookings(UUID userId, BatchBookingRequest request, String ipAddress) {
+        // 1. Validate user active membership
+        boolean hasActiveMembership = membershipRepository.findActiveMembershipsByUserId(userId)
+                .stream()
+                .anyMatch(m -> !m.getEndDate().isBefore(OffsetDateTime.now().toLocalDate()));
+        if (!hasActiveMembership) {
+            throw new BadRequestException("NO_ACTIVE_MEMBERSHIP", "User has no active membership");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND", "User not found"));
+
+        PtProfile ptProfile = ptProfileRepository.findById(request.getPtId())
+                .orElseThrow(() -> new ResourceNotFoundException("PT_NOT_FOUND", "PT Profile not found"));
+
+        if (ptProfile.getUser().getId().equals(userId)) {
+            throw new BadRequestException("CANNOT_BOOK_OWN_SLOT", "You cannot book your own slot");
+        }
+
+        BigDecimal pricePerSession = ptProfile.getPricePerSession();
+        BigDecimal commissionRate = COMMISSION_RATE;
+        OffsetDateTime expiresAt = OffsetDateTime.now().plusHours(24);
+
+        List<Booking> bookings = new java.util.ArrayList<>();
+
+        // 2. Validate và create booking cho từng slot
+        for (UUID availabilityId : request.getAvailabilityIds()) {
+            PtAvailability availability = availabilityRepository.findByIdWithLock(availabilityId)
+                    .orElseThrow(() -> new ResourceNotFoundException("SLOT_NOT_FOUND",
+                            "Availability slot not found: " + availabilityId));
+
+            if (availability.isBooked()) {
+                throw new ConflictException("SLOT_ALREADY_BOOKED",
+                        "Slot " + availability.getAvailableDate() + " " + availability.getStartTime() + " is already booked");
+            }
+
+            BigDecimal platformFee = pricePerSession.multiply(commissionRate);
+            BigDecimal ptAmount = pricePerSession.subtract(platformFee);
+
+            OffsetDateTime scheduledAt = availability.getAvailableDate()
+                    .atTime(availability.getStartTime()).atOffset(java.time.ZoneOffset.UTC);
+            OffsetDateTime endAt = availability.getAvailableDate()
+                    .atTime(availability.getEndTime()).atOffset(java.time.ZoneOffset.UTC);
+
+            Booking booking = Booking.builder()
+                    .user(user)
+                    .pt(ptProfile.getUser())
+                    .availability(availability)
+                    .scheduledAt(scheduledAt)
+                    .endAt(endAt)
+                    .durationMinutes((int) java.time.Duration.between(scheduledAt, endAt).toMinutes())
+                    .totalAmount(pricePerSession)
+                    .platformFee(platformFee)
+                    .ptAmount(ptAmount)
+                    .status(BookingStatus.PENDING)
+                    .expiresAt(expiresAt)
+                    .build();
+
+            bookings.add(bookingRepository.save(booking));
+
+            // Mark slot as booked
+            availability.setBooked(true);
+            availabilityRepository.save(availability);
+        }
+
+        // 3. Tính tổng tiền
+        BigDecimal totalAmount = pricePerSession.multiply(new BigDecimal(bookings.size()));
+
+        // 4. Tạo 1 payment cho toàn bộ batch với tổng tiền thực
+        String idempotencyKey = UUID.randomUUID().toString();
+        String batchBookingIdsCsv = bookings.stream()
+                .map(b -> b.getId().toString())
+                .collect(Collectors.joining(","));
+
+        PaymentInitiateRequest initiateRequest = new PaymentInitiateRequest();
+        initiateRequest.setBookingId(bookings.get(0).getId());
+        initiateRequest.setProvider(request.getPaymentProvider());
+        initiateRequest.setIdempotencyKey(idempotencyKey);
+        initiateRequest.setOverrideAmount(totalAmount); // ← tổng tiền toàn batch
+        initiateRequest.setBatchBookingIds(batchBookingIdsCsv); // ← lưu để confirm sau
+
+        PaymentInitiateResponse initiateResponse = paymentService.initiatePayment(userId, initiateRequest, ipAddress);
+
+        List<UUID> bookingIds = bookings.stream().map(Booking::getId).collect(Collectors.toList());
+
+        return BatchBookingResponse.builder()
+                .bookingIds(bookingIds)
+                .totalAmount(totalAmount)
+                .paymentUrl(initiateResponse.getGatewayUrl())
+                .expiresAt(expiresAt)
+                .sessionCount(bookings.size())
                 .build();
     }
 
@@ -335,15 +431,15 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional(readOnly = true)
     public ClientProgressDto getClientProgress(UUID ptId, UUID userId) {
-        List<Booking> bookings = bookingRepository.findAllByUserIdAndPtIdAndStatusInOrderByScheduledAtDesc(userId, ptId,
-                VALID_PROGRESS_STATUSES);
+        // Lấy TẤT CẢ bookings của client với PT này (kể cả CONFIRMED, PENDING, CANCELLED)
+        List<Booking> bookings = bookingRepository.findAllByUserIdAndPtIdOrderByScheduledAtDesc(userId, ptId);
 
         List<ClientProgressDto.SessionHistoryDto> sessions = bookings.stream()
                 .map(b -> ClientProgressDto.SessionHistoryDto.builder()
                         .bookingId(b.getId())
                         .date(b.getScheduledAt())
                         .status(b.getStatus().name())
-                        .workoutLogs(java.util.Collections.emptyList()) // Placeholder for now
+                        .workoutLogs(java.util.Collections.emptyList())
                         .build())
                 .collect(Collectors.toList());
 
@@ -373,3 +469,4 @@ public class BookingServiceImpl implements BookingService {
                 .toList();
     }
 }
+

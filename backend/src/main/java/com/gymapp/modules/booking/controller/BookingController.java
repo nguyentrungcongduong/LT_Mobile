@@ -39,6 +39,18 @@ public class BookingController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(response, "Booking created successfully"));
     }
 
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/batch")
+    @Operation(summary = "Create multiple bookings and pay once")
+    public ResponseEntity<ApiResponse<BatchBookingResponse>> createBatchBookings(
+            @Valid @RequestBody BatchBookingRequest request,
+            jakarta.servlet.http.HttpServletRequest httpRequest) {
+        UUID userId = getCurrentUserId();
+        String ipAddress = httpRequest.getRemoteAddr();
+        BatchBookingResponse response = bookingService.createBatchBookings(userId, request, ipAddress);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(response, "Batch bookings created successfully"));
+    }
+
     @PreAuthorize("hasAnyRole('USER', 'PT')")
     @PatchMapping("/{id}/cancel")
     @Operation(summary = "Cancel booking")

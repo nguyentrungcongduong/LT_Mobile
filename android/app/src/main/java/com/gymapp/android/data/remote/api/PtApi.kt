@@ -34,6 +34,11 @@ interface PtApi {
         @Body request: BookingCreateRequest
     ): Response<ApiResponse<BookingCreateResponse>>
 
+    @POST("api/v1/bookings/batch")
+    suspend fun createBatchBookings(
+        @Body request: BatchBookingCreateRequest
+    ): Response<ApiResponse<BatchBookingCreateResponse>>
+
     @PATCH("api/v1/bookings/{booking_id}/cancel")
     suspend fun cancelBooking(
         @Path("booking_id") bookingId: String,
@@ -99,4 +104,17 @@ data class CreateAvailabilityRequest(
     @com.google.gson.annotations.SerializedName("available_date") val availableDate: String,
     @com.google.gson.annotations.SerializedName("start_time") val startTime: String,
     @com.google.gson.annotations.SerializedName("end_time") val endTime: String
+)
+
+data class BatchBookingCreateRequest(
+    @com.google.gson.annotations.SerializedName("pt_id") val ptId: String,
+    @com.google.gson.annotations.SerializedName("availability_ids") val availabilityIds: List<String>,
+    @com.google.gson.annotations.SerializedName("payment_provider") val paymentProvider: String
+)
+
+data class BatchBookingCreateResponse(
+    @com.google.gson.annotations.SerializedName("booking_ids") val bookingIds: List<String>,
+    @com.google.gson.annotations.SerializedName("total_amount") val totalAmount: Long,
+    @com.google.gson.annotations.SerializedName("payment_url") val paymentUrl: String?,
+    @com.google.gson.annotations.SerializedName("expires_at") val expiresAt: String?
 )

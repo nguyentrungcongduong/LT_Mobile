@@ -8,7 +8,10 @@ data class PtAvailabilityDto(
     @SerializedName("available_date") val availableDate: String, // YYYY-MM-DD
     @SerializedName("start_time") val startTime: String, // HH:MM
     @SerializedName("end_time") val endTime: String,
-    @SerializedName("is_booked") val isBooked: Boolean
+    @SerializedName("is_booked") val isBooked: Boolean,
+    @SerializedName("booked_by_name") val bookedByName: String? = null,
+    @SerializedName("booked_by_avatar") val bookedByAvatar: String? = null,
+    @SerializedName("booking_id") val bookingId: String? = null
 )
 
 data class BookingsResponse(

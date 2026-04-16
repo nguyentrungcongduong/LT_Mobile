@@ -1,4 +1,4 @@
-package com.gymapp.android.ui.screens.pt
+﻿package com.gymapp.android.ui.screens.pt
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -39,6 +39,7 @@ fun PtBookingConfirmScreen(
     val ptDetail by viewModel.ptDetail.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
     val selectedProvider by viewModel.selectedProvider.collectAsState()
+    val selectedSlotIds by viewModel.selectedSlotIds.collectAsState()
     
     val context = LocalContext.current
     val currencyFormat = NumberFormat.getCurrencyInstance(Locale("vi", "VN"))
@@ -46,10 +47,10 @@ fun PtBookingConfirmScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Xác nhận đặt lịch", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onBackground) },
+                title = { Text("XÃ¡c nháº­n Ä‘áº·t lá»‹ch", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onBackground) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Trở về", tint = MaterialTheme.colorScheme.onBackground)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Trá»Ÿ vá»", tint = MaterialTheme.colorScheme.onBackground)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
@@ -65,7 +66,7 @@ fun PtBookingConfirmScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Button(
-                        onClick = { viewModel.confirmBooking() },
+                        onClick = { viewModel.confirmBatchBooking() },
                         modifier = Modifier.fillMaxWidth().height(56.dp),
                         shape = MaterialTheme.shapes.small,
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
@@ -74,13 +75,13 @@ fun PtBookingConfirmScreen(
                         if (uiState is PtBookingUiState.Loading) {
                             CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(24.dp))
                         } else {
-                            Text("Xác nhận & Thanh toán", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onPrimary)
+                            Text("XÃ¡c nháº­n & Thanh toÃ¡n", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onPrimary)
                         }
                     }
                     
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "Lịch tự hủy sau 15 phút nếu chưa thanh toán",
+                        "Lá»‹ch tá»± há»§y sau 15 phÃºt náº¿u chÆ°a thanh toÃ¡n",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
@@ -114,7 +115,7 @@ fun PtBookingConfirmScreen(
                     Spacer(Modifier.width(16.dp))
                     Column {
                         Text(pt.fullName, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onBackground)
-                        Text(pt.specializations?.joinToString(" · ") ?: "Personal Trainer", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(pt.specializations?.joinToString(" Â· ") ?: "Personal Trainer", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -129,9 +130,9 @@ fun PtBookingConfirmScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                ConfirmRow(label = "Ngày", value = SimpleDateFormat("EE, dd/MM/yyyy", Locale("vi", "VN")).format(selectedDate))
-                ConfirmRow(label = "Giờ", value = "Khung giờ đã chọn") // Ideally fetch accurate slot string
-                ConfirmRow(label = "Thời lượng", value = "60 phút")
+                ConfirmRow(label = "NgÃ y", value = SimpleDateFormat("EE, dd/MM/yyyy", Locale("vi", "VN")).format(selectedDate))
+                ConfirmRow(label = "Giá»", value = "Khung giá» Ä‘Ã£ chá»n") // Ideally fetch accurate slot string
+                ConfirmRow(label = "Thá»i lÆ°á»£ng", value = "60 phÃºt")
                 
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 
@@ -140,15 +141,26 @@ fun PtBookingConfirmScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Tổng", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text(
-                        currencyFormat.format(ptDetail?.price ?: 0.0),
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                    Text("Tá»•ng", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    val slotCount = selectedSlotIds.size.coerceAtLeast(1)
+                    val totalPrice = (ptDetail?.price ?: 0.0) * slotCount
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            currencyFormat.format(totalPrice),
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        if (slotCount > 1) {
+                            Text(
+                                "${slotCount} buá»•i Ã— ${currencyFormat.format(ptDetail?.price ?: 0.0)}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
                 }
                 
-                ConfirmRow(label = "Qua", value = if (selectedProvider == "VNPAY") "VNPay" else "Ví MoMo")
+                ConfirmRow(label = "Qua", value = if (selectedProvider == "VNPAY") "VNPay" else "VÃ­ MoMo")
             }
 
             // Refund Policy Card
@@ -160,18 +172,18 @@ fun PtBookingConfirmScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text("Chính sách hoàn tiền", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground)
-                Text("• Hủy > 24h → hoàn 100%", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text("• Hủy < 24h → hoàn 50%", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text("• Hủy < 2h → không hoàn", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("ChÃ­nh sÃ¡ch hoÃ n tiá»n", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground)
+                Text("â€¢ Há»§y > 24h â†’ hoÃ n 100%", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("â€¢ Há»§y < 24h â†’ hoÃ n 50%", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("â€¢ Há»§y < 2h â†’ khÃ´ng hoÃ n", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             
             if (uiState is PtBookingUiState.Error) {
                 val msg = (uiState as PtBookingUiState.Error).message
                 if (msg.contains("NO_ACTIVE_MEMBERSHIP")) {
-                    Toast.makeText(context, "Bạn chưa có gói hội viên", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "Báº¡n chÆ°a cÃ³ gÃ³i há»™i viÃªn", Toast.LENGTH_LONG).show()
                 } else if (msg.contains("SLOT_ALREADY_BOOKED")) {
-                    Toast.makeText(context, "Slot vừa bị đặt bởi người khác", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "Slot vá»«a bá»‹ Ä‘áº·t bá»Ÿi ngÆ°á»i khÃ¡c", Toast.LENGTH_LONG).show()
                     LaunchedEffect(Unit) { onNavigateBack() }
                 } else {
                     Text(
@@ -186,10 +198,20 @@ fun PtBookingConfirmScreen(
         }
     }
 
+    // Single booking success
     if (uiState is PtBookingUiState.BookingSuccess) {
         val response = (uiState as PtBookingUiState.BookingSuccess).response
         LaunchedEffect(response) {
             onBookingSuccess(response.paymentUrl ?: "", response.bookingId)
+            viewModel.resetUiState()
+        }
+    }
+
+    // Batch booking success
+    if (uiState is PtBookingUiState.BatchBookingSuccess) {
+        val response = (uiState as PtBookingUiState.BatchBookingSuccess).response
+        LaunchedEffect(response) {
+            onBookingSuccess(response.paymentUrl ?: "", response.bookingIds.firstOrNull() ?: "")
             viewModel.resetUiState()
         }
     }

@@ -52,6 +52,7 @@ fun MainScreen(
     val userAvatar by mainViewModel.userAvatar.collectAsState()
     val needSetupGoal by mainViewModel.needSetupGoal.collectAsState()
     val adminStats by mainViewModel.adminStats.collectAsState()
+    val ptStats by mainViewModel.ptStats.collectAsState()
 
     LaunchedEffect(needSetupGoal) {
         if (needSetupGoal) {
@@ -91,6 +92,9 @@ fun MainScreen(
     LaunchedEffect(currentRoute) {
         if (currentRoute == BottomNavRoute.Dashboard.route) {
             mainViewModel.fetchProfile()
+        }
+        if (currentRoute == BottomNavRoute.Dashboard.route && userRole == "PT") {
+            mainViewModel.fetchPtStats()
         }
     }
 
@@ -250,24 +254,24 @@ fun MainScreen(
                             Card(modifier = Modifier.weight(1f), colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0))) {
                                 Column(modifier = Modifier.padding(16.dp)) {
                                     Text("Ca hôm nay", color = Color.Gray, fontSize = 13.sp)
-                                    Text("2", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFFE65100))
+                                    Text(ptStats.todaySessions.toString(), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFFE65100))
                                 }
                             }
                             Card(modifier = Modifier.weight(1f), colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9))) {
                                 Column(modifier = Modifier.padding(16.dp)) {
                                     Text("Khách Active", color = Color.Gray, fontSize = 13.sp)
-                                    Text("5", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1B5E20))
+                                    Text(ptStats.activeClients.toString(), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1B5E20))
                                 }
                             }
                         }
-                        
+
                         Spacer(modifier = Modifier.height(24.dp))
-                        
+
                         Text("Thao tác nhanh", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
                         Spacer(modifier = Modifier.height(16.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             Button(
-                                onClick = { 
+                                onClick = {
                                     navController.navigate(BottomNavRoute.PtQueue.route) {
                                         navController.graph.startDestinationRoute?.let { route ->
                                             popUpTo(route) { saveState = true }
@@ -283,7 +287,7 @@ fun MainScreen(
                                 Text("📅 Lịch hẹn", fontSize = 14.sp)
                             }
                             Button(
-                                onClick = { 
+                                onClick = {
                                     navController.navigate(BottomNavRoute.PtClients.route) {
                                         navController.graph.startDestinationRoute?.let { route ->
                                             popUpTo(route) { saveState = true }
@@ -312,21 +316,46 @@ fun MainScreen(
                         }
 
                         Spacer(modifier = Modifier.height(24.dp))
-                        
+
                         Text("Lịch sắp tới", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                        ) {
-                            Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Surface(shape = androidx.compose.foundation.shape.CircleShape, color = Color.White, modifier = Modifier.size(40.dp)) {
-                                    Icon(Icons.Default.DateRange, contentDescription = null, tint = Color(0xFFFF5722), modifier = Modifier.padding(8.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        if (ptStats.upcomingBookings.isEmpty()) {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                            ) {
+                                androidx.compose.foundation.layout.Box(
+                                    modifier = Modifier.fillMaxWidth().padding(24.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("Chưa có lịch sắp tới", color = Color.Gray, fontSize = 14.sp)
                                 }
-                                Spacer(modifier = Modifier.width(16.dp))
-                                Column {
-                                    Text("14:30 - Tăng cơ bắp", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                                    Text("Học viên: Nguyễn Văn A", color = Color.Gray, fontSize = 14.sp)
+                            }
+                        } else {
+                            ptStats.upcomingBookings.forEach { booking ->
+                                val timeStr = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
+                                    .format(booking.scheduledAt)
+                                val dateStr = java.text.SimpleDateFormat("dd/MM", java.util.Locale.getDefault())
+                                    .format(booking.scheduledAt)
+                                Card(
+                                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                                ) {
+                                    Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                                        Surface(shape = androidx.compose.foundation.shape.CircleShape, color = Color.White, modifier = Modifier.size(40.dp)) {
+                                            Icon(Icons.Default.DateRange, contentDescription = null, tint = Color(0xFFFF5722), modifier = Modifier.padding(8.dp))
+                                        }
+                                        Spacer(modifier = Modifier.width(16.dp))
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text("$timeStr — $dateStr", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                            Text(
+                                                "Học viên: ${booking.userName ?: "–"}",
+                                                color = Color.Gray,
+                                                fontSize = 14.sp
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }

@@ -13,6 +13,7 @@ import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -74,6 +75,10 @@ public class Payment {
 
     @Column(name = "vnp_pay_date")
     private String vnpPayDate;
+
+    /** Danh sách bookingIds cho batch payment (lưu dưới dạng comma-separated UUIDs) */
+    @Column(name = "batch_booking_ids", columnDefinition = "TEXT")
+    private String batchBookingIds;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

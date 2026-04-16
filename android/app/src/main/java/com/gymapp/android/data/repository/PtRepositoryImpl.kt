@@ -3,6 +3,8 @@ package com.gymapp.android.data.repository
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.gymapp.android.data.remote.api.ApiResponse
+import com.gymapp.android.data.remote.api.BatchBookingCreateRequest
+import com.gymapp.android.data.remote.api.BatchBookingCreateResponse
 import com.gymapp.android.data.remote.api.BookingCreateRequest
 import com.gymapp.android.data.remote.api.BookingCreateResponse
 import com.gymapp.android.data.remote.api.BookingDto
@@ -40,6 +42,10 @@ class PtRepositoryImpl @Inject constructor(
 
     override suspend fun createBooking(request: BookingCreateRequest): Result<BookingCreateResponse> = withContext(Dispatchers.IO) {
         handleApiCall { ptApi.createBooking(request) }
+    }
+
+    override suspend fun createBatchBookings(request: BatchBookingCreateRequest): Result<BatchBookingCreateResponse> = withContext(Dispatchers.IO) {
+        handleApiCall { ptApi.createBatchBookings(request) }
     }
 
     override suspend fun cancelBooking(bookingId: String, request: CancelBookingRequest): Result<CancelBookingResponse> = withContext(Dispatchers.IO) {

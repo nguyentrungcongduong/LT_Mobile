@@ -75,7 +75,8 @@ public class PaymentServiceImpl implements PaymentService {
             if (booking.getStatus() != BookingStatus.PENDING) {
                 throw new BadRequestException("BOOKING_NOT_PENDING", "Booking is not in PENDING status");
             }
-            amount = booking.getTotalAmount();
+            // Dùng overrideAmount nếu có (batch booking), ngược lại lấy từ booking
+            amount = (request.getOverrideAmount() != null) ? request.getOverrideAmount() : booking.getTotalAmount();
             orderInfo = "Payment for PT Booking: " + booking.getId();
             type = PaymentType.BOOKING;
         } else if (request.getMembershipId() != null) {
@@ -110,6 +111,7 @@ public class PaymentServiceImpl implements PaymentService {
                     .provider(request.getProvider())
                     .idempotencyKey(request.getIdempotencyKey() != null ? request.getIdempotencyKey()
                             : UUID.randomUUID().toString())
+                    .batchBookingIds(request.getBatchBookingIds())
                     .build();
 
             payment = paymentRepository.save(payment);
@@ -211,16 +213,27 @@ public class PaymentServiceImpl implements PaymentService {
             paymentRepository.save(payment);
 
             if (payment.getBookingId() != null) {
-                Booking booking = bookingRepository.findById(payment.getBookingId())
-                        .orElseThrow(() -> new ResourceNotFoundException("BOOKING_NOT_FOUND", "Booking not found"));
+                // Xác định danh sách bookingIds cần confirm (single hoặc batch)
+                List<UUID> bookingIdsToConfirm;
+                if (payment.getBatchBookingIds() != null && !payment.getBatchBookingIds().isBlank()) {
+                    bookingIdsToConfirm = java.util.Arrays.stream(payment.getBatchBookingIds().split(","))
+                            .map(String::trim)
+                            .map(UUID::fromString)
+                            .collect(java.util.stream.Collectors.toList());
+                } else {
+                    bookingIdsToConfirm = List.of(payment.getBookingId());
+                }
 
-                if (booking.getStatus() == BookingStatus.PENDING) {
-                    booking.setStatus(BookingStatus.CONFIRMED);
-                    booking.setCompletedAt(OffsetDateTime.now());
-                    bookingRepository.save(booking);
-
-                    eventPublisher.publishEvent(new BookingConfirmedEvent(this, booking));
-                    log.info("Booking {} confirmed", booking.getId());
+                for (UUID bid : bookingIdsToConfirm) {
+                    bookingRepository.findById(bid).ifPresent(booking -> {
+                        if (booking.getStatus() == BookingStatus.PENDING) {
+                            booking.setStatus(BookingStatus.CONFIRMED);
+                            booking.setCompletedAt(OffsetDateTime.now());
+                            bookingRepository.save(booking);
+                            eventPublisher.publishEvent(new BookingConfirmedEvent(this, booking));
+                            log.info("Booking {} confirmed (batch payment {})", booking.getId(), payment.getId());
+                        }
+                    });
                 }
             } else if (payment.getPaymentType() == PaymentType.MEMBERSHIP && payment.getMembershipId() != null) {
                 membershipRepository.findById(payment.getMembershipId()).ifPresent(membership -> {

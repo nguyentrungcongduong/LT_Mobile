@@ -11,6 +11,8 @@ import java.util.UUID;
 public interface BookingService {
     BookingResponse createBooking(UUID userId, BookingRequest request, String ipAddress);
 
+    BatchBookingResponse createBatchBookings(UUID userId, BatchBookingRequest request, String ipAddress);
+
     CancelBookingResponse cancelBooking(UUID userId, UUID bookingId, CancelBookingRequest request);
 
     PageResponse<BookingSummary> getUserBookings(UUID userId, BookingStatus status, Pageable pageable);

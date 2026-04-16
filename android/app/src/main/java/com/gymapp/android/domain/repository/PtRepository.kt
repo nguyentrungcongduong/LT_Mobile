@@ -1,5 +1,7 @@
 package com.gymapp.android.domain.repository
 
+import com.gymapp.android.data.remote.api.BatchBookingCreateRequest
+import com.gymapp.android.data.remote.api.BatchBookingCreateResponse
 import com.gymapp.android.data.remote.api.BookingCreateRequest
 import com.gymapp.android.data.remote.api.BookingCreateResponse
 import com.gymapp.android.data.remote.api.BookingDto
@@ -18,6 +20,7 @@ interface PtRepository {
     suspend fun getAvailability(ptId: String, from: String, to: String): Result<List<PtAvailabilityDto>>
 
     suspend fun createBooking(request: BookingCreateRequest): Result<BookingCreateResponse>
+    suspend fun createBatchBookings(request: BatchBookingCreateRequest): Result<BatchBookingCreateResponse>
     suspend fun cancelBooking(bookingId: String, request: CancelBookingRequest): Result<CancelBookingResponse>
     suspend fun getUserBookings(status: String?, page: Int, size: Int): Result<PageResponse<BookingDto>>
     suspend fun getPtBookings(status: String?, upcomingOnly: Boolean?, page: Int, size: Int): Result<PageResponse<BookingDto>>

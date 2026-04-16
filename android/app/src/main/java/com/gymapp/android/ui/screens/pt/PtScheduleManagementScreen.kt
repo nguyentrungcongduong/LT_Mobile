@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -359,73 +360,117 @@ private fun DateStripSelector(
 @Composable
 private fun SlotCard(slot: PtAvailabilityDto) {
     val isBooked = slot.isBooked
-    val bgColor = if (isBooked) Color(0xFFF3F4F6) else CardWhite
-    val statusColor = if (isBooked) Color(0xFF6B7280) else Color(0xFF16A34A)
+    val bgColor = if (isBooked) Color(0xFFFFF8F5) else CardWhite
+    val statusColor = if (isBooked) OrangePrimary else Color(0xFF16A34A)
     val statusText = if (isBooked) "Đã đặt" else "Còn trống"
-    val statusBg = if (isBooked) Color(0xFFE5E7EB) else Color(0xFFDCFCE7)
+    val statusBg = if (isBooked) OrangeLight else Color(0xFFDCFCE7)
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = bgColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (isBooked) 0.dp else 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(16.dp)
         ) {
-            // Time icon
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .background(
-                        if (isBooked) Color(0xFFF3F4F6) else OrangeLight,
-                        RoundedCornerShape(12.dp)
-                    ),
-                contentAlignment = Alignment.Center
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.Default.Schedule,
-                    contentDescription = null,
-                    tint = if (isBooked) TextSub else OrangePrimary,
-                    modifier = Modifier.size(24.dp)
-                )
+                // Time icon
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(
+                            if (isBooked) OrangeLight else Color(0xFFF0FDF4),
+                            RoundedCornerShape(12.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Schedule,
+                        contentDescription = null,
+                        tint = if (isBooked) OrangePrimary else Color(0xFF16A34A),
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(14.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = slot.startTime,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = TextMain
+                    )
+                    Text(
+                        text = "→  ${slot.endTime}",
+                        fontSize = 13.sp,
+                        color = TextSub
+                    )
+                }
+
+                // Status badge
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = statusBg
+                ) {
+                    Text(
+                        text = statusText,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        color = statusColor,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.width(14.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = slot.startTime,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
-                    color = if (isBooked) TextSub else TextMain
-                )
-                Text(
-                    text = "→  ${slot.endTime}",
-                    fontSize = 13.sp,
-                    color = TextSub
-                )
-            }
-
-            // Status badge
-            Surface(
-                shape = RoundedCornerShape(20.dp),
-                color = statusBg
-            ) {
-                Text(
-                    text = statusText,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                    color = statusColor,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
+            // Hiện tên học viên nếu slot đã được đặt
+            if (isBooked && slot.bookedByName != null) {
+                Spacer(modifier = Modifier.height(10.dp))
+                HorizontalDivider(color = Color(0xFFFFE0CC), thickness = 1.dp)
+                Spacer(modifier = Modifier.height(10.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Avatar initials
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .background(OrangePrimary, androidx.compose.foundation.shape.CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = slot.bookedByName.take(1).uppercase(),
+                            color = Color.White,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Column {
+                        Text(
+                            text = slot.bookedByName,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 14.sp,
+                            color = TextMain
+                        )
+                        Text(
+                            text = "Học viên đã đặt buổi này",
+                            fontSize = 12.sp,
+                            color = TextSub
+                        )
+                    }
+                }
             }
         }
     }
 }
+
 
 // ─── Add Slot Dialog ──────────────────────────────────────────────────────────
 @OptIn(ExperimentalMaterial3Api::class)
