@@ -11,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
+import com.google.firebase.messaging.FirebaseMessaging
 import com.gymapp.android.data.local.TokenStorage
 import com.gymapp.android.service.FcmTokenUploader
 import com.gymapp.android.ui.navigation.AppNavigation
@@ -41,8 +42,8 @@ class MainActivity : ComponentActivity() {
         // Upload FCM token nếu user đã login
         if (tokenStorage.getAccessToken() != null) {
             try {
-                com.google.firebase.messaging.FirebaseMessaging.getInstance()
-                    .token.addOnSuccessListener { token ->
+                FirebaseMessaging.getInstance().token
+                    .addOnSuccessListener { token: String ->
                         lifecycleScope.launch(Dispatchers.IO) {
                             fcmTokenUploader.upload(token)
                         }
