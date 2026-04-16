@@ -95,3 +95,10 @@ payment:
     redirect-url: ${MOMO_REDIRECT_URL:http://10.0.2.2:8082/api/v1/payments/momo-return}
     mobile-redirect-url: ${MOMO_MOBILE_REDIRECT_URL:gymapp://payment/result}
     ipn-url: ${MOMO_IPN_URL:https://hierogrammatic-unexposable-eva.ngrok-free.dev/api/v1/webhook/momo/ipn}
+
+# Firebase Admin SDK
+# Đặt file firebase-service-account.json vào src/main/resources/
+# hoặc cung cấp absolute path qua biến môi trường FIREBASE_SERVICE_ACCOUNT_PATH
+firebase:
+  service-account-path: ${FIREBASE_SERVICE_ACCOUNT_PATH:firebase-service-account.json}
+

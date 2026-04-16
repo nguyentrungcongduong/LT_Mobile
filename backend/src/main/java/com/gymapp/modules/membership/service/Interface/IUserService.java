@@ -3,6 +3,8 @@ package com.gymapp.modules.membership.service.Interface;
 import java.util.List;
 import java.util.UUID;
 
+import com.gymapp.modules.membership.dto.UpdateFcmTokenRequest;
+
 import org.springframework.web.multipart.MultipartFile;
 
 import com.gymapp.modules.membership.dto.UpdateUserGoalRequest;
@@ -30,4 +32,6 @@ public interface IUserService {
     User updateMyGoal(UpdateUserGoalRequest request);
 
     void changePassword(ChangePasswordRequest request);
+
+    void updateFcmToken(UpdateFcmTokenRequest request);
 }

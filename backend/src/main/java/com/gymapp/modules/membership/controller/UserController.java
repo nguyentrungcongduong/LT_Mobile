@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.gymapp.common.response.ApiResponse;
+import com.gymapp.modules.membership.dto.UpdateFcmTokenRequest;
 import com.gymapp.modules.membership.dto.UpdateUserGoalRequest;
 import com.gymapp.modules.membership.dto.ChangePasswordRequest;
 import com.gymapp.modules.membership.dto.UserDto;
@@ -102,5 +103,15 @@ public class UserController {
     public ApiResponse<Void> changePassword(@RequestBody @Valid ChangePasswordRequest request) {
         userService.changePassword(request);
         return ApiResponse.ok(null, "Đổi mật khẩu thành công");
+    }
+
+    /**
+     * PUT /api/v1/users/me/fcm-token
+     * Lưu FCM device token sau khi user login (mobile gọi sau khi lấy được token từ Firebase).
+     */
+    @PutMapping("/me/fcm-token")
+    public ApiResponse<Void> updateFcmToken(@RequestBody @Valid UpdateFcmTokenRequest request) {
+        userService.updateFcmToken(request);
+        return ApiResponse.ok(null, "FCM token updated successfully");
     }
 }

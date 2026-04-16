@@ -14,6 +14,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.gymapp.common.exception.ResourceNotFoundException;
 import com.gymapp.modules.membership.dto.ChangePasswordRequest;
+import com.gymapp.modules.membership.dto.UpdateFcmTokenRequest;
 import com.gymapp.modules.membership.dto.UpdateUserGoalRequest;
 import com.gymapp.modules.membership.dto.UserDto;
 import com.gymapp.modules.membership.dto.UserResponse;
@@ -227,4 +228,18 @@ public class UserService implements IUserService {
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
     }
+
+    @Override
+    public void updateFcmToken(UpdateFcmTokenRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new RuntimeException("Unauthorized");
+        }
+        String email = auth.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND", "User not found"));
+        user.setFcmToken(request.getFcmToken());
+        userRepository.save(user);
+    }
 }
+

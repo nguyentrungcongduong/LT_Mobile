@@ -37,3 +37,6 @@ build/
 
 .env
 /bin
+
+### Firebase ###
+firebase-service-account.json

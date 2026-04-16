@@ -11,5 +11,6 @@ public enum NotificationType {
     MEMBERSHIP_EXPIRED,     // Đã hết hạn
     PAYMENT_SUCCESS,
     PAYMENT_FAILED,
+    WORKOUT_REMINDER,       // Nhắc lịch tập hàng ngày
     SYSTEM
 }
