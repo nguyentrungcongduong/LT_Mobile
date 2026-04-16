@@ -3,6 +3,7 @@ package com.gymapp.android.data.repository
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.gymapp.android.data.local.TokenStorage
+import com.gymapp.android.data.remote.TokenAuthenticator
 import com.gymapp.android.data.remote.api.ApiResponse
 import com.gymapp.android.data.remote.api.AuthApi
 import com.gymapp.android.data.remote.api.LoginRequest
@@ -14,11 +15,14 @@ import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
     private val authApi: AuthApi,
-    private val tokenStorage: TokenStorage
+    private val tokenStorage: TokenStorage,
+    private val tokenAuthenticator: TokenAuthenticator
 ) {
     private val gson = Gson()
 
     suspend fun login(request: LoginRequest): Result<Unit> = withContext(Dispatchers.IO) {
+        // Reset trạng thái expired trước mỗi lần login
+        tokenAuthenticator.reset()
         try {
             val response = authApi.login(request)
             handleAuthResponse(response)
@@ -65,6 +69,7 @@ class AuthRepository @Inject constructor(
     }
 
     suspend fun logout() = withContext(Dispatchers.IO) {
+        tokenAuthenticator.reset()
         try {
             val refreshToken = tokenStorage.getRefreshToken()
             if (refreshToken != null) {
