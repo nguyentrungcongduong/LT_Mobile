@@ -48,7 +48,8 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel(),
     onLogout: () -> Unit = {},
     onNavigateToGoal: () -> Unit = {},
-    onNavigateToHistory: () -> Unit = {}
+    onNavigateToHistory: () -> Unit = {},
+    onNavigateToWorkoutSchedule: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val isUploading by viewModel.isUploading.collectAsState()
@@ -426,6 +427,13 @@ fun ProfileScreen(
                                         title = "Lịch sử giao dịch",
                                         subtitle = "Thanh toán membership, PT",
                                         onClick = onNavigateToHistory
+                                    )
+                                    HorizontalDivider(color = DividerColor, thickness = 1.dp, modifier = Modifier.padding(horizontal = 16.dp))
+                                    SettingRow(
+                                        icon = Icons.Default.FitnessCenter,
+                                        title = "Lịch tập hàng tuần",
+                                        subtitle = "Chọn ngày & giờ nhắc tập",
+                                        onClick = onNavigateToWorkoutSchedule
                                     )
                                     HorizontalDivider(color = DividerColor, thickness = 1.dp, modifier = Modifier.padding(horizontal = 16.dp))
                                 }

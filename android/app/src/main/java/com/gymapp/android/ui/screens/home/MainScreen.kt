@@ -42,6 +42,8 @@ fun MainScreen(
     onNavigateToQrDisplay: () -> Unit = {},
     onNavigateToQrScan: () -> Unit = {},
     onNavigateToPtApproval: () -> Unit = {},
+    onNavigateToNotifications: () -> Unit = {},
+    onNavigateToWorkoutScheduleSettings: () -> Unit = {},
     mainViewModel: MainViewModel = androidx.hilt.navigation.compose.hiltViewModel()
 ) {
     val navController = rememberNavController()
@@ -140,25 +142,36 @@ fun MainScreen(
                                 fontSize = 14.sp
                             )
                         }
-                        Surface(
-                            shape = androidx.compose.foundation.shape.CircleShape,
-                            color = MaterialTheme.colorScheme.secondaryContainer,
-                            modifier = Modifier.size(48.dp)
-                        ) {
-                            if (!userAvatar.isNullOrEmpty()) {
-                                coil.compose.AsyncImage(
-                                    model = userAvatar,
-                                    contentDescription = "Avatar",
-                                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-                                    modifier = Modifier.fillMaxSize()
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            // Notification bell
+                            androidx.compose.material3.IconButton(onClick = onNavigateToNotifications) {
+                                androidx.compose.material3.Icon(
+                                    androidx.compose.material.icons.Icons.Default.Notifications,
+                                    contentDescription = "Thông báo",
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                    modifier = androidx.compose.ui.Modifier.size(26.dp)
                                 )
-                            } else {
-                                Icon(
-                                    Icons.Default.Person, 
-                                    contentDescription = "Avatar", 
-                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                                    modifier = Modifier.padding(12.dp)
-                                )
+                            }
+                            Surface(
+                                shape = androidx.compose.foundation.shape.CircleShape,
+                                color = MaterialTheme.colorScheme.secondaryContainer,
+                                modifier = Modifier.size(48.dp)
+                            ) {
+                                if (!userAvatar.isNullOrEmpty()) {
+                                    coil.compose.AsyncImage(
+                                        model = userAvatar,
+                                        contentDescription = "Avatar",
+                                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                } else {
+                                    Icon(
+                                        Icons.Default.Person, 
+                                        contentDescription = "Avatar", 
+                                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                        modifier = Modifier.padding(12.dp)
+                                    )
+                                }
                             }
                         }
                     }
@@ -505,7 +518,8 @@ fun MainScreen(
                 com.gymapp.android.ui.screens.profile.ProfileScreen(
                     onLogout = onLogout,
                     onNavigateToGoal = onNavigateToGoal,
-                    onNavigateToHistory = { navController.navigate("payment_history") }
+                    onNavigateToHistory = { navController.navigate("payment_history") },
+                    onNavigateToWorkoutSchedule = onNavigateToWorkoutScheduleSettings
                 )
             }
             composable(route = "payment_history") {

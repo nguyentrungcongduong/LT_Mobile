@@ -31,8 +31,10 @@ sealed class Route(val route: String) {
     object WorkoutList : Route("workout")
     object WorkoutDetail : Route("workout/{planId}")
     object CreateSchedule : Route("create_schedule")
-
+    object NotificationInbox : Route("notification_inbox")
+    object WorkoutScheduleSettings : Route("workout_schedule_settings")
 }
+
 
 @Composable
 fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
@@ -107,13 +109,15 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
                         popUpTo(0) { inclusive = true }
                     }
                 },
-                        onNavigateToGoal = {
+                onNavigateToGoal = {
                     navController.navigate(Route.Goal.route)
                 },
                 onNavigateToWorkout = { navController.navigate(Route.WorkoutList.route) },
                 onNavigateToQrDisplay = { navController.navigate("qr_display") },
                 onNavigateToQrScan = { navController.navigate("qr_scan") },
-                onNavigateToPtApproval = { navController.navigate("admin_pt_approval") }
+                onNavigateToPtApproval = { navController.navigate("admin_pt_approval") },
+                onNavigateToNotifications = { navController.navigate(Route.NotificationInbox.route) },
+                onNavigateToWorkoutScheduleSettings = { navController.navigate(Route.WorkoutScheduleSettings.route) }
             )
         }
         composable("admin_pt_approval") {
@@ -170,6 +174,16 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
                 onNavigateToQrDisplay = {
                     navController.navigate("qr_display")
                 }
+            )
+        }
+        composable(Route.NotificationInbox.route) {
+            com.gymapp.android.ui.screens.notification.NotificationInboxScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable(Route.WorkoutScheduleSettings.route) {
+            com.gymapp.android.ui.screens.settings.WorkoutScheduleSettingsScreen(
+                onNavigateBack = { navController.popBackStack() }
             )
         }
     }

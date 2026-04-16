@@ -55,6 +55,11 @@ interface UserApi {
 
     @GET("api/v1/admin/dashboard/stats")
     suspend fun getAdminDashboardStats(): Response<ApiResponse<AdminDashboardStatsDto>>
+
+    @PUT("api/v1/users/me/fcm-token")
+    suspend fun updateFcmToken(
+        @Body request: UpdateFcmTokenRequest
+    ): Response<ApiResponse<Void>>
 }
 
 data class AdminDashboardStatsDto(

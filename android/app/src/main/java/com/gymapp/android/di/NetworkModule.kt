@@ -86,4 +86,16 @@ object NetworkModule {
     fun provideCheckinApi(retrofit: Retrofit): CheckinApi {
         return retrofit.create(CheckinApi::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun provideNotificationApi(retrofit: Retrofit): com.gymapp.android.data.remote.api.NotificationApi {
+        return retrofit.create(com.gymapp.android.data.remote.api.NotificationApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideWorkoutScheduleApi(retrofit: Retrofit): com.gymapp.android.data.remote.api.WorkoutScheduleApi {
+        return retrofit.create(com.gymapp.android.data.remote.api.WorkoutScheduleApi::class.java)
+    }
 }
