@@ -1,0 +1,22 @@
+# IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Firebase (không commit)
+android/app/google-services.json
+
+# Android build
+android/app/build/
+android/build/
+.gradle/
+
+# General build
+build/
+
+# Logs
+*.log
+
+android/.gradle/
+.gradle/

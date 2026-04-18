@@ -1,0 +1,134 @@
+package com.gymapp.android.ui.screens.profile
+
+import android.net.Uri
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.gymapp.android.data.remote.api.PtProfileUpdateRequest
+import com.gymapp.android.domain.model.User
+import com.gymapp.android.domain.repository.UserRepository
+import com.gymapp.android.data.remote.api.PtApi
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import java.io.File
+import javax.inject.Inject
+
+sealed class ProfileUiState {
+    object Loading : ProfileUiState()
+    data class Success(val user: User) : ProfileUiState()
+    data class Error(val message: String) : ProfileUiState()
+}
+
+@HiltViewModel
+class ProfileViewModel @Inject constructor(
+    private val userRepository: UserRepository,
+    private val ptApi: PtApi
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow<ProfileUiState>(ProfileUiState.Loading)
+    val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
+
+    private val _isUploading = MutableStateFlow(false)
+    val isUploading: StateFlow<Boolean> = _isUploading.asStateFlow()
+
+    private val _isUpdating = MutableStateFlow(false)
+    val isUpdating: StateFlow<Boolean> = _isUpdating.asStateFlow()
+
+    init {
+        loadProfile()
+    }
+
+    fun loadProfile() {
+        _uiState.value = ProfileUiState.Loading
+        viewModelScope.launch {
+            userRepository.getProfile().onSuccess { user ->
+                _uiState.value = ProfileUiState.Success(user)
+            }.onFailure { error ->
+                _uiState.value = ProfileUiState.Error(error.message ?: "Đã có lỗi xảy ra")
+            }
+        }
+    }
+
+    fun updateProfile(fullName: String, email: String, phone: String) {
+        val currentState = _uiState.value
+        if (currentState !is ProfileUiState.Success) return
+
+        _isUpdating.value = true
+        viewModelScope.launch {
+            android.util.Log.d("ProfileViewModel", "Updating profile: fullName=$fullName, email=$email, phone=$phone")
+            userRepository.updateProfile(fullName, email, phone, currentState.user.avatarUrl).onSuccess { user ->
+                android.util.Log.d("ProfileViewModel", "Update success: $user")
+                _uiState.value = ProfileUiState.Success(user)
+                _isUpdating.value = false
+            }.onFailure { error ->
+                android.util.Log.e("ProfileViewModel", "Update failed: ${error.message}", error)
+                _isUpdating.value = false
+            }
+        }
+    }
+
+    fun uploadAvatar(file: File) {
+        val currentState = _uiState.value
+        if (currentState !is ProfileUiState.Success) return
+
+        _isUploading.value = true
+        viewModelScope.launch {
+            userRepository.uploadAvatar(file).onSuccess { avatarUrl ->
+                _isUploading.value = false
+                // Update profile with new avatar URL
+                val updatedUser = currentState.user.copy(avatarUrl = avatarUrl)
+                _uiState.value = ProfileUiState.Success(updatedUser)
+            }.onFailure { _ ->
+                _isUploading.value = false
+            }
+        }
+    }
+
+    fun changePassword(oldPass: String, newPass: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        _isUpdating.value = true
+        viewModelScope.launch {
+            userRepository.changePassword(oldPass, newPass)
+                .onSuccess {
+                    _isUpdating.value = false
+                    onSuccess()
+                }
+                .onFailure { error ->
+                    _isUpdating.value = false
+                    onError(error.message ?: "Đã có lỗi xảy ra khi đổi mật khẩu")
+                }
+        }
+    }
+
+    fun updatePtProfile(
+        pricePerSession: Long?,
+        bio: String?,
+        yearsExperience: Int?,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        _isUpdating.value = true
+        viewModelScope.launch {
+            try {
+                val response = ptApi.updatePtProfile(
+                    PtProfileUpdateRequest(
+                        pricePerSession = pricePerSession,
+                        bio = bio,
+                        yearsExperience = yearsExperience
+                    )
+                )
+                _isUpdating.value = false
+                if (response.isSuccessful) {
+                    onSuccess()
+                } else {
+                    onError("Cập nhật thất bại")
+                }
+            } catch (e: Exception) {
+                _isUpdating.value = false
+                onError(e.message ?: "Lỗi kết nối")
+            }
+        }
+    }
+}
+

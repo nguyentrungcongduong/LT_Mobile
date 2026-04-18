@@ -1,0 +1,104 @@
+spring:
+  application:
+    name: gym-backend
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/gymapp}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:1234}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+    show-sql: false
+    open-in-view: false
+
+  data:
+    web:
+      pageable:
+        one-indexed-parameters: true
+        size-parameter: limit
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 5000ms
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    encoding: UTF-8
+
+server:
+  port: ${SERVER_PORT:8082}
+  servlet:
+    context-path: /
+
+jwt:
+  secret: ${JWT_SECRET:ThisIsAVeryLongSecretKeyForJWTSigningPleaseChangeInProduction1234567890}
+  access-token-expiration-ms: ${JWT_ACCESS_EXPIRE_MS:1800000}     # 30 minutes
+  refresh-token-expiration-ms: ${JWT_REFRESH_EXPIRE_MS:604800000}  # 7 days
+  qr-token-expiration-seconds: ${JWT_QR_EXPIRE_S:60}               # 60 seconds
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+
+logging:
+  level:
+    com.gymapp: DEBUG
+    org.springframework.security: DEBUG
+    org.flywaydb: INFO
+cloudinary:
+  cloud_name: dseurxibm
+  api_key: 447139246168611
+  api_secret: jcPDaTIerzmWRDCE8qTHPvyoVAQ
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+payment:
+  vnpay:
+    tmn-code: ${VNPAY_TMN_CODE:HIIH4PO2}
+    hash-secret: ${VNPAY_HASH_SECRET:2K225CSQ0N8UPZCQN51QYROBB3VUK27J}
+    base-url: ${VNPAY_BASE_URL:https://sandbox.vnpayment.vn/paymentv2/vpcpay.html}
+    return-url: ${VNPAY_RETURN_URL:https://roster-upscale-okay.ngrok-free.dev/api/v1/payments/vnpay-return}
+    refund-url: ${VNPAY_REFUND_URL:https://sandbox.vnpayment.vn/merchant_webapi/api/transaction}
+    mobile-redirect-url: ${VNPAY_MOBILE_REDIRECT_URL:gymapp://payment/result}
+    api-url: ${VNPAY_API_URL:https://sandbox.vnpayment.vn/merchant_webapi/api/transaction}
+  momo:
+    partner-code: ${MOMO_PARTNER_CODE:MOMOBKUN20180529}
+    access-key: ${MOMO_ACCESS_KEY:E5aV413kAqoLcRSv}
+    secret-key: ${MOMO_SECRET_KEY:ycDWdIfq9RpdgZkGAxXpXv3T5E763z50}
+    api-url: ${MOMO_API_URL:https://test-payment.momo.vn/v2/gateway/api/create}
+    api-refund-url: ${MOMO_API_REFUND_URL:https://test-payment.momo.vn/v2/gateway/api/refund}
+    redirect-url: ${MOMO_REDIRECT_URL:http://10.0.2.2:8082/api/v1/payments/momo-return}
+    mobile-redirect-url: ${MOMO_MOBILE_REDIRECT_URL:gymapp://payment/result}
+    ipn-url: ${MOMO_IPN_URL:https://hierogrammatic-unexposable-eva.ngrok-free.dev/api/v1/webhook/momo/ipn}
+
+# Firebase Admin SDK
+# Đặt file firebase-service-account.json vào src/main/resources/
+# hoặc cung cấp absolute path qua biến môi trường FIREBASE_SERVICE_ACCOUNT_PATH
+firebase:
+  service-account-path: ${FIREBASE_SERVICE_ACCOUNT_PATH:firebase-service-account.json}
+

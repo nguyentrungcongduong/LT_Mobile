@@ -1,0 +1,51 @@
+package com.gymapp.android.data.remote.api
+
+import com.google.gson.annotations.SerializedName
+import com.gymapp.android.domain.model.goal.ExperienceLevel
+import com.gymapp.android.domain.model.goal.FitnessGoal
+
+data class ApiResponse<T>(
+    val success: Boolean,
+    val data: T?,
+    val message: String?,
+    val error: String?
+)
+
+data class JwtResponse(
+    @SerializedName("access_token") val accessToken: String,
+    @SerializedName("refresh_token") val refreshToken: String,
+    val user: UserDto
+)
+
+data class TokenRefreshResponse(
+    @SerializedName("access_token") val accessToken: String,
+    @SerializedName("refresh_token") val refreshToken: String
+)
+
+data class UserDto(
+    val id: String,
+    val email: String,
+    val fullName: String?,
+    val phone: String?,
+    val role: String,
+    val avatarUrl: String?,
+    val experienceLevel: ExperienceLevel,
+    val fitnessGoal: FitnessGoal
+)
+
+data class LoginRequest(
+    val email: String,
+    val password: String
+)
+
+data class RegisterRequest(
+    val email: String,
+    val password: String,
+    val fullName: String,
+    val phone: String,
+    val role: String // "USER" hoặc "PT"
+)
+
+data class TokenRefreshRequest(
+    val refreshToken: String
+)
