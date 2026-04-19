@@ -49,7 +49,6 @@ export default function BookingPage() {
     total: 0,
   });
 
-  // Filter states
   const [searchText, setSearchText] = useState('');
   const [statusFilter, setStatusFilter] = useState<BookingStatus | undefined>();
   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null);
@@ -59,10 +58,13 @@ export default function BookingPage() {
     fetchBookings(1);
   }, []);
 
+  useEffect(() => {
+    fetchBookings(1);
+  }, [searchText, statusFilter, dateRange, ptNameFilter]);
+
   const fetchBookings = async (page: number = 1) => {
     setLoading(true);
     try {
-      console.log('🔍 Lấy danh sách booking...');
       const params: any = {
         page: page - 1,
         size: pagination.pageSize,
@@ -72,45 +74,29 @@ export default function BookingPage() {
         params.status = statusFilter;
       }
 
-      const response = await axios.get<any>('/bookings', { params });
-      console.log('✅ Danh sách booking:', response.data);
+      if (searchText) {
+        params.search = searchText;
+      }
 
-      const bookingsData = response.data.data?.content || [];
-      const filteredBookings = bookingsData.filter((booking: BookingSummary) => {
-        // Filter by search text (user name or PT name)
-        if (searchText) {
-          const searchLower = searchText.toLowerCase();
-          const matchUserName = booking.userName?.toLowerCase().includes(searchLower);
-          const matchPtName = booking.ptName?.toLowerCase().includes(searchLower);
-          if (!matchUserName && !matchPtName) return false;
-        }
+      if (ptNameFilter) {
+        params.ptName = ptNameFilter;
+      }
 
-        // Filter by PT name
-        if (ptNameFilter) {
-          const ptLower = ptNameFilter.toLowerCase();
-          if (!booking.ptName?.toLowerCase().includes(ptLower)) return false;
-        }
+      if (dateRange && dateRange[0] && dateRange[1]) {
+        params.fromDate = dateRange[0].startOf('day').toISOString();
+        params.toDate = dateRange[1].endOf('day').toISOString();
+      }
 
-        // Filter by date range
-        if (dateRange && dateRange[0] && dateRange[1]) {
-          const bookingDate = dayjs(booking.scheduledAt);
-          if (
-            bookingDate.isBefore(dateRange[0]) ||
-            bookingDate.isAfter(dateRange[1])
-          ) {
-            return false;
-          }
-        }
+      const response = await axios.get<any>('/admin/bookings', { params });
 
-        return true;
-      });
+      const bookingsData = response.data.data?.items || [];
 
-      setBookings(filteredBookings);
+      setBookings(bookingsData);
       setPagination({
         ...pagination,
         current: page,
-        total: response.data.data?.totalElements || 0,
-      });
+total: response.data.data?.totalElements || 0,      });
+
     } catch (error: any) {
       console.error('❌ Lỗi lấy booking:', error);
     } finally {
@@ -137,7 +123,9 @@ export default function BookingPage() {
       render: (_: any, record: BookingSummary) => (
         <div>
           <p className="font-semibold m-0">{record.userName}</p>
-          <p className="text-xs text-gray-500 m-0">{record.userId.slice(0, 8)}...</p>
+          <p className="text-xs text-gray-500 m-0">
+            {record.userId ? `${record.userId.slice(0, 8)}...` : ''}
+          </p>
         </div>
       ),
     },
@@ -145,14 +133,7 @@ export default function BookingPage() {
       title: 'PT',
       key: 'ptName',
       render: (_: any, record: BookingSummary) => (
-        <div className="flex items-center gap-2">
-          <Avatar
-            size={32}
-            src={record.ptAvatarUrl}
-            alt={record.ptName}
-          />
-          <span>{record.ptName}</span>
-        </div>
+        <span>{record.ptName}</span>
       ),
     },
     {
@@ -205,10 +186,8 @@ export default function BookingPage() {
       <Card>
         <h1 className="text-2xl font-bold mb-6">Quản lý Booking</h1>
 
-        {/* Filters */}
         <div className="bg-gray-50 p-4 rounded-lg mb-6 space-y-4">
           <Row gutter={16}>
-            {/* Search by name */}
             <Col xs={24} sm={12} md={6}>
               <Input
                 placeholder="Tìm kiếm học viên hoặc PT..."
@@ -218,7 +197,6 @@ export default function BookingPage() {
               />
             </Col>
 
-            {/* Filter by status */}
             <Col xs={24} sm={12} md={6}>
               <Select
                 placeholder="Lọc theo trạng thái"
@@ -235,7 +213,6 @@ export default function BookingPage() {
               />
             </Col>
 
-            {/* Filter by date range */}
             <Col xs={24} sm={12} md={6}>
               <DatePicker.RangePicker
                 placeholder={['Từ ngày', 'Đến ngày']}
@@ -246,7 +223,6 @@ export default function BookingPage() {
               />
             </Col>
 
-            {/* Filter by PT name */}
             <Col xs={24} sm={12} md={6}>
               <Input
                 placeholder="Tìm PT..."
@@ -256,7 +232,6 @@ export default function BookingPage() {
             </Col>
           </Row>
 
-          {/* Clear button */}
           <Row>
             <Button
               icon={<ClearOutlined />}
@@ -269,7 +244,6 @@ export default function BookingPage() {
           </Row>
         </div>
 
-        {/* Table */}
         <Spin spinning={loading}>
           {bookings.length > 0 ? (
             <Table

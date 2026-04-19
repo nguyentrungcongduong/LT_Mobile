@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/banners")
+@RequestMapping("/api/v1/banners")
 @RequiredArgsConstructor
 public class BannerController {
 

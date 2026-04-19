@@ -3,6 +3,7 @@ package com.gymapp.android.di
 import com.gymapp.android.data.remote.AuthInterceptor
 import com.gymapp.android.data.remote.TokenAuthenticator
 import com.gymapp.android.data.remote.api.AuthApi
+import com.gymapp.android.data.remote.api.BannerApi
 import com.gymapp.android.data.remote.api.CheckinApi
 import com.gymapp.android.data.remote.api.WorkoutApi
 import dagger.Module
@@ -97,5 +98,10 @@ object NetworkModule {
     @Singleton
     fun provideWorkoutScheduleApi(retrofit: Retrofit): com.gymapp.android.data.remote.api.WorkoutScheduleApi {
         return retrofit.create(com.gymapp.android.data.remote.api.WorkoutScheduleApi::class.java)
+    }
+    @Provides
+    @Singleton
+    fun provideBannerApi(retrofit: Retrofit): BannerApi {
+        return retrofit.create(BannerApi::class.java)
     }
 }

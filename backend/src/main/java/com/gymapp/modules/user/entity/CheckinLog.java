@@ -1,5 +1,6 @@
 package com.gymapp.modules.user.entity;
 
+import com.gymapp.modules.branch.entity.Branch;
 import com.gymapp.modules.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -30,8 +31,9 @@ public class CheckinLog {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "branch_id")
-    private UUID branchId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "branch_id")
+    private Branch branch;
 
     @Column(name = "checkin_date", nullable = false)
     private LocalDate checkinDate;

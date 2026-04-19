@@ -8,6 +8,9 @@ import {
   BarChartOutlined,
 } from '@ant-design/icons';
 import { ROUTES } from '@/constants/routes';
+import { QrcodeOutlined } from '@ant-design/icons';
+import { PictureOutlined } from '@ant-design/icons';
+
 
 export interface MenuItem {
   key: string;
@@ -36,6 +39,16 @@ export const MENU_ITEMS: MenuItem[] = [
     icon: <CalendarOutlined />,
     label: 'Đặt lịch',
   },
+  {
+  key: ROUTES.CHECKIN,
+  icon: <QrcodeOutlined />,
+  label: 'Check-in',
+},
+{
+  key: ROUTES.BANNERS,
+  icon: <PictureOutlined />,
+  label: 'BannerPage',
+},
   {
     key: ROUTES.PAYMENTS,
     icon: <CreditCardOutlined />,

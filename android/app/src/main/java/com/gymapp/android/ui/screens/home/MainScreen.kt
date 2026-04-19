@@ -1,6 +1,8 @@
 package com.gymapp.android.ui.screens.home
 
 import androidx.compose.foundation.layout.*
+
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -20,7 +22,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
+import com.gymapp.android.ui.screens.banner.BannerCarousel
+import com.gymapp.android.ui.screens.banner.BannerViewModel
+import com.gymapp.android.ui.screens.banner.FloatingLogo
 
 sealed class BottomNavRoute(val route: String, val title: String, val icon: androidx.compose.ui.graphics.vector.ImageVector) {
     object Dashboard : BottomNavRoute("dashboard", "Trang Chủ", Icons.Default.Home)
@@ -122,28 +129,39 @@ fun MainScreen(
             }
         }
     ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ){
         NavHost(
             navController = navController,
             startDestination = BottomNavRoute.Dashboard.route,
-            modifier = Modifier.padding(innerPadding)
+
         ) {
             composable(BottomNavRoute.Dashboard.route) {
+                val bannerViewModel: BannerViewModel = hiltViewModel()
+                val banners by bannerViewModel.banners.collectAsState()
+
                 Column(
-                    modifier = Modifier.fillMaxSize().padding(16.dp)
+                    modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp)
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth()
+                            ,
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+
                         Column {
                             Text(
-                                if (userRole == "PT") "Xin chào, HLV 👋" else "Xin chào, bạn 👋", 
+                                if (userRole == "PT") "COOL TRAINING ❄" else "COOL FITNESS ❄",
                                 fontSize = 24.sp, 
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold ,
+                                color = Color(0xFF00BCD4)
                             )
                             Text(
-                                if (userRole == "PT") "Chúc một ngày làm việc hiệu quả!" else "Hôm nay là ngày tập luyện tuyệt vời!", 
+                                if (userRole == "PT") "Trang dành cho PT" else "Trang dành cho khách hàng",
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontSize = 14.sp
                             )
@@ -181,7 +199,11 @@ fun MainScreen(
                             }
                         }
                     }
-                    
+                    BannerCarousel(
+                        banners = banners,
+                        modifier = Modifier.fillMaxWidth()
+
+                    )
                     Spacer(modifier = Modifier.height(24.dp))
                     
                     // Banner Hội Viên
@@ -189,14 +211,14 @@ fun MainScreen(
                         Card(
                             onClick = onNavigateToActiveMembership,
                             modifier = Modifier.fillMaxWidth().height(100.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFF1B5E20))
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFF81D4FA))
                         ) {
                             Column(
                                 modifier = Modifier.fillMaxSize().padding(16.dp),
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                Text("Hội viên của tôi", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                                Text("Nhấn vào đây để xem chi tiết & QR", color = Color(0xFFC8E6C9), fontSize = 14.sp)
+                                Text("Hội viên của tôi", color = Color(0xFF0B3C49), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                                Text("Nhấn vào đây để xem chi tiết & QR", color = Color(0xFF0F172A), fontSize = 14.sp)
                             }
                         }
 
@@ -558,7 +580,14 @@ fun MainScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
+
         }
-    }
+        FloatingLogo(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .zIndex(10f)
+                .padding(16.dp)
+        )
+    }}
 }
 

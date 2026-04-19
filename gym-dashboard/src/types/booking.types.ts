@@ -1,10 +1,13 @@
-export enum BookingStatus {
-  'PENDING' = 'PENDING',
-  'CONFIRMED' = 'CONFIRMED',
-  'COMPLETED' = 'COMPLETED',
-  'CANCELLED' = 'CANCELLED',
-  'EXPIRED' = 'EXPIRED',
-}
+export const BookingStatus = {
+  PENDING: 'PENDING',
+  CONFIRMED: 'CONFIRMED',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+  EXPIRED: 'EXPIRED',
+} as const;
+
+export type BookingStatus =
+  (typeof BookingStatus)[keyof typeof BookingStatus];
 
 export interface BookingSummary {
   id: string;
@@ -43,9 +46,11 @@ export interface BookingFilters {
 }
 
 export interface PageResponse<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  currentPage: number;
-  pageSize: number;
+  items: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
