@@ -11,6 +11,7 @@ export const ROUTES = {
   CHECKIN: '/admin/checkin',
   BANNERS: '/admin/banners',
   PAYMENTS: '/admin/payments',
+  BRANCHES_MEMBERSHIPS: '/admin/branches-memberships',
   ANALYTICS: '/admin/analytics',
   PTS: '/admin/pts',
 
@@ -28,5 +29,6 @@ export const ROUTE_LABELS: Record<string, string> = {
 
 
   '/admin/payments': 'Thanh toán',
+  '/admin/branches-memberships': 'Membership & Chi nhánh',
   '/admin/analytics': 'Thống kê',
 };

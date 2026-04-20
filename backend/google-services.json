@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "515831200158",
+    "project_id": "gymap-41a11",
+    "storage_bucket": "gymap-41a11.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:515831200158:android:442e15fa595bf4b7833e8f",
+        "android_client_info": {
+          "package_name": "com.gymapp.android"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALmRDbZvSGjWKhM4OOILjkrZoCJLV_xqg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

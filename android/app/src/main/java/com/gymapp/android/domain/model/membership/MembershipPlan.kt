@@ -1,5 +1,12 @@
 package com.gymapp.android.domain.model.membership
 
+data class BranchLocation(
+    val id: String,
+    val name: String,
+    val latitude: Double,
+    val longitude: Double
+)
+
 data class MembershipPlan(
     val id: String,           // UUID
     val name: String,
@@ -11,5 +18,6 @@ data class MembershipPlan(
     val branchName: String?,  // join từ branches, null nếu ALL
     val branchLatitude: Double?, // DTO từ Backend
     val branchLongitude: Double?,
-    val isActive: Boolean
+    val isActive: Boolean,
+    val availableBranches: List<BranchLocation> = emptyList()
 )

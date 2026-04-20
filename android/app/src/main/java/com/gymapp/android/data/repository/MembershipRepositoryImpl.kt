@@ -22,56 +22,23 @@ class MembershipRepositoryImpl @Inject constructor(
         branchId: String?,
         planType: String?
     ): Result<List<MembershipPlan>> = withContext(Dispatchers.IO) {
-        kotlinx.coroutines.delay(1000) // Giả lập mạng chậm 1s
-        
-        val allPlans = listOf(
-            MembershipPlan(
-                id = "a1b2c3d4-0001-0000-0000-000000000001", // UUID format
-                name = "Cơ bản",
-                description = "Tập luyện không giới hạn tại 1 chi nhánh cố định. Tiết kiệm nhất cho người mới.",
-                price = 299000.0,          // NUMERIC(10,2)
-                durationDays = 30,
-                planType = com.gymapp.android.domain.model.membership.PlanType.SINGLE,
-                branchId = "b0000000-0000-0000-0000-000000000001", // UUID
-                branchName = "Chi nhánh Q1",
-                branchLatitude = 10.776354032266614,
-                branchLongitude = 106.69346708476218,
-                isActive = true
-            ),
-            MembershipPlan(
-                id = "a1b2c3d4-0001-0000-0000-000000000002",
-                name = "Premium",
-                description = "Tập luyện không giới hạn tại toàn bộ hệ thống chi nhánh của chúng tôi.",
-                price = 749000.0,          // NUMERIC(10,2)
-                durationDays = 90,
-                planType = com.gymapp.android.domain.model.membership.PlanType.ALL,
-                branchId = null,           // NULL khi plan_type = ALL (theo DB)
-                branchName = null,         // NULL khi plan_type = ALL
-                branchLatitude = null,
-                branchLongitude = null,
-                isActive = true
-            ),
-            MembershipPlan(
-                id = "a1b2c3d4-0001-0000-0000-000000000003",
-                name = "Elite",
-                description = "Gói 1 năm siêu tiết kiệm. Tặng kèm 2 buổi PT miễn phí.",
-                price = 2400000.0,         // NUMERIC(10,2)
-                durationDays = 365,
-                planType = com.gymapp.android.domain.model.membership.PlanType.ALL,
-                branchId = null,
-                branchName = null,
-                branchLatitude = null,
-                branchLongitude = null,
-                isActive = true
-            )
-        )
-        
-        Result.success(allPlans.filter { if (planType != null) it.planType.name == planType else true })
+        try {
+            val response = api.getMembershipPlans(branchId, planType)
+            handleResponse(response) { dto ->
+                dto.plans.map { it.toDomainModel() }
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     override suspend fun getMembershipPlanById(id: String): Result<MembershipPlan?> = withContext(Dispatchers.IO) {
-        val plans = getMembershipPlans(null, null).getOrNull() ?: emptyList()
-        Result.success(plans.find { it.id == id })
+        try {
+            val response = api.getMembershipPlanById(id)
+            handleResponse(response) { it.toDomainModel() }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     override suspend fun getActiveMembership(): Result<ActiveMembership> = withContext(Dispatchers.IO) {

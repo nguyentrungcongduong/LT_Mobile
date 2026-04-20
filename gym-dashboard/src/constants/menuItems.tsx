@@ -7,6 +7,7 @@ import {
   CalendarOutlined,
   CreditCardOutlined,
   BarChartOutlined,
+  ShopOutlined,
 } from '@ant-design/icons';
 import { ROUTES } from '@/constants/routes';
 
@@ -60,6 +61,11 @@ export const MENU_ITEMS: MenuItem[] = [
     key: ROUTES.PAYMENTS,
     icon: <CreditCardOutlined />,
     label: 'Thanh toán',
+  },
+  {
+    key: ROUTES.BRANCHES_MEMBERSHIPS,
+    icon: <ShopOutlined />,
+    label: 'Membership & Chi nhánh',
   },
   {
     key: ROUTES.ANALYTICS,

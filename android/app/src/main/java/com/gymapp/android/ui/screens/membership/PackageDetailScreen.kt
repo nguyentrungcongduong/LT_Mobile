@@ -157,14 +157,25 @@ fun PackageDetailScreen(
                         else -> 106.69346708476218
                     }
 
-                    val lat = plan.branchLatitude ?: defaultLat
-                    val lng = plan.branchLongitude ?: defaultLng
-                    val branchLocation = LatLng(lat, lng) 
+                    // Interactive Google Map 
+                    val branchLocation = LatLng(plan.branchLatitude ?: defaultLat, plan.branchLongitude ?: defaultLng)
                     val cameraPositionState = rememberCameraPositionState {
                         position = CameraPosition.fromLatLngZoom(branchLocation, 15f)
                     }
 
-                    // Interactive Google Map 
+                    // Tự động căn chỉnh map nếu gói là ALL
+                    LaunchedEffect(plan.availableBranches) {
+                        if (plan.planType == PlanType.ALL && plan.availableBranches.isNotEmpty()) {
+                            val builder = com.google.android.gms.maps.model.LatLngBounds.Builder()
+                            plan.availableBranches.forEach {
+                                builder.include(LatLng(it.latitude, it.longitude))
+                            }
+                            cameraPositionState.animate(
+                                com.google.android.gms.maps.CameraUpdateFactory.newLatLngBounds(builder.build(), 100)
+                            )
+                        }
+                    }
+
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -174,10 +185,19 @@ fun PackageDetailScreen(
                             modifier = Modifier.fillMaxSize(),
                             cameraPositionState = cameraPositionState
                         ) {
-                            Marker(
-                                state = MarkerState(position = branchLocation),
-                                title = plan.branchName ?: "Toàn chuỗi chi nhánh"
-                            )
+                            if (plan.planType == PlanType.ALL) {
+                                plan.availableBranches.forEach { branch ->
+                                    Marker(
+                                        state = MarkerState(position = LatLng(branch.latitude, branch.longitude)),
+                                        title = branch.name
+                                    )
+                                }
+                            } else {
+                                Marker(
+                                    state = MarkerState(position = branchLocation),
+                                    title = plan.branchName ?: "Chi nhánh hỗ trợ"
+                                )
+                            }
                         }
                     }
 
