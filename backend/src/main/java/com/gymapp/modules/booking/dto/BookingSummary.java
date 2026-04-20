@@ -7,11 +7,11 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.util.UUID;
 
 @Data
 @Builder
 public class BookingSummary {
+
     private String id;
 
     @JsonProperty("user_id")
@@ -49,4 +49,5 @@ public class BookingSummary {
 
     @JsonProperty("created_at")
     private OffsetDateTime createdAt;
+
 }

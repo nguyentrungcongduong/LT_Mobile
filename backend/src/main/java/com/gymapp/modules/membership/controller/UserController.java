@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,8 +30,10 @@ import com.gymapp.modules.membership.dto.UserDto;
 import com.gymapp.modules.membership.dto.UserResponse;
 import com.gymapp.modules.membership.dto.UserUpdateDto;
 import com.gymapp.modules.membership.service.Interface.IUserService;
+
 import com.gymapp.modules.user.dto.request.BlockUserRequest;
 import com.gymapp.modules.user.dto.response.UserStatusResponse;
+
 import com.gymapp.modules.user.entity.User;
 
 import jakarta.validation.Valid;
@@ -110,8 +113,10 @@ public class UserController {
 
     /**
      * PUT /api/v1/users/me/fcm-token
+     * 
      * Lưu FCM device token sau khi user login (mobile gọi sau khi lấy được token từ
      * Firebase).
+     * 
      */
     @PutMapping("/me/fcm-token")
     public ApiResponse<Void> updateFcmToken(@RequestBody @Valid UpdateFcmTokenRequest request) {
@@ -124,9 +129,9 @@ public class UserController {
     public ApiResponse<UserStatusResponse> blockOrUnblock(
             @PathVariable UUID id,
             @RequestBody BlockUserRequest request) {
-
-        return ApiResponse.ok(
-                userService.blockOrUnblockUser(id, request),
+        userService.blockOrUnblockUser(id, request);
+        return ApiResponse.ok(null,
                 "Update status success");
     }
+
 }

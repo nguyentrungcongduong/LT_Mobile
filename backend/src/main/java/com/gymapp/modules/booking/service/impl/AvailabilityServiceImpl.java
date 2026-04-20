@@ -4,7 +4,6 @@ import com.gymapp.common.exception.BadRequestException;
 import com.gymapp.common.exception.ConflictException;
 import com.gymapp.modules.booking.dto.PtAvailabilityRequest;
 import com.gymapp.modules.booking.dto.PtAvailabilityResponse;
-import com.gymapp.modules.booking.entity.Booking;
 import com.gymapp.modules.booking.entity.PtAvailability;
 import com.gymapp.modules.booking.enums.BookingStatus;
 import com.gymapp.modules.booking.repository.BookingRepository;
@@ -33,10 +32,11 @@ public class AvailabilityServiceImpl implements AvailabilityService {
     public List<PtAvailabilityResponse> getPtAvailability(UUID ptIdOrUserId, LocalDate from, LocalDate to) {
         UUID userId = ptIdOrUserId;
 
-        // The frontend might pass either PtProfile ID (from user flow) or User ID (from PT flow)
+        // The frontend might pass either PtProfile ID (from user flow) or User ID (from
+        // PT flow)
         // Since UUIDs are globally unique, we can check if it's a profile ID first
-        java.util.Optional<com.gymapp.modules.user.entity.PtProfile> profileOpt =
-                ptProfileRepository.findById(ptIdOrUserId);
+        java.util.Optional<com.gymapp.modules.user.entity.PtProfile> profileOpt = ptProfileRepository
+                .findById(ptIdOrUserId);
 
         if (profileOpt.isPresent()) {
             userId = profileOpt.get().getUser().getId();
@@ -78,8 +78,7 @@ public class AvailabilityServiceImpl implements AvailabilityService {
                 ptId,
                 request.getAvailableDate(),
                 request.getStartTime(),
-                request.getEndTime()
-        );
+                request.getEndTime());
 
         if (isOverlapping) {
             throw new ConflictException("SLOT_ALREADY_EXISTS", "This time slot overlaps with an existing one");
@@ -111,17 +110,15 @@ public class AvailabilityServiceImpl implements AvailabilityService {
         if (a.isBooked()) {
             bookingRepository.findFirstByAvailabilityIdAndStatusIn(
                     a.getId(),
-                    List.of(BookingStatus.PENDING, BookingStatus.CONFIRMED)
-            ).ifPresent(booking -> {
-                if (booking.getUser() != null) {
-                    builder.bookedByName(booking.getUser().getFullName());
-                    builder.bookedByAvatar(booking.getUser().getAvatarUrl());
-                    builder.bookingId(booking.getId());
-                }
-            });
+                    List.of(BookingStatus.PENDING, BookingStatus.CONFIRMED)).ifPresent(booking -> {
+                        if (booking.getUser() != null) {
+                            builder.bookedByName(booking.getUser().getFullName());
+                            builder.bookedByAvatar(booking.getUser().getAvatarUrl());
+                            builder.bookingId(booking.getId());
+                        }
+                    });
         }
 
         return builder.build();
     }
 }
-

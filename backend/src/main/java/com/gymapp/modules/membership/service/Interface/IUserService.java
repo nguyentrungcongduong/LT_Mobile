@@ -14,6 +14,7 @@ import com.gymapp.modules.membership.dto.UserUpdateDto;
 import com.gymapp.modules.membership.dto.ChangePasswordRequest;
 import com.gymapp.modules.user.dto.request.BlockUserRequest;
 import com.gymapp.modules.user.dto.response.UserStatusResponse;
+
 import com.gymapp.modules.user.entity.User;
 
 public interface IUserService {

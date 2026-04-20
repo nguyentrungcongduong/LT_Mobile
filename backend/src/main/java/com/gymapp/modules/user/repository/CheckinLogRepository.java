@@ -16,62 +16,63 @@ import java.util.UUID;
 @Repository
 public interface CheckinLogRepository extends JpaRepository<CheckinLog, UUID> {
 
-    /** Kiểm tra user đã check-in hôm nay chưa */
-    @Query("SELECT c FROM CheckinLog c WHERE c.user.id = :userId AND c.checkinDate = :date")
-    Optional<CheckinLog> findByUserIdAndCheckinDate(
-            @Param("userId") UUID userId,
-            @Param("date") LocalDate date);
+        /** Kiểm tra user đã check-in hôm nay chưa */
+        @Query("SELECT c FROM CheckinLog c WHERE c.user.id = :userId AND c.checkinDate = :date")
+        Optional<CheckinLog> findByUserIdAndCheckinDate(
+                        @Param("userId") UUID userId,
 
-    /** Admin: lấy toàn bộ lịch sử check-in */
-    @Query("""
-                SELECT c FROM CheckinLog c
-                JOIN FETCH c.user
-                LEFT JOIN FETCH c.branch
-                ORDER BY c.checkinTime DESC
-            """)
-    Page<CheckinLog> findAllOrderByCheckinTimeDesc(Pageable pageable);
+                        @Param("date") LocalDate date);
 
-    /** Admin: lọc theo ngày */
-    @Query("""
-                SELECT c FROM CheckinLog c
-                JOIN FETCH c.user
-                LEFT JOIN FETCH c.branch
-                WHERE c.checkinDate = :date
-                ORDER BY c.checkinTime DESC
-            """)
-    Page<CheckinLog> findByCheckinDate(
-            @Param("date") LocalDate date,
-            Pageable pageable);
+        /** Admin: lấy toàn bộ lịch sử check-in */
+        @Query("""
+                            SELECT c FROM CheckinLog c
+                            JOIN FETCH c.user
+                            LEFT JOIN FETCH c.branch
+                            ORDER BY c.checkinTime DESC
+                        """)
+        Page<CheckinLog> findAllOrderByCheckinTimeDesc(Pageable pageable);
 
-    /** Admin: lọc theo chi nhánh */
-    @Query("""
-                SELECT c FROM CheckinLog c
-                JOIN FETCH c.user
-                LEFT JOIN FETCH c.branch
-                WHERE c.branch.id = :branchId
-                ORDER BY c.checkinTime DESC
-            """)
-    Page<CheckinLog> findByBranchId(
-            @Param("branchId") UUID branchId,
-            Pageable pageable);
+        /** Admin: lọc theo ngày */
+        @Query("""
+                            SELECT c FROM CheckinLog c
+                            JOIN FETCH c.user
+                            LEFT JOIN FETCH c.branch
+                            WHERE c.checkinDate = :date
+                            ORDER BY c.checkinTime DESC
+                        """)
+        Page<CheckinLog> findByCheckinDate(
+                        @Param("date") LocalDate date,
+                        Pageable pageable);
 
-    /** Admin: lọc theo user */
-    @Query("""
-                SELECT c FROM CheckinLog c
-                JOIN FETCH c.user
-                LEFT JOIN FETCH c.branch
-                WHERE c.user.id = :userId
-                ORDER BY c.checkinTime DESC
-            """)
-    Page<CheckinLog> findByUserId(
-            @Param("userId") UUID userId,
-            Pageable pageable);
+        /** Admin: lọc theo chi nhánh */
+        @Query("""
+                            SELECT c FROM CheckinLog c
+                            JOIN FETCH c.user
+                            LEFT JOIN FETCH c.branch
+                            WHERE c.branch.id = :branchId
+                            ORDER BY c.checkinTime DESC
+                        """)
+        Page<CheckinLog> findByBranchId(
+                        @Param("branchId") UUID branchId,
+                        Pageable pageable);
 
-    @Query("""
-                SELECT c FROM CheckinLog c
-                JOIN FETCH c.user
-                LEFT JOIN FETCH c.branch
-                ORDER BY c.checkinTime DESC
-            """)
-    List<CheckinLog> findAllForExport();
+        /** Admin: lọc theo user */
+        @Query("""
+                            SELECT c FROM CheckinLog c
+                            JOIN FETCH c.user
+                            LEFT JOIN FETCH c.branch
+                            WHERE c.user.id = :userId
+                            ORDER BY c.checkinTime DESC
+                        """)
+        Page<CheckinLog> findByUserId(
+                        @Param("userId") UUID userId,
+                        Pageable pageable);
+
+        @Query("""
+                            SELECT c FROM CheckinLog c
+                            JOIN FETCH c.user
+                            LEFT JOIN FETCH c.branch
+                            ORDER BY c.checkinTime DESC
+                        """)
+        List<CheckinLog> findAllForExport();
 }

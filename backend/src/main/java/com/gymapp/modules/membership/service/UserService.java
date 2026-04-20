@@ -8,7 +8,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import org.springframework.web.bind.annotation.CrossOrigin;
+
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cloudinary.Cloudinary;
@@ -21,8 +23,10 @@ import com.gymapp.modules.membership.dto.UserDto;
 import com.gymapp.modules.membership.dto.UserResponse;
 import com.gymapp.modules.membership.dto.UserUpdateDto;
 import com.gymapp.modules.membership.service.Interface.IUserService;
+
 import com.gymapp.modules.user.dto.request.BlockUserRequest;
 import com.gymapp.modules.user.dto.response.UserStatusResponse;
+
 import com.gymapp.modules.user.entity.User;
 import com.gymapp.modules.user.entity.UserRole;
 import com.gymapp.modules.user.repository.UserRepository;
@@ -31,7 +35,9 @@ import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor
+
 @CrossOrigin("*")
+
 public class UserService implements IUserService {
 
     private final UserRepository userRepository;

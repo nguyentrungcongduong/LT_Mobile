@@ -25,6 +25,7 @@ public class AdminCheckinController {
     /**
      * [5] GET /api/v1/admin/checkin/logs
      * Admin xem lịch sử check-in, hỗ trợ filter theo:
+
      * - date (yyyy-MM-dd)
      * - branchId (UUID)
      * - userId (UUID)
@@ -40,16 +41,20 @@ public class AdminCheckinController {
     public ResponseEntity<Page<CheckinLogResponse>> getCheckinLogs(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
 
+
             @RequestParam(required = false) UUID branchId,
             @RequestParam(required = false) UUID userId,
 
             @RequestParam(defaultValue = "0") int page,
+
             @RequestParam(defaultValue = "20") int size) {
+
         Pageable pageable = PageRequest.of(page, size);
         Page<CheckinLogResponse> result = checkinQrService.getAdminCheckinLogs(
                 date, branchId, userId, pageable);
         return ResponseEntity.ok(result);
     }
+
 
     // endpoint export CSV, admin click là tải về file CSV luôn, nên trả về byte[]
     // chứ không cần ApiResponse wrapper
@@ -69,4 +74,5 @@ public class AdminCheckinController {
                 .header("Content-Type", "text/csv")
                 .body(csvData);
     }
+
 }

@@ -30,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
+
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -45,7 +46,9 @@ public class CheckinQrService {
     private final UserRepository userRepository;
     private final MembershipRepository membershipRepository;
     private final CheckinLogRepository checkinLogRepository;
+
     private final BranchRepository branchRepository;
+
     // ─────────────────────────────────────────────────────────────────────────
     // [1] GET /api/v1/checkin/qr — Generate QR token (60s TTL, stored in Redis)
     // ─────────────────────────────────────────────────────────────────────────
@@ -83,6 +86,7 @@ public class CheckinQrService {
                 QR_REDIS_PREFIX + jti,
                 user.getId().toString(),
                 ttl,
+
                 TimeUnit.SECONDS);
 
         log.info("[QR_GEN] user={} jti={} ttl={}s", email, jti, ttl);
@@ -94,10 +98,12 @@ public class CheckinQrService {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
+
     // [2] POST /api/v1/checkin/verify — Verify QR token (JWT + Redis + membership +
     // branch)
     // [3] Xóa token Redis sau verify (one-time use)
     // [4] Tạo CheckinLog record
+
     // ─────────────────────────────────────────────────────────────────────────
 
     @Transactional
@@ -187,6 +193,7 @@ public class CheckinQrService {
                 .checkinDate(LocalDate.now())
                 .checkinTime(now)
                 .createdAt(now)
+
                 .qrTokenJti(jti)
                 .build();
 
@@ -224,6 +231,7 @@ public class CheckinQrService {
     // ─── Helper ─────────────────────────────────────────────────────────────
 
     private CheckinLogResponse toResponse(CheckinLog log) {
+
         var user = log.getUser();
         var branch = log.getBranch();
 
@@ -234,6 +242,7 @@ public class CheckinQrService {
                 .userFullName(user != null ? user.getFullName() : null)
                 .branchId(branch != null ? branch.getId() : null)
                 .branchName(branch != null ? branch.getName() : null)
+
                 .checkinDate(log.getCheckinDate())
                 .checkinTime(log.getCheckinTime())
                 .qrTokenJti(log.getQrTokenJti())
@@ -276,4 +285,5 @@ public class CheckinQrService {
 
         return sb.toString().getBytes(StandardCharsets.UTF_8);
     }
+
 }

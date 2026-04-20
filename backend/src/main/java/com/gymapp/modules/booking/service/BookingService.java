@@ -6,10 +6,12 @@ import com.gymapp.common.response.PageResponse;
 import org.springframework.data.domain.Pageable;
 
 import java.time.OffsetDateTime;
+
 import java.util.List;
 import java.util.UUID;
 
 public interface BookingService {
+
         BookingResponse createBooking(UUID userId, BookingRequest request, String ipAddress);
 
         BatchBookingResponse createBatchBookings(UUID userId, BatchBookingRequest request, String ipAddress);
@@ -38,4 +40,5 @@ public interface BookingService {
                         OffsetDateTime fromDate,
                         OffsetDateTime toDate,
                         Pageable pageable);
+
 }

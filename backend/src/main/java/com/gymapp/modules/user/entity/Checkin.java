@@ -1,6 +1,5 @@
 package com.gymapp.modules.user.entity;
 
-import com.gymapp.modules.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
