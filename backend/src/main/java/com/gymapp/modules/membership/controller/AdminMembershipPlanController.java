@@ -3,6 +3,7 @@ package com.gymapp.modules.membership.controller;
 import com.gymapp.common.response.ApiResponse;
 import com.gymapp.modules.membership.dto.CreateMembershipPlanRequest;
 import com.gymapp.modules.membership.dto.MembershipPlanResponse;
+import com.gymapp.modules.membership.dto.UpdateMembershipPlanRequest;
 import com.gymapp.modules.membership.service.MembershipPlanService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +32,15 @@ public class AdminMembershipPlanController {
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<MembershipPlanResponse> updatePlan(
             @PathVariable(name = "id") UUID id,
-            @RequestBody CreateMembershipPlanRequest request) {
+            @RequestBody UpdateMembershipPlanRequest request) {
         MembershipPlanResponse data = membershipPlanService.updatePlan(id, request);
         return ApiResponse.ok(data, "Cập nhật gói tập thành công");
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<Void> deletePlan(@PathVariable(name = "id") UUID id) {
+        membershipPlanService.deletePlan(id);
+        return ApiResponse.ok(null, "Xóa gói tập thành công");
     }
 }

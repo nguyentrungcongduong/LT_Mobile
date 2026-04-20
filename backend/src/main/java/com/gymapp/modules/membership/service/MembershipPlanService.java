@@ -7,6 +7,7 @@ import com.gymapp.modules.branch.repository.BranchRepository;
 import com.gymapp.modules.membership.dto.CreateMembershipPlanRequest;
 import com.gymapp.modules.membership.dto.MembershipPlanListResponse;
 import com.gymapp.modules.membership.dto.MembershipPlanResponse;
+import com.gymapp.modules.membership.dto.UpdateMembershipPlanRequest;
 import com.gymapp.modules.membership.entity.MembershipPlan;
 import com.gymapp.modules.membership.enums.PlanType;
 import com.gymapp.modules.membership.repository.MembershipPlanRepository;
@@ -52,40 +53,48 @@ public class MembershipPlanService {
 
         // Step 5: Save DB
         plan = membershipPlanRepository.save(plan);
-        
+
         // Step 6: Return response
         return mapToResponse(plan);
     }
 
     @Transactional
-    public MembershipPlanResponse updatePlan(UUID id, CreateMembershipPlanRequest request) {
+    public MembershipPlanResponse updatePlan(UUID id, UpdateMembershipPlanRequest request) {
         // Step 1: Lấy plan theo id
         MembershipPlan plan = membershipPlanRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("PLAN_NOT_FOUND", "Gói tập không tồn tại"));
 
         // Step 2: Update field nào có trong request (partial update)
-        if (request.getName() != null) plan.setName(request.getName());
-        if (request.getDescription() != null) plan.setDescription(request.getDescription());
-        if (request.getPrice() != null) plan.setPrice(request.getPrice());
-        if (request.getDurationDays() != null) plan.setDurationDays(request.getDurationDays());
+        if (request.getName() != null)
+            plan.setName(request.getName());
+        if (request.getDescription() != null)
+            plan.setDescription(request.getDescription());
+        if (request.getPrice() != null)
+            plan.setPrice(request.getPrice());
+        if (request.getDurationDays() != null)
+            plan.setDurationDays(request.getDurationDays());
+        if (request.getIsActive() != null)
+            plan.setActive(request.getIsActive());
 
-        // Step 3: Nếu có thay đổi plan_type hoặc branch_id → chạy lại logic SINGLE / ALL
+        // Step 3: Nếu có thay đổi plan_type hoặc branch_id → chạy lại logic SINGLE /
+        // ALL
         if (request.getPlanType() != null || request.getBranchId() != null) {
             PlanType effectiveType = request.getPlanType() != null ? request.getPlanType() : plan.getPlanType();
-            UUID effectiveBranchId = request.getBranchId() != null ? request.getBranchId() : (plan.getBranch() != null ? plan.getBranch().getId() : null);
+            UUID effectiveBranchId = request.getBranchId() != null ? request.getBranchId()
+                    : (plan.getBranch() != null ? plan.getBranch().getId() : null);
 
             if (effectiveType == PlanType.SINGLE) {
                 if (effectiveBranchId == null) {
                     throw new BadRequestException("BRANCH_REQUIRED", "Chi nhánh là bắt buộc cho gói SINGLE");
                 }
-                
+
                 // Chỉ query lại branch nếu branchId thay đổi
                 if (request.getBranchId() != null) {
                     Branch branch = branchRepository.findById(request.getBranchId())
                             .orElseThrow(() -> new BadRequestException("BRANCH_NOT_FOUND", "Chi nhánh không tồn tại"));
                     plan.setBranch(branch);
                 }
-                
+
                 if (request.getPlanType() != null) {
                     plan.setPlanType(PlanType.SINGLE);
                 }
@@ -100,10 +109,17 @@ public class MembershipPlanService {
         return mapToResponse(plan);
     }
 
+    @Transactional
+    public void deletePlan(UUID id) {
+        MembershipPlan plan = membershipPlanRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("PLAN_NOT_FOUND", "Gói tập không tồn tại"));
+        membershipPlanRepository.delete(plan);
+    }
+
     @Transactional(readOnly = true)
     public MembershipPlanListResponse getAllPlans(UUID branchId, PlanType planType) {
         List<MembershipPlan> plans = membershipPlanRepository.findAllWithFilters(branchId, planType);
-        
+
         List<MembershipPlanResponse> responses = plans.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
