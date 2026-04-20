@@ -11,6 +11,7 @@ import BookingPage from '@/pages/BookingPage';
 import CheckinPage from '@/pages/CheckinPage';
 import BannerPage from "@/pages/BannerPage";
 
+
 const router = createBrowserRouter([
   // ─── Public ─────────────────────────────────────────────────────────
   {
@@ -62,6 +63,7 @@ const router = createBrowserRouter([
 
           // ── Feature routes (thêm dần ở WEB-08+) ────────────────────
           // { path: '/admin/users',    element: <UsersPage /> },
+
 
           // { path: '/admin/bookings', element: <BookingsPage /> },
           // { path: '/admin/payments', element: <PaymentsPage /> },

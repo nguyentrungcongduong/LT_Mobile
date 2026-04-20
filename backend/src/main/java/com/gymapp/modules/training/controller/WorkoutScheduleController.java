@@ -13,14 +13,17 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalTime;
 import java.util.List;
+
 import java.util.stream.Collectors;
 
 /**
  * REST API quản lý lịch tập hàng tuần của user.
  *
+ * 
  * GET /api/v1/workout-schedules — lấy danh sách
  * PUT /api/v1/workout-schedules/{day} — lưu/cập nhật ngày
  * PUT /api/v1/workout-schedules/{day}/delete — xóa ngày
+ * 
  */
 @RestController
 @RequestMapping("/api/v1/workout-schedules")
@@ -71,6 +74,7 @@ public class WorkoutScheduleController {
         return ApiResponse.ok(
                 new WorkoutScheduleDto(schedule.getId().toString(), schedule.getDayOfWeek(),
                         schedule.getRemindTime().toString()),
+
                 "Lưu lịch tập thành công");
     }
 
@@ -93,4 +97,5 @@ public class WorkoutScheduleController {
     // ── inner DTO ─────────────────────────────────────────────────────────────
     record WorkoutScheduleDto(String id, String dayOfWeek, String remindTime) {
     }
+
 }

@@ -9,6 +9,7 @@ import com.gymapp.modules.user.entity.CheckinLog;
 import com.gymapp.modules.user.repository.CheckinLogRepository;
 import com.gymapp.modules.branch.entity.Branch;
 import com.gymapp.modules.branch.repository.BranchRepository;
+
 import com.gymapp.modules.membership.enums.MembershipStatus;
 import com.gymapp.modules.membership.repository.MembershipRepository;
 import com.gymapp.modules.user.entity.User;
@@ -207,6 +208,7 @@ public class CheckinQrService {
     // [5] GET /api/v1/admin/checkin/logs — Admin xem lịch sử check-in
     // ─────────────────────────────────────────────────────────────────────────
     @Transactional(readOnly = true)
+
     public Page<CheckinLogResponse> getAdminCheckinLogs(
             LocalDate date,
             UUID branchId,

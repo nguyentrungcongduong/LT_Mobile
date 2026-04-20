@@ -12,6 +12,7 @@ import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+
 import java.util.UUID;
 
 @Entity
@@ -77,6 +78,7 @@ public class Payment {
     /**
      * Danh sách bookingIds cho batch payment (lưu dưới dạng comma-separated UUIDs)
      */
+
     @Column(name = "batch_booking_ids", columnDefinition = "TEXT")
     private String batchBookingIds;
 

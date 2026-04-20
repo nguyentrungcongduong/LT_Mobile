@@ -19,7 +19,9 @@ public class CheckinLogResponse {
     private String userEmail;
     private String userFullName;
     private UUID branchId;
+
     private String branchName;
+
     private LocalDate checkinDate;
     private OffsetDateTime checkinTime;
     private String qrTokenJti;

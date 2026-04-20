@@ -18,9 +18,11 @@ import java.util.stream.Collectors;
 /**
  * REST API quản lý notification inbox của user.
  *
+ * 
  * GET /api/v1/notifications — lấy danh sách
  * PUT /api/v1/notifications/read-all — đánh dấu tất cả đã đọc
  * PUT /api/v1/notifications/{id}/read — đánh dấu 1 đã đọc
+ * 
  */
 @RestController
 @RequestMapping("/api/v1/notifications")
@@ -79,6 +81,7 @@ public class NotificationController {
 
     // ── inner DTO ─────────────────────────────────────────────────────────────
     record NotificationDto(
+
             String id,
             String title,
             String body,
@@ -88,4 +91,5 @@ public class NotificationController {
             String sentAt,
             String createdAt) {
     }
+
 }

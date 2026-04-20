@@ -12,6 +12,7 @@ import com.gymapp.modules.membership.dto.UserDto;
 import com.gymapp.modules.membership.dto.UserResponse;
 import com.gymapp.modules.membership.dto.UserUpdateDto;
 import com.gymapp.modules.membership.dto.ChangePasswordRequest;
+
 import com.gymapp.modules.user.dto.request.BlockUserRequest;
 import com.gymapp.modules.user.dto.response.UserStatusResponse;
 

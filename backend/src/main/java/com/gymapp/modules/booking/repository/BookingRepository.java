@@ -61,11 +61,12 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
         List<Booking> findAllByUserIdAndPtIdOrderByScheduledAtDesc(UUID userId, UUID ptId);
 
         @Query("""
+                        <<<<<<< HEAD
 
-                            SELECT b FROM Booking b
-                            LEFT JOIN FETCH b.pt
-                            LEFT JOIN FETCH b.user
-                        """)
+                                                    SELECT b FROM Booking b
+                                                    LEFT JOIN FETCH b.pt
+                                                    LEFT JOIN FETCH b.user
+                                                """)
 
         List<Booking> findAllWithRelations();
 

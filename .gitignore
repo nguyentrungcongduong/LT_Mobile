@@ -24,9 +24,10 @@ build/
 android/.gradle/
 .gradle/
 
+=======
+
 /android/app/google-services.json
 
 /android/app/build
 /android/.gradlea n d r o i d / a p p / b u i l d /  
- 
 

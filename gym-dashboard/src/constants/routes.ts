@@ -14,6 +14,7 @@ export const ROUTES = {
   ANALYTICS: '/admin/analytics',
   PTS: '/admin/pts',
 
+
 } as const;
 
 // Breadcrumb labels mapping
@@ -24,6 +25,7 @@ export const ROUTE_LABELS: Record<string, string> = {
   '/admin/bookings': 'Đặt lịch',
   '/admin/checkin': 'Check-in',
   '/admin/banners': 'Banner',
+
 
   '/admin/payments': 'Thanh toán',
   '/admin/analytics': 'Thống kê',

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 
 import androidx.compose.foundation.verticalScroll
 
+
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -33,6 +34,7 @@ import com.gymapp.android.ui.screens.banner.BannerViewModel
 import com.gymapp.android.ui.screens.banner.FloatingLogo
 
 import androidx.navigation.compose.rememberNavController
+
 
 
 sealed class BottomNavRoute(val route: String, val title: String, val icon: androidx.compose.ui.graphics.vector.ImageVector) {
@@ -170,6 +172,7 @@ fun MainScreen(
                             Text(
                                 if (userRole == "PT") "Trang dành cho PT" else "Trang dành cho khách hàng",
 
+
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontSize = 14.sp
                             )
@@ -214,6 +217,7 @@ fun MainScreen(
 
                     )
 
+
                     Spacer(modifier = Modifier.height(24.dp))
                     
                     // Banner Hội Viên
@@ -224,6 +228,7 @@ fun MainScreen(
 
                             colors = CardDefaults.cardColors(containerColor = Color(0xFF81D4FA))
 
+
                         ) {
                             Column(
                                 modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -232,6 +237,7 @@ fun MainScreen(
 
                                 Text("Hội viên của tôi", color = Color(0xFF0B3C49), fontWeight = FontWeight.Bold, fontSize = 18.sp)
                                 Text("Nhấn vào đây để xem chi tiết & QR", color = Color(0xFF0F172A), fontSize = 14.sp)
+
 
                             }
                         }
@@ -604,6 +610,7 @@ fun MainScreen(
                 .padding(16.dp)
         )
     }}
+
 
 }
 
