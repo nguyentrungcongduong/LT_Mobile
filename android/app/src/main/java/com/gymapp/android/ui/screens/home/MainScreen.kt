@@ -2,7 +2,9 @@ package com.gymapp.android.ui.screens.home
 
 import androidx.compose.foundation.layout.*
 
+
 import androidx.compose.foundation.verticalScroll
+
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -22,12 +24,16 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.gymapp.android.ui.screens.banner.BannerCarousel
 import com.gymapp.android.ui.screens.banner.BannerViewModel
 import com.gymapp.android.ui.screens.banner.FloatingLogo
+
+import androidx.navigation.compose.rememberNavController
+
 
 sealed class BottomNavRoute(val route: String, val title: String, val icon: androidx.compose.ui.graphics.vector.ImageVector) {
     object Dashboard : BottomNavRoute("dashboard", "Trang Chủ", Icons.Default.Home)
@@ -129,6 +135,7 @@ fun MainScreen(
             }
         }
     ) { innerPadding ->
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -162,6 +169,7 @@ fun MainScreen(
                             )
                             Text(
                                 if (userRole == "PT") "Trang dành cho PT" else "Trang dành cho khách hàng",
+
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontSize = 14.sp
                             )
@@ -199,11 +207,13 @@ fun MainScreen(
                             }
                         }
                     }
+
                     BannerCarousel(
                         banners = banners,
                         modifier = Modifier.fillMaxWidth()
 
                     )
+
                     Spacer(modifier = Modifier.height(24.dp))
                     
                     // Banner Hội Viên
@@ -211,14 +221,18 @@ fun MainScreen(
                         Card(
                             onClick = onNavigateToActiveMembership,
                             modifier = Modifier.fillMaxWidth().height(100.dp),
+
                             colors = CardDefaults.cardColors(containerColor = Color(0xFF81D4FA))
+
                         ) {
                             Column(
                                 modifier = Modifier.fillMaxSize().padding(16.dp),
                                 verticalArrangement = Arrangement.Center
                             ) {
+
                                 Text("Hội viên của tôi", color = Color(0xFF0B3C49), fontWeight = FontWeight.Bold, fontSize = 18.sp)
                                 Text("Nhấn vào đây để xem chi tiết & QR", color = Color(0xFF0F172A), fontSize = 14.sp)
+
                             }
                         }
 
@@ -581,6 +595,7 @@ fun MainScreen(
                 )
             }
 
+
         }
         FloatingLogo(
             modifier = Modifier
@@ -589,5 +604,6 @@ fun MainScreen(
                 .padding(16.dp)
         )
     }}
+
 }
 
