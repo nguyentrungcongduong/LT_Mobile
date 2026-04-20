@@ -127,7 +127,23 @@ public class MembershipPlanService {
         return new MembershipPlanListResponse(responses);
     }
 
+    @Transactional(readOnly = true)
+    public MembershipPlanResponse getPlanById(UUID id) {
+        MembershipPlan plan = membershipPlanRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("PLAN_NOT_FOUND", "Gói tập không tồn tại"));
+        return mapToResponse(plan);
+    }
+
     private MembershipPlanResponse mapToResponse(MembershipPlan plan) {
+        java.util.List<com.gymapp.modules.branch.dto.BranchResponse> branches = new java.util.ArrayList<>();
+        if (plan.getPlanType() == PlanType.SINGLE && plan.getBranch() != null) {
+            branches.add(mapBranchToResponse(plan.getBranch()));
+        } else if (plan.getPlanType() == PlanType.ALL) {
+            branches = branchRepository.findAll().stream()
+                    .map(this::mapBranchToResponse)
+                    .collect(java.util.stream.Collectors.toList());
+        }
+
         return MembershipPlanResponse.builder()
                 .id(plan.getId())
                 .name(plan.getName())
@@ -140,7 +156,22 @@ public class MembershipPlanService {
                 .branchLatitude(plan.getBranch() != null ? plan.getBranch().getLatitude() : null)
                 .branchLongitude(plan.getBranch() != null ? plan.getBranch().getLongitude() : null)
                 .isActive(plan.isActive())
+                .availableBranches(branches)
                 .createdAt(plan.getCreatedAt())
+                .build();
+    }
+
+    private com.gymapp.modules.branch.dto.BranchResponse mapBranchToResponse(com.gymapp.modules.branch.entity.Branch branch) {
+        if (branch == null) return null;
+        return com.gymapp.modules.branch.dto.BranchResponse.builder()
+                .id(branch.getId())
+                .name(branch.getName())
+                .address(branch.getAddress())
+                .phone(branch.getPhone())
+                .latitude(branch.getLatitude())
+                .longitude(branch.getLongitude())
+                .isActive(branch.isActive())
+                .createdAt(branch.getCreatedAt())
                 .build();
     }
 }

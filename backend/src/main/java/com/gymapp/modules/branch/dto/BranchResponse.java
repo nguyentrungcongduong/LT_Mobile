@@ -22,7 +22,7 @@ public class BranchResponse {
     private String phone;
     private BigDecimal latitude;
     private BigDecimal longitude;
-    @JsonProperty("isActive")
+    @JsonProperty("is_active")
     private boolean isActive;
     private OffsetDateTime createdAt;
 }

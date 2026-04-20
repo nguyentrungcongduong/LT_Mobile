@@ -2,13 +2,11 @@ package com.gymapp.modules.membership.controller;
 
 import com.gymapp.common.response.ApiResponse;
 import com.gymapp.modules.membership.dto.MembershipPlanListResponse;
+import com.gymapp.modules.membership.dto.MembershipPlanResponse;
 import com.gymapp.modules.membership.enums.PlanType;
 import com.gymapp.modules.membership.service.MembershipPlanService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -24,6 +22,12 @@ public class PublicMembershipPlanController {
             @RequestParam(name = "branch_id", required = false) UUID branch_id,
             @RequestParam(name = "plan_type", required = false) PlanType plan_type) {
         MembershipPlanListResponse data = membershipPlanService.getAllPlans(branch_id, plan_type);
+        return ApiResponse.ok(data);
+    }
+
+    @GetMapping("/{id}")
+    public ApiResponse<MembershipPlanResponse> getPlanById(@PathVariable UUID id) {
+        MembershipPlanResponse data = membershipPlanService.getPlanById(id);
         return ApiResponse.ok(data);
     }
 }

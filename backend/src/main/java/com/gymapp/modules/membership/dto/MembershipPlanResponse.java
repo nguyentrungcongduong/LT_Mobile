@@ -20,14 +20,30 @@ public class MembershipPlanResponse {
     private String name;
     private String description;
     private BigDecimal price;
+
+    @JsonProperty("duration_days")
     private Integer durationDays;
+
+    @JsonProperty("plan_type")
     private PlanType planType;
+
+    @JsonProperty("branch_id")
     private UUID branchId;
+
+    @JsonProperty("branch_name")
     private String branchName;
+
+    @JsonProperty("branch_latitude")
     private BigDecimal branchLatitude;
+
+    @JsonProperty("branch_longitude")
     private BigDecimal branchLongitude;
 
-    @JsonProperty("isActive")
+    @JsonProperty("is_active")
     private boolean isActive;
+
+    @JsonProperty("available_branches")
+    private java.util.List<com.gymapp.modules.branch.dto.BranchResponse> availableBranches;
+
     private OffsetDateTime createdAt;
 }
