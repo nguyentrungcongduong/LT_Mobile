@@ -5,6 +5,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import LoginPage from '@/pages/LoginPage';
 import DashboardPage from '@/pages/DashboardPage';
 import ForbiddenPage from '@/pages/ForbiddenPage';
+import PaymentsPage from '@/pages/payment/PaymentsPage';
 
 const router = createBrowserRouter([
   // ─── Public ─────────────────────────────────────────────────────────
@@ -35,7 +36,7 @@ const router = createBrowserRouter([
           // ── Feature routes (thêm dần ở WEB-08+) ────────────────────
           // { path: '/admin/users',    element: <UsersPage /> },
           // { path: '/admin/bookings', element: <BookingsPage /> },
-          // { path: '/admin/payments', element: <PaymentsPage /> },
+          { path: '/admin/payments', element: <PaymentsPage /> },
           // { path: '/admin/analytics',element: <AnalyticsPage /> },
         ],
       },
