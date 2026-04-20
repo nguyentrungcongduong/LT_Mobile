@@ -8,6 +8,14 @@ data class MembershipPlansResponseDto(
     val plans: List<MembershipPlanDto>
 )
 
+data class BranchResponseDto(
+    val id: String,
+    val name: String,
+    val latitude: Double,
+    val longitude: Double,
+    @SerializedName("is_active") val isActive: Boolean
+)
+
 data class MembershipPlanDto(
     val id: String,                                   // UUID
     val name: String,
@@ -19,7 +27,8 @@ data class MembershipPlanDto(
     @SerializedName("branch_name") val branchName: String?,
     val branchLatitude: Double?,
     val branchLongitude: Double?,
-    @SerializedName("is_active") val isActive: Boolean
+    @SerializedName("is_active") val isActive: Boolean,
+    @SerializedName("available_branches") val availableBranches: List<BranchResponseDto>? = null
 ) {
     fun toDomainModel(): MembershipPlan {
         return MembershipPlan(
@@ -33,7 +42,15 @@ data class MembershipPlanDto(
             branchName = branchName,
             branchLatitude = branchLatitude,
             branchLongitude = branchLongitude,
-            isActive = isActive
+            isActive = isActive,
+            availableBranches = availableBranches?.map { 
+                com.gymapp.android.domain.model.membership.BranchLocation(
+                    id = it.id,
+                    name = it.name,
+                    latitude = it.latitude,
+                    longitude = it.longitude
+                )
+            } ?: emptyList()
         )
     }
 }

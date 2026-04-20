@@ -9,6 +9,7 @@ export const ROUTES = {
   USERS: '/admin/users',
   BOOKINGS: '/admin/bookings',
   PAYMENTS: '/admin/payments',
+  BRANCHES_MEMBERSHIPS: '/admin/branches-memberships',
   ANALYTICS: '/admin/analytics',
 } as const;
 
@@ -18,5 +19,6 @@ export const ROUTE_LABELS: Record<string, string> = {
   '/admin/users': 'Người dùng',
   '/admin/bookings': 'Đặt lịch',
   '/admin/payments': 'Thanh toán',
+  '/admin/branches-memberships': 'Membership & Chi nhánh',
   '/admin/analytics': 'Thống kê',
 };

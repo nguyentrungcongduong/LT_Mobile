@@ -5,6 +5,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import LoginPage from '@/pages/LoginPage';
 import DashboardPage from '@/pages/DashboardPage';
 import ForbiddenPage from '@/pages/ForbiddenPage';
+import BranchesMembershipsPage from '@/pages/branchs-memberships/BranchesMembershipsPage';
 
 const router = createBrowserRouter([
   // ─── Public ─────────────────────────────────────────────────────────
@@ -36,6 +37,7 @@ const router = createBrowserRouter([
           // { path: '/admin/users',    element: <UsersPage /> },
           // { path: '/admin/bookings', element: <BookingsPage /> },
           // { path: '/admin/payments', element: <PaymentsPage /> },
+          { path: '/admin/branches-memberships', element: <BranchesMembershipsPage /> },
           // { path: '/admin/analytics',element: <AnalyticsPage /> },
         ],
       },
