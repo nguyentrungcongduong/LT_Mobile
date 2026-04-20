@@ -10,6 +10,7 @@ import PtManagementPage from '@/pages/PtManagementPage';
 import BookingPage from '@/pages/BookingPage';
 import CheckinPage from '@/pages/CheckinPage';
 import BannerPage from "@/pages/BannerPage";
+
 const router = createBrowserRouter([
   // ─── Public ─────────────────────────────────────────────────────────
   {
@@ -36,6 +37,7 @@ const router = createBrowserRouter([
             path: '/admin/dashboard',
             element: <DashboardPage />,
           },
+
           {
             path: '/admin/users',
             element: <UserPage />,
@@ -57,6 +59,10 @@ const router = createBrowserRouter([
   element: <BannerPage />
 },
           // ── Feature routes (thêm dần ở WEB-08+) ────────────────────
+
+          // ── Feature routes (thêm dần ở WEB-08+) ────────────────────
+          // { path: '/admin/users',    element: <UsersPage /> },
+
           // { path: '/admin/bookings', element: <BookingsPage /> },
           // { path: '/admin/payments', element: <PaymentsPage /> },
           // { path: '/admin/analytics',element: <AnalyticsPage /> },

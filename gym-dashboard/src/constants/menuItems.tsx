@@ -8,8 +8,10 @@ import {
   BarChartOutlined,
 } from '@ant-design/icons';
 import { ROUTES } from '@/constants/routes';
+
 import { QrcodeOutlined } from '@ant-design/icons';
 import { PictureOutlined } from '@ant-design/icons';
+
 
 
 export interface MenuItem {
@@ -35,6 +37,7 @@ export const MENU_ITEMS: MenuItem[] = [
     label: 'PT',
   },
   {
+
     key: ROUTES.BOOKINGS,
     icon: <CalendarOutlined />,
     label: 'Đặt lịch',
@@ -50,6 +53,7 @@ export const MENU_ITEMS: MenuItem[] = [
   label: 'BannerPage',
 },
   {
+
     key: ROUTES.PAYMENTS,
     icon: <CreditCardOutlined />,
     label: 'Thanh toán',
