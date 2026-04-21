@@ -1,5 +1,10 @@
 package com.gymapp.modules.payment.service;
 
+import com.gymapp.modules.booking.entity.Booking;
+import com.gymapp.modules.booking.entity.PtAvailability;
+import com.gymapp.modules.booking.enums.BookingStatus;
+import com.gymapp.modules.booking.repository.BookingRepository;
+import com.gymapp.modules.booking.repository.PtAvailabilityRepository;
 import com.gymapp.modules.booking.event.BookingCancelledEvent;
 import com.gymapp.modules.payment.entity.Refund;
 import com.gymapp.modules.payment.enums.PaymentProvider;
@@ -32,6 +37,8 @@ public class RefundProcessor {
 
     private final RefundRepository refundRepository;
     private final PaymentRepository paymentRepository;
+    private final BookingRepository bookingRepository;
+    private final PtAvailabilityRepository availabilityRepository;
     private final VNPayService vnpayService;
     private final MoMoService momoService;
 
@@ -111,6 +118,24 @@ public class RefundProcessor {
         refund.setLastRetryAt(OffsetDateTime.now());
         if (refund.getRetryCount() >= 5) {
             refund.setStatus(RefundStatus.FAILED);
+            // Revert booking and availability if refund fails permanently
+            if (refund.getBookingId() != null) {
+                bookingRepository.findById(refund.getBookingId()).ifPresent(booking -> {
+                    log.info("Reverting booking {} status to CONFIRMED due to refund failure", booking.getId());
+                    booking.setStatus(BookingStatus.CONFIRMED);
+                    booking.setCancelBy(null);
+                    booking.setCancelReason(null);
+                    booking.setCancelledAt(null);
+                    bookingRepository.save(booking);
+
+                    PtAvailability availability = booking.getAvailability();
+                    if (availability != null) {
+                        availability.setBooked(true);
+                        availabilityRepository.save(availability);
+                        log.info("Re-booked availability slot {} for booking {}", availability.getId(), booking.getId());
+                    }
+                });
+            }
         } else {
             refund.setStatus(RefundStatus.PENDING);
         }

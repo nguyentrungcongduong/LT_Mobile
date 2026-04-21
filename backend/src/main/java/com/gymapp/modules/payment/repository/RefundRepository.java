@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface RefundRepository extends JpaRepository<Refund, UUID> {
+public interface RefundRepository extends JpaRepository<Refund, UUID>, org.springframework.data.jpa.repository.JpaSpecificationExecutor<Refund> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @EntityGraph(attributePaths = { "payment" })
     List<Refund> findAllByStatus(RefundStatus status);
