@@ -14,11 +14,10 @@ import java.util.UUID;
 @Repository
 public interface MembershipPlanRepository extends JpaRepository<MembershipPlan, UUID> {
 
-    @Query("SELECT p FROM MembershipPlan p " +
-            "WHERE (cast(:branchId as text) IS NULL OR p.branch.id = :branchId) " +
-            "AND (cast(:planType as text) IS NULL OR p.planType = :planType) " +
-            "AND p.isActive = true")
-    List<MembershipPlan> findAllWithFilters(
-            @Param("branchId") UUID branchId,
-            @Param("planType") PlanType planType);
+        @Query("SELECT p FROM MembershipPlan p " +
+                        "WHERE (cast(:branchId as text) IS NULL OR p.branch.id = :branchId) " +
+                        "AND (cast(:planType as text) IS NULL OR p.planType = :planType)")
+        List<MembershipPlan> findAllWithFilters(
+                        @Param("branchId") UUID branchId,
+                        @Param("planType") PlanType planType);
 }

@@ -1,11 +1,39 @@
+
+# IDE
+
 .idea/
 .vscode/
 *.iml
 .DS_Store
 
-# Firebase sensitive files (không commit lên GitHub)
+
+# Firebase (không commit)
+android/app/google-services.json
+
+# Android build
+android/app/build/
+android/build/
+.gradle/
+
+# General build
+build/
+
+# Logs
+*.log
+
+android/.gradle/
+.gradle/
+
+=======
+
 /android/app/google-services.json
 
+<<<<<<< HEAD
 android/.gradle/
 /android/app/build/
 .gradle/
+=======
+/android/app/build
+/android/.gradlea n d r o i d / a p p / b u i l d /  
+
+>>>>>>> 250dd404d88bbc73aeb41a97257a05b0a03b6d77

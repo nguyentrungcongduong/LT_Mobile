@@ -4,7 +4,10 @@ import com.gymapp.common.exception.BadRequestException;
 import com.gymapp.common.exception.ConflictException;
 import com.gymapp.modules.booking.dto.PtAvailabilityRequest;
 import com.gymapp.modules.booking.dto.PtAvailabilityResponse;
+<<<<<<< HEAD
+=======
 import com.gymapp.modules.booking.entity.Booking;
+>>>>>>> 1f03042ff267dc81be6f3567bd59d12c8e670c4a
 import com.gymapp.modules.booking.entity.PtAvailability;
 import com.gymapp.modules.booking.enums.BookingStatus;
 import com.gymapp.modules.booking.repository.BookingRepository;
@@ -33,10 +36,18 @@ public class AvailabilityServiceImpl implements AvailabilityService {
     public List<PtAvailabilityResponse> getPtAvailability(UUID ptIdOrUserId, LocalDate from, LocalDate to) {
         UUID userId = ptIdOrUserId;
 
+<<<<<<< HEAD
+        // The frontend might pass either PtProfile ID (from user flow) or User ID (from
+        // PT flow)
+        // Since UUIDs are globally unique, we can check if it's a profile ID first
+        java.util.Optional<com.gymapp.modules.user.entity.PtProfile> profileOpt = ptProfileRepository
+                .findById(ptIdOrUserId);
+=======
         // The frontend might pass either PtProfile ID (from user flow) or User ID (from PT flow)
         // Since UUIDs are globally unique, we can check if it's a profile ID first
         java.util.Optional<com.gymapp.modules.user.entity.PtProfile> profileOpt =
                 ptProfileRepository.findById(ptIdOrUserId);
+>>>>>>> 1f03042ff267dc81be6f3567bd59d12c8e670c4a
 
         if (profileOpt.isPresent()) {
             userId = profileOpt.get().getUser().getId();
@@ -78,8 +89,12 @@ public class AvailabilityServiceImpl implements AvailabilityService {
                 ptId,
                 request.getAvailableDate(),
                 request.getStartTime(),
+<<<<<<< HEAD
+                request.getEndTime());
+=======
                 request.getEndTime()
         );
+>>>>>>> 1f03042ff267dc81be6f3567bd59d12c8e670c4a
 
         if (isOverlapping) {
             throw new ConflictException("SLOT_ALREADY_EXISTS", "This time slot overlaps with an existing one");
@@ -111,6 +126,15 @@ public class AvailabilityServiceImpl implements AvailabilityService {
         if (a.isBooked()) {
             bookingRepository.findFirstByAvailabilityIdAndStatusIn(
                     a.getId(),
+<<<<<<< HEAD
+                    List.of(BookingStatus.PENDING, BookingStatus.CONFIRMED)).ifPresent(booking -> {
+                        if (booking.getUser() != null) {
+                            builder.bookedByName(booking.getUser().getFullName());
+                            builder.bookedByAvatar(booking.getUser().getAvatarUrl());
+                            builder.bookingId(booking.getId());
+                        }
+                    });
+=======
                     List.of(BookingStatus.PENDING, BookingStatus.CONFIRMED)
             ).ifPresent(booking -> {
                 if (booking.getUser() != null) {
@@ -119,9 +143,13 @@ public class AvailabilityServiceImpl implements AvailabilityService {
                     builder.bookingId(booking.getId());
                 }
             });
+>>>>>>> 1f03042ff267dc81be6f3567bd59d12c8e670c4a
         }
 
         return builder.build();
     }
 }
+<<<<<<< HEAD
+=======
 
+>>>>>>> 1f03042ff267dc81be6f3567bd59d12c8e670c4a
