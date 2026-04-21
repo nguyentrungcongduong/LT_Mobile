@@ -13,6 +13,7 @@ import { ROUTES } from '@/constants/routes';
 
 import { QrcodeOutlined } from '@ant-design/icons';
 import { PictureOutlined } from '@ant-design/icons';
+import { NotificationOutlined } from '@ant-design/icons';
 
 
 
@@ -49,12 +50,17 @@ export const MENU_ITEMS: MenuItem[] = [
   key: ROUTES.CHECKIN,
   icon: <QrcodeOutlined />,
   label: 'Check-in',
-},
-{
-  key: ROUTES.BANNERS,
-  icon: <PictureOutlined />,
-  label: 'BannerPage',
-},
+  },
+  {
+    key: ROUTES.BANNERS,
+    icon: <PictureOutlined />,
+    label: 'BannerPage',
+  },
+  {
+    key: ROUTES.NOTIFICATION_BROADCAST,
+    icon: <NotificationOutlined />,
+    label: 'Broadcast Notification',
+  },
   {
 
 

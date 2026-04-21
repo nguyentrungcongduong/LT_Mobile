@@ -14,6 +14,7 @@ import BannerPage from "@/pages/BannerPage";
 
 
 import BranchesMembershipsPage from '@/pages/branchs-memberships/BranchesMembershipsPage';
+import NotificationBroadcastPage from '@/pages/NotificationBroadcastPage';
 
 
 const router = createBrowserRouter([
@@ -56,13 +57,17 @@ const router = createBrowserRouter([
             element: <BookingPage />,
           },
           {
-  path: '/admin/checkin',
-  element: <CheckinPage />,
-},
-{
-  path: '/admin/banners',
-  element: <BannerPage />
-},
+            path: '/admin/checkin',
+            element: <CheckinPage />,
+          },
+          {
+            path: '/admin/banners',
+            element: <BannerPage />
+          },
+          {
+            path: '/admin/notifications/broadcast',
+            element: <NotificationBroadcastPage />
+          },
           // ── Feature routes (thêm dần ở WEB-08+) ────────────────────
 
           // ── Feature routes (thêm dần ở WEB-08+) ────────────────────
