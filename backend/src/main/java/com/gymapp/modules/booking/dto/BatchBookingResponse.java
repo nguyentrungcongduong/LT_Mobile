@@ -3,6 +3,8 @@ package com.gymapp.modules.booking.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -10,6 +12,8 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
+@Getter
+@Setter
 @Builder
 public class BatchBookingResponse {
 

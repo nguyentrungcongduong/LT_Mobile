@@ -5,6 +5,11 @@ import com.gymapp.modules.notification.entity.Notification;
 import com.gymapp.modules.notification.repository.NotificationRepository;
 import com.gymapp.modules.user.entity.User;
 import com.gymapp.modules.user.repository.UserRepository;
+import com.gymapp.modules.notification.dto.BroadcastNotificationRequest;
+import com.gymapp.modules.notification.service.NotificationBroadcastService;    
+
+import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

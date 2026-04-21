@@ -60,13 +60,11 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
 
     List<Booking> findAllByUserIdAndPtIdOrderByScheduledAtDesc(UUID userId, UUID ptId);
 
-    @Query("""
-            SELECT b FROM Booking b
-            LEFT JOIN FETCH b.pt
-            LEFT JOIN FETCH b.user
-            """)
-
-    List<Booking> findAllWithRelations();
+        @Query("""
+                        SELECT b FROM Booking b
+                        LEFT JOIN FETCH b.pt
+                        LEFT JOIN FETCH b.user
+                        """)
 
     Optional<Booking> findFirstByAvailabilityIdAndStatusIn(UUID availabilityId, List<BookingStatus> statuses);
 
