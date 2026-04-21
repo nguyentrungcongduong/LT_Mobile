@@ -7,6 +7,9 @@ import com.gymapp.modules.user.dto.response.CheckinLogResponse;
 import com.gymapp.modules.user.dto.response.QrTokenResponse;
 import com.gymapp.modules.user.entity.CheckinLog;
 import com.gymapp.modules.user.repository.CheckinLogRepository;
+import com.gymapp.modules.branch.entity.Branch;
+import com.gymapp.modules.branch.repository.BranchRepository;
+
 import com.gymapp.modules.membership.enums.MembershipStatus;
 import com.gymapp.modules.membership.repository.MembershipRepository;
 import com.gymapp.modules.user.entity.User;
@@ -24,8 +27,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.List;
+
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -41,6 +47,8 @@ public class CheckinQrService {
     private final UserRepository userRepository;
     private final MembershipRepository membershipRepository;
     private final CheckinLogRepository checkinLogRepository;
+
+    private final BranchRepository branchRepository;
 
     // ─────────────────────────────────────────────────────────────────────────
     // [1] GET /api/v1/checkin/qr — Generate QR token (60s TTL, stored in Redis)
@@ -79,8 +87,8 @@ public class CheckinQrService {
                 QR_REDIS_PREFIX + jti,
                 user.getId().toString(),
                 ttl,
-                TimeUnit.SECONDS
-        );
+
+                TimeUnit.SECONDS);
 
         log.info("[QR_GEN] user={} jti={} ttl={}s", email, jti, ttl);
 
@@ -91,9 +99,12 @@ public class CheckinQrService {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // [2] POST /api/v1/checkin/verify — Verify QR token (JWT + Redis + membership + branch)
-    //     [3] Xóa token Redis sau verify (one-time use)
-    //     [4] Tạo CheckinLog record
+
+    // [2] POST /api/v1/checkin/verify — Verify QR token (JWT + Redis + membership +
+    // branch)
+    // [3] Xóa token Redis sau verify (one-time use)
+    // [4] Tạo CheckinLog record
+
     // ─────────────────────────────────────────────────────────────────────────
 
     @Transactional
@@ -171,11 +182,19 @@ public class CheckinQrService {
 
         // --- Step 9: Lưu CheckinLog ---
         OffsetDateTime now = OffsetDateTime.now();
+        Branch branch = null;
+
+        if (branchId != null) {
+            branch = branchRepository.findById(branchId)
+                    .orElseThrow(() -> new BadRequestException("BRANCH_NOT_FOUND", "Chi nhánh không tồn tại"));
+        }
         CheckinLog checkinLog = CheckinLog.builder()
                 .user(user)
-                .branchId(branchId)
+                .branch(branch)
                 .checkinDate(LocalDate.now())
                 .checkinTime(now)
+                .createdAt(now)
+
                 .qrTokenJti(jti)
                 .build();
 
@@ -188,6 +207,7 @@ public class CheckinQrService {
     // ─────────────────────────────────────────────────────────────────────────
     // [5] GET /api/v1/admin/checkin/logs — Admin xem lịch sử check-in
     // ─────────────────────────────────────────────────────────────────────────
+    @Transactional(readOnly = true)
 
     public Page<CheckinLogResponse> getAdminCheckinLogs(
             LocalDate date,
@@ -213,16 +233,59 @@ public class CheckinQrService {
     // ─── Helper ─────────────────────────────────────────────────────────────
 
     private CheckinLogResponse toResponse(CheckinLog log) {
+
+        var user = log.getUser();
+        var branch = log.getBranch();
+
         return CheckinLogResponse.builder()
                 .id(log.getId())
-                .userId(log.getUser().getId())
-                .userEmail(log.getUser().getEmail())
-                .userFullName(log.getUser().getFullName())
-                .branchId(log.getBranchId())
+                .userId(user != null ? user.getId() : null)
+                .userEmail(user != null ? user.getEmail() : null)
+                .userFullName(user != null ? user.getFullName() : null)
+                .branchId(branch != null ? branch.getId() : null)
+                .branchName(branch != null ? branch.getName() : null)
+
                 .checkinDate(log.getCheckinDate())
                 .checkinTime(log.getCheckinTime())
                 .qrTokenJti(log.getQrTokenJti())
                 .createdAt(log.getCreatedAt())
                 .build();
     }
+
+    // export ra file CSV để admin dễ xem trên Excel
+    public byte[] exportCheckinCsv(
+            LocalDate date,
+            UUID branchId,
+            UUID userId) {
+        List<CheckinLog> logs;
+
+        if (date != null) {
+            logs = checkinLogRepository.findByCheckinDate(date, Pageable.unpaged()).getContent();
+        } else if (branchId != null) {
+            logs = checkinLogRepository.findByBranchId(branchId, Pageable.unpaged()).getContent();
+        } else if (userId != null) {
+            logs = checkinLogRepository.findByUserId(userId, Pageable.unpaged()).getContent();
+        } else {
+            logs = checkinLogRepository.findAllForExport();
+        }
+
+        StringBuilder sb = new StringBuilder();
+
+        // header
+        sb.append("User Name,Email,Branch,Date,Time\n");
+
+        for (CheckinLog log : logs) {
+            var user = log.getUser();
+            var branch = log.getBranch();
+
+            sb.append(user.getFullName()).append(",");
+            sb.append(user.getEmail()).append(",");
+            sb.append(branch != null ? branch.getName() : "").append(",");
+            sb.append(log.getCheckinDate()).append(",");
+            sb.append(log.getCheckinTime()).append("\n");
+        }
+
+        return sb.toString().getBytes(StandardCharsets.UTF_8);
+    }
+
 }

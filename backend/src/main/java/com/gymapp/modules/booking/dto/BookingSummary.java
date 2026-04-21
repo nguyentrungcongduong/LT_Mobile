@@ -7,30 +7,36 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.util.UUID;
 
 @Data
 @Builder
 public class BookingSummary {
-    private UUID id;
 
-    @JsonProperty("pt_name")
+    private String id;
+
+    @JsonProperty("user_id")
+    private String userId;
+
+    @JsonProperty("pt_id")
+    private String ptId;
+
     private String ptName;
 
-    @JsonProperty("pt_avatar")
-    private String ptAvatar;
+    private String ptAvatarUrl;
 
-    @JsonProperty("user_name")
     private String userName;
 
-    @JsonProperty("user_avatar")
-    private String userAvatar;
+    @JsonProperty("user_avatar_url")
+    private String userAvatarUrl;
 
     @JsonProperty("scheduled_at")
     private OffsetDateTime scheduledAt;
 
     @JsonProperty("end_at")
     private OffsetDateTime endAt;
+
+    @JsonProperty("duration_minutes")
+    private Integer durationMinutes;
 
     @JsonProperty("total_amount")
     private BigDecimal totalAmount;
@@ -40,4 +46,8 @@ public class BookingSummary {
 
     @JsonProperty("status")
     private BookingStatus status;
+
+    @JsonProperty("created_at")
+    private OffsetDateTime createdAt;
+
 }

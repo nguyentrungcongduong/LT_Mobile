@@ -8,16 +8,26 @@ export const ROUTES = {
   DASHBOARD: '/admin/dashboard',
   USERS: '/admin/users',
   BOOKINGS: '/admin/bookings',
+  CHECKIN: '/admin/checkin',
+  BANNERS: '/admin/banners',
   PAYMENTS: '/admin/payments',
   BRANCHES_MEMBERSHIPS: '/admin/branches-memberships',
   ANALYTICS: '/admin/analytics',
+  PTS: '/admin/pts',
+
+
 } as const;
 
 // Breadcrumb labels mapping
 export const ROUTE_LABELS: Record<string, string> = {
   '/admin/dashboard': 'Dashboard',
   '/admin/users': 'Người dùng',
+  '/admin/pts': 'PT',
   '/admin/bookings': 'Đặt lịch',
+  '/admin/checkin': 'Check-in',
+  '/admin/banners': 'Banner',
+
+
   '/admin/payments': 'Thanh toán',
   '/admin/branches-memberships': 'Membership & Chi nhánh',
   '/admin/analytics': 'Thống kê',

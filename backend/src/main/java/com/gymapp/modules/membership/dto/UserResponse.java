@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.gymapp.modules.membership.enums.ExperienceLevel;
 import com.gymapp.modules.membership.enums.FitnessGoal;
 import com.gymapp.modules.user.entity.User;
@@ -27,6 +29,9 @@ public class UserResponse {
     private String fullName;
     private String phone;
     private UserRole role;
+
+    @JsonProperty("isActive")
+
     private boolean isActive;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;

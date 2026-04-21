@@ -11,7 +11,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -19,9 +18,11 @@ import java.util.stream.Collectors;
 /**
  * REST API quản lý notification inbox của user.
  *
- * GET  /api/v1/notifications               — lấy danh sách
- * PUT  /api/v1/notifications/read-all      — đánh dấu tất cả đã đọc
- * PUT  /api/v1/notifications/{id}/read     — đánh dấu 1 đã đọc
+ * 
+ * GET /api/v1/notifications — lấy danh sách
+ * PUT /api/v1/notifications/read-all — đánh dấu tất cả đã đọc
+ * PUT /api/v1/notifications/{id}/read — đánh dấu 1 đã đọc
+ * 
  */
 @RestController
 @RequestMapping("/api/v1/notifications")
@@ -80,13 +81,15 @@ public class NotificationController {
 
     // ── inner DTO ─────────────────────────────────────────────────────────────
     record NotificationDto(
-        String id,
-        String title,
-        String body,
-        String type,
-        String refId,
-        Boolean isRead,
-        String sentAt,
-        String createdAt
-    ) {}
+
+            String id,
+            String title,
+            String body,
+            String type,
+            String refId,
+            Boolean isRead,
+            String sentAt,
+            String createdAt) {
+    }
+
 }
