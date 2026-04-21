@@ -75,13 +75,8 @@ const router = createBrowserRouter([
           // { path: '/admin/users',    element: <UsersPage /> },
 
 
-          // { path: '/admin/bookings', element: <BookingsPage /> },
-<<<<<<< HEAD
           { path: '/admin/payments', element: <PaymentsPage /> },
-=======
-          // { path: '/admin/payments', element: <PaymentsPage /> },
           { path: '/admin/branches-memberships', element: <BranchesMembershipsPage /> },
->>>>>>> 250dd404d88bbc73aeb41a97257a05b0a03b6d77
           // { path: '/admin/analytics',element: <AnalyticsPage /> },
         ],
       },
