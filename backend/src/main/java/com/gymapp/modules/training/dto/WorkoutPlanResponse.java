@@ -4,12 +4,16 @@ import com.gymapp.modules.training.enums.WpType;
 import com.gymapp.modules.training.enums.TargetLevel;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
 @Data
+@Getter
+@Setter
 @Builder
 public class WorkoutPlanResponse {
     private UUID id;

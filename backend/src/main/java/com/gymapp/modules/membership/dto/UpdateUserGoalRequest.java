@@ -4,8 +4,14 @@ import com.gymapp.modules.membership.enums.ExperienceLevel;
 import com.gymapp.modules.membership.enums.FitnessGoal;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.Builder;
 
 @Data
+@Getter
+@Setter
+@Builder
 public class UpdateUserGoalRequest {
     private ExperienceLevel experienceLevel;
     private FitnessGoal fitnessGoal;

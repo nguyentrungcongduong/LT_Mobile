@@ -5,11 +5,17 @@ import com.gymapp.modules.payment.enums.PaymentProvider;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.Builder;
 
 import java.util.List;
 import java.util.UUID;
 
 @Data
+@Getter
+@Setter
+@Builder
 public class BatchBookingRequest {
 
     @NotNull

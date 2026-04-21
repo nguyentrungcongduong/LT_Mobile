@@ -4,10 +4,16 @@ import com.gymapp.modules.payment.enums.PaymentProvider;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.Builder;
 
 import java.util.UUID;
 
 @Data
+@Getter
+@Setter
+@Builder
 public class BookingRequest {
     @NotNull
     @JsonProperty("pt_id")
