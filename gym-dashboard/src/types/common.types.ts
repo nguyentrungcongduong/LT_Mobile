@@ -13,11 +13,13 @@ export interface ApiErrorResponse {
 
 // Pagination
 export interface PaginatedResponse<T> {
-  content: T[];
-  page: number;
-  size: number;
-  total_elements: number;
-  total_pages: number;
+  items: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 // Pagination params

@@ -3,6 +3,7 @@ package com.gymapp.modules.payment.service.impl;
 import com.gymapp.common.exception.BadRequestException;
 import com.gymapp.common.exception.ConflictException;
 import com.gymapp.common.exception.ResourceNotFoundException;
+import com.gymapp.common.response.PageResponse;
 import com.gymapp.modules.booking.entity.Booking;
 import com.gymapp.modules.booking.enums.BookingStatus;
 import com.gymapp.modules.booking.event.BookingConfirmedEvent;
@@ -30,7 +31,13 @@ import com.gymapp.modules.payment.gateway.PaymentGateway;
 import com.gymapp.modules.payment.gateway.momo.MoMoService;
 import com.gymapp.modules.payment.gateway.vnpay.VNPayService;
 import com.gymapp.modules.payment.repository.PaymentRepository;
+import com.gymapp.modules.payment.repository.RefundRepository;
 import com.gymapp.modules.payment.service.PaymentService;
+import com.gymapp.modules.payment.dto.response.PaymentAdminResponse;
+import com.gymapp.modules.payment.dto.response.RefundAdminResponse;
+import com.gymapp.modules.payment.entity.Refund;
+import com.gymapp.modules.user.repository.UserRepository;
+import com.gymapp.modules.user.entity.User;
 
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
@@ -44,9 +51,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -59,6 +65,8 @@ public class PaymentServiceImpl implements PaymentService {
     private final PtAvailabilityRepository ptAvailabilityRepository;
     private final VNPayService vnpayService;
     private final MoMoService momoService;
+    private final RefundRepository refundRepository;
+    private final UserRepository userRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
@@ -399,6 +407,139 @@ public class PaymentServiceImpl implements PaymentService {
                 .stream()
                 .map(PaymentMapper::toResponse)
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<PaymentAdminResponse> getAdminPaymentHistory(
+            OffsetDateTime startDate,
+            OffsetDateTime endDate,
+            PaymentStatus status,
+            String userName,
+            Pageable pageable) {
+
+        final java.util.List<UUID> filteredUserIds;
+        if (userName != null && !userName.isBlank()) {
+            filteredUserIds = userRepository.findByFullNameContainingIgnoreCaseOrEmailContainingIgnoreCase(userName, userName)
+                    .stream().map(User::getId).toList();
+            if (filteredUserIds.isEmpty()) {
+                return PageResponse.<PaymentAdminResponse>builder()
+                        .items(Collections.emptyList())
+                        .pagination(PageResponse.PaginationMeta.builder()
+                                .page(pageable.getPageNumber() + 1)
+                                .limit(pageable.getPageSize())
+                                .total(0)
+                                .totalPages(0)
+                                .build())
+                        .build();
+            }
+        } else {
+            filteredUserIds = null;
+        }
+
+        Specification<Payment> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (startDate != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), startDate));
+            }
+            if (endDate != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), endDate));
+            }
+            if (status != null) {
+                predicates.add(cb.equal(root.get("status"), status));
+            }
+            if (filteredUserIds != null) {
+                predicates.add(root.get("userId").in(filteredUserIds));
+            }
+            
+            if (query != null) {
+                query.orderBy(cb.desc(root.get("createdAt")));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        Page<Payment> paymentPage = paymentRepository.findAll(spec, pageable);
+        
+        Set<UUID> userIds = paymentPage.getContent().stream()
+                .map(Payment::getUserId)
+                .collect(Collectors.toSet());
+        
+        Map<UUID, User> userMap = userRepository.findAllById(userIds).stream()
+                .collect(Collectors.toMap(User::getId, u -> u, (existing, replacement) -> existing));
+
+        List<PaymentAdminResponse> items = paymentPage.getContent().stream()
+                .map(payment -> mapToAdminResponse(payment, userMap.get(payment.getUserId())))
+                .toList();
+
+        return PageResponse.<PaymentAdminResponse>builder()
+                .items(items)
+                .pagination(PageResponse.PaginationMeta.builder()
+                        .page(paymentPage.getNumber() + 1)
+                        .limit(paymentPage.getSize())
+                        .total(paymentPage.getTotalElements())
+                        .totalPages(paymentPage.getTotalPages())
+                        .build())
+                .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<RefundAdminResponse> getAdminRefundHistory(Pageable pageable) {
+        Page<Refund> refundPage = refundRepository.findAll(pageable);
+        
+        Set<UUID> userIds = refundPage.getContent().stream()
+                .filter(r -> r.getPayment() != null)
+                .map(r -> r.getPayment().getUserId())
+                .collect(Collectors.toSet());
+        
+        Map<UUID, User> userMap = userRepository.findAllById(userIds).stream()
+                .collect(Collectors.toMap(User::getId, u -> u, (existing, replacement) -> existing));
+
+        List<RefundAdminResponse> items = refundPage.getContent().stream()
+                .map(refund -> mapToRefundAdminResponse(refund, userMap.get(refund.getPayment().getUserId())))
+                .toList();
+
+        return PageResponse.<RefundAdminResponse>builder()
+                .items(items)
+                .pagination(PageResponse.PaginationMeta.builder()
+                        .page(refundPage.getNumber() + 1)
+                        .limit(refundPage.getSize())
+                        .total(refundPage.getTotalElements())
+                        .totalPages(refundPage.getTotalPages())
+                        .build())
+                .build();
+    }
+
+    private PaymentAdminResponse mapToAdminResponse(Payment payment, User user) {
+        return PaymentAdminResponse.builder()
+                .paymentId(payment.getId())
+                .userId(payment.getUserId())
+                .userFullName(user != null ? user.getFullName() : "N/A")
+                .userEmail(user != null ? user.getEmail() : "N/A")
+                .amount(payment.getAmount())
+                .paymentType(payment.getPaymentType())
+                .status(payment.getStatus())
+                .provider(payment.getProvider())
+                .transactionId(payment.getTransactionId())
+                .paidAt(payment.getPaidAt())
+                .createdAt(payment.getCreatedAt())
+                .build();
+    }
+
+    private RefundAdminResponse mapToRefundAdminResponse(Refund refund, User user) {
+        Payment payment = refund.getPayment();
+        return RefundAdminResponse.builder()
+                .refundId(refund.getId())
+                .paymentId(payment != null ? payment.getId() : null)
+                .userFullName(user != null ? user.getFullName() : "N/A")
+                .amount(refund.getAmount())
+                .reason(refund.getReason())
+                .status(refund.getStatus())
+                .processedAt(refund.getProcessedAt())
+                .createdAt(refund.getCreatedAt())
+                .build();
     }
 
 }

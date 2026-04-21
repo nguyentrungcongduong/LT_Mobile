@@ -5,6 +5,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import LoginPage from '@/pages/LoginPage';
 import DashboardPage from '@/pages/DashboardPage';
 import ForbiddenPage from '@/pages/ForbiddenPage';
+import PaymentsPage from '@/pages/payment/PaymentsPage';
 
 import UserPage from '@/pages/UserPage';
 import PtManagementPage from '@/pages/PtManagementPage';
@@ -70,8 +71,12 @@ const router = createBrowserRouter([
 
 
           // { path: '/admin/bookings', element: <BookingsPage /> },
+<<<<<<< HEAD
+          { path: '/admin/payments', element: <PaymentsPage /> },
+=======
           // { path: '/admin/payments', element: <PaymentsPage /> },
           { path: '/admin/branches-memberships', element: <BranchesMembershipsPage /> },
+>>>>>>> 250dd404d88bbc73aeb41a97257a05b0a03b6d77
           // { path: '/admin/analytics',element: <AnalyticsPage /> },
         ],
       },
