@@ -16,4 +16,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     List<User> findByIsActiveTrue();
     List<User> findByRole(UserRole role);
     List<User> findByIdIn(List<UUID> ids);
+    long countByIsActiveTrue();
+    List<User> findByFullNameContainingIgnoreCaseOrEmailContainingIgnoreCase(String fullName, String email);
 }

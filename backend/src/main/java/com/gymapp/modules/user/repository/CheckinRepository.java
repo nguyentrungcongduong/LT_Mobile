@@ -16,4 +16,6 @@ public interface CheckinRepository extends JpaRepository<Checkin, UUID> {
             @Param("userId") UUID userId,
             @Param("date") LocalDate date
     );
+
+    long countByCheckinDate(LocalDate checkinDate);
 }
