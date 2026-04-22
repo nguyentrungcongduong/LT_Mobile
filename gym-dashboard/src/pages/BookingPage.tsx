@@ -3,23 +3,19 @@ import {
   Card,
   Table,
   Button,
-  Space,
   Input,
   Select,
   DatePicker,
   Empty,
   Spin,
   Tag,
-  Avatar,
+  Tooltip,
+  message,
+  Modal,
   Row,
   Col,
-  Tooltip,
 } from 'antd';
-import {
-  SearchOutlined,
-  FilterOutlined,
-  ClearOutlined,
-} from '@ant-design/icons';
+import { SearchOutlined, ClearOutlined, StopOutlined } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
 import axios from '@/lib/axios';
 import type { BookingSummary, BookingStatus } from '@/types/booking.types';
@@ -43,116 +39,95 @@ const BOOKING_STATUS_LABELS: Record<string, string> = {
 export default function BookingPage() {
   const [bookings, setBookings] = useState<BookingSummary[]>([]);
   const [loading, setLoading] = useState(false);
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 10,
-    total: 0,
-  });
-
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
   const [searchText, setSearchText] = useState('');
   const [statusFilter, setStatusFilter] = useState<BookingStatus | undefined>();
   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null);
   const [ptNameFilter, setPtNameFilter] = useState('');
 
-  useEffect(() => {
-    fetchBookings(1);
-  }, []);
+  // Cancel modal
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState('Admin hủy lịch');
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [cancelLoading, setCancelLoading] = useState(false);
 
-  useEffect(() => {
-    fetchBookings(1);
-  }, [searchText, statusFilter, dateRange, ptNameFilter]);
+  useEffect(() => { fetchBookings(1); }, []);
+  useEffect(() => { fetchBookings(1); }, [searchText, statusFilter, dateRange, ptNameFilter]);
 
   const fetchBookings = async (page: number = 1) => {
     setLoading(true);
     try {
-      const params: any = {
-        page: page - 1,
-        size: pagination.pageSize,
-      };
-
-      if (statusFilter) {
-        params.status = statusFilter;
-      }
-
-      if (searchText) {
-        params.search = searchText;
-      }
-
-      if (ptNameFilter) {
-        params.ptName = ptNameFilter;
-      }
-
-      if (dateRange && dateRange[0] && dateRange[1]) {
+      const params: any = { page: page - 1, size: pagination.pageSize };
+      if (statusFilter) params.status = statusFilter;
+      if (searchText) params.search = searchText;
+      if (ptNameFilter) params.ptName = ptNameFilter;
+      if (dateRange?.[0] && dateRange?.[1]) {
         params.fromDate = dateRange[0].startOf('day').toISOString();
-        params.toDate = dateRange[1].endOf('day').toISOString();
+        params.toDate   = dateRange[1].endOf('day').toISOString();
       }
-
-      const response = await axios.get<any>('/admin/bookings', { params });
-
-      const bookingsData = response.data.data?.items || [];
-
-      setBookings(bookingsData);
-      setPagination({
-        ...pagination,
-        current: page,
-total: response.data.data?.totalElements || 0,      });
-
-    } catch (error: any) {
-      console.error('❌ Lỗi lấy booking:', error);
+      const res = await axios.get<any>('/admin/bookings', { params });
+      setBookings(res.data.data?.items || []);
+      setPagination(prev => ({ ...prev, current: page, total: res.data.data?.totalElements || 0 }));
+    } catch (e) {
+      console.error('Lỗi lấy booking:', e);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleTableChange = (newPagination: any) => {
-    fetchBookings(newPagination.current);
+  const openCancelModal = (id: string) => {
+    setCancellingId(id);
+    setCancelReason('Admin hủy lịch');
+    setCancelModalOpen(true);
   };
 
-  const handleClearFilters = () => {
-    setSearchText('');
-    setStatusFilter(undefined);
-    setDateRange(null);
-    setPtNameFilter('');
-    fetchBookings(1);
+  const handleConfirmCancel = async () => {
+    if (!cancellingId) return;
+    setCancelLoading(true);
+    try {
+      await axios.patch(`/admin/bookings/${cancellingId}/cancel`, {
+        reason: cancelReason || 'Admin hủy lịch',
+      });
+      message.success('✅ Đã hủy booking và hoàn tiền thành công!');
+      setCancelModalOpen(false);
+      setCancellingId(null);
+      fetchBookings(pagination.current);
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.response?.data?.error || 'Hủy booking thất bại';
+      message.error(`❌ ${msg}`);
+    } finally {
+      setCancelLoading(false);
+    }
   };
 
   const columns = [
     {
       title: 'Học viên',
       key: 'userName',
-      render: (_: any, record: BookingSummary) => (
+      render: (_: any, r: BookingSummary) => (
         <div>
-          <p className="font-semibold m-0">{record.userName}</p>
-          <p className="text-xs text-gray-500 m-0">
-            {record.userId ? `${record.userId.slice(0, 8)}...` : ''}
-          </p>
+          <p className="font-semibold m-0">{r.userName}</p>
+          <p className="text-xs text-gray-500 m-0">{r.userId?.slice(0, 8)}...</p>
         </div>
       ),
     },
     {
       title: 'PT',
       key: 'ptName',
-      render: (_: any, record: BookingSummary) => (
-        <span>{record.ptName}</span>
-      ),
+      render: (_: any, r: BookingSummary) => <span>{r.ptName}</span>,
     },
     {
       title: 'Lịch hẹn',
       key: 'scheduledAt',
-      render: (_: any, record: BookingSummary) => {
-        // Backend: scheduled_at, end_at, duration_minutes
-        const scheduledAt = (record as any).scheduled_at ?? record.scheduledAt;
-        const endAt = (record as any).end_at ?? record.endAt;
-        const duration = (record as any).duration_minutes ?? record.durationMinutes;
+      render: (_: any, r: BookingSummary) => {
+        const at  = (r as any).scheduled_at ?? r.scheduledAt;
+        const end = (r as any).end_at ?? r.endAt;
+        const dur = (r as any).duration_minutes ?? r.durationMinutes;
         return (
-          <Tooltip title={`Kết thúc: ${dayjs(endAt).format('HH:mm')}`}>
+          <Tooltip title={`Kết thúc: ${dayjs(end).format('HH:mm')}`}>
             <div>
-              <p className="m-0 font-semibold">
-                {dayjs(scheduledAt).format('DD/MM/YYYY HH:mm')}
-              </p>
-              <p className="text-xs text-gray-500 m-0">
-                {duration} phút
-              </p>
+              <p className="m-0 font-semibold">{dayjs(at).format('DD/MM/YYYY HH:mm')}</p>
+              <p className="text-xs text-gray-500 m-0">{dur} phút</p>
             </div>
           </Tooltip>
         );
@@ -161,15 +136,11 @@ total: response.data.data?.totalElements || 0,      });
     {
       title: 'Giá tiền',
       key: 'totalAmount',
-      render: (_: any, record: BookingSummary) => {
-        // Backend trả về snake_case: total_amount
-        const amount = (record as any).total_amount ?? record.totalAmount;
+      render: (_: any, r: BookingSummary) => {
+        const amt = (r as any).total_amount ?? r.totalAmount;
         return (
           <span className="text-green-600 font-semibold">
-            {amount != null
-              ? Number(amount).toLocaleString('vi-VN') + 'đ'
-              : <span className="text-gray-400">—</span>
-            }
+            {amt != null ? Number(amt).toLocaleString('vi-VN') + 'đ' : <span className="text-gray-400">—</span>}
           </span>
         );
       },
@@ -177,21 +148,36 @@ total: response.data.data?.totalElements || 0,      });
     {
       title: 'Trạng thái',
       key: 'status',
-      render: (_: any, record: BookingSummary) => (
-        <Tag color={BOOKING_STATUS_COLORS[record.status] || 'default'}>
-          {BOOKING_STATUS_LABELS[record.status] || record.status}
+      render: (_: any, r: BookingSummary) => (
+        <Tag color={BOOKING_STATUS_COLORS[r.status] || 'default'}>
+          {BOOKING_STATUS_LABELS[r.status] || r.status}
         </Tag>
       ),
     },
     {
       title: 'Ngày tạo',
       key: 'createdAt',
-      render: (_: any, record: BookingSummary) => {
-        const createdAt = (record as any).created_at ?? record.createdAt;
+      render: (_: any, r: BookingSummary) => {
+        const ca = (r as any).created_at ?? r.createdAt;
+        return <span className="text-gray-600">{dayjs(ca).format('DD/MM/YYYY')}</span>;
+      },
+    },
+    {
+      title: 'Hành động',
+      key: 'actions',
+      width: 110,
+      render: (_: any, r: BookingSummary) => {
+        const canCancel = r.status === 'PENDING' || r.status === 'CONFIRMED';
+        if (!canCancel) return <span className="text-gray-400 text-sm">—</span>;
         return (
-          <span className="text-gray-600">
-            {dayjs(createdAt).format('DD/MM/YYYY')}
-          </span>
+          <Button
+            size="small"
+            danger
+            icon={<StopOutlined />}
+            onClick={() => openCancelModal(r.id)}
+          >
+            Hủy
+          </Button>
         );
       },
     },
@@ -209,51 +195,48 @@ total: response.data.data?.totalElements || 0,      });
                 placeholder="Tìm kiếm học viên hoặc PT..."
                 prefix={<SearchOutlined />}
                 value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
+                onChange={e => setSearchText(e.target.value)}
               />
             </Col>
-
             <Col xs={24} sm={12} md={6}>
               <Select
                 placeholder="Lọc theo trạng thái"
                 allowClear
+                style={{ width: '100%' }}
                 value={statusFilter}
                 onChange={setStatusFilter}
                 options={[
                   { label: '⏳ Chờ xác nhận', value: 'PENDING' },
-                  { label: '✓ Đã xác nhận', value: 'CONFIRMED' },
-                  { label: '✓✓ Hoàn thành', value: 'COMPLETED' },
-                  { label: '✗ Đã hủy', value: 'CANCELLED' },
-                  { label: '⏱ Hết hạn', value: 'EXPIRED' },
+                  { label: '✓ Đã xác nhận',   value: 'CONFIRMED' },
+                  { label: '✓✓ Hoàn thành',   value: 'COMPLETED' },
+                  { label: '✗ Đã hủy',        value: 'CANCELLED' },
+                  { label: '⏱ Hết hạn',       value: 'EXPIRED' },
                 ]}
               />
             </Col>
-
             <Col xs={24} sm={12} md={6}>
               <DatePicker.RangePicker
                 placeholder={['Từ ngày', 'Đến ngày']}
                 format="DD/MM/YYYY"
                 value={dateRange}
-                onChange={(dates) => setDateRange(dates as any)}
+                onChange={dates => setDateRange(dates as any)}
                 style={{ width: '100%' }}
               />
             </Col>
-
             <Col xs={24} sm={12} md={6}>
               <Input
                 placeholder="Tìm PT..."
                 value={ptNameFilter}
-                onChange={(e) => setPtNameFilter(e.target.value)}
+                onChange={e => setPtNameFilter(e.target.value)}
               />
             </Col>
           </Row>
-
           <Row>
             <Button
               icon={<ClearOutlined />}
-              onClick={handleClearFilters}
               type="link"
               danger
+              onClick={() => { setSearchText(''); setStatusFilter(undefined); setDateRange(null); setPtNameFilter(''); }}
             >
               Xóa tất cả bộ lọc
             </Button>
@@ -265,15 +248,15 @@ total: response.data.data?.totalElements || 0,      });
             <Table
               columns={columns}
               dataSource={bookings}
-              rowKey={(record) => record.id}
+              rowKey={r => r.id}
               pagination={{
                 current: pagination.current,
                 pageSize: pagination.pageSize,
                 total: pagination.total,
                 showSizeChanger: true,
-                showTotal: (total) => `Tổng ${total} booking`,
+                showTotal: t => `Tổng ${t} booking`,
               }}
-              onChange={handleTableChange}
+              onChange={p => fetchBookings(p.current ?? 1)}
               size="middle"
             />
           ) : (
@@ -287,6 +270,30 @@ total: response.data.data?.totalElements || 0,      });
           )}
         </Spin>
       </Card>
+
+      {/* ── Cancel Modal ─────────────────────────────────── */}
+      <Modal
+        title={<span className="text-red-600 font-bold">⚠️ Xác nhận hủy booking</span>}
+        open={cancelModalOpen}
+        onCancel={() => { setCancelModalOpen(false); setCancellingId(null); }}
+        onOk={handleConfirmCancel}
+        okText="Xác nhận hủy"
+        cancelText="Bỏ qua"
+        okButtonProps={{ danger: true, loading: cancelLoading }}
+        confirmLoading={cancelLoading}
+        destroyOnClose
+      >
+        <p className="text-gray-600 mb-3">
+          Booking sẽ bị hủy. Tiền sẽ được <strong>hoàn tự động 100%</strong> cho khách hàng ngay lập tức.
+        </p>
+        <p className="font-semibold mb-1">Lý do hủy:</p>
+        <Input.TextArea
+          rows={3}
+          value={cancelReason}
+          onChange={e => setCancelReason(e.target.value)}
+          placeholder="Nhập lý do hủy..."
+        />
+      </Modal>
     </div>
   );
 }

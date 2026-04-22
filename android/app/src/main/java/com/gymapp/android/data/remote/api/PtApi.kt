@@ -88,6 +88,9 @@ interface PtApi {
         @Body request: PtProfileUpdateRequest
     ): Response<ApiResponse<Map<String, Any>>>
 
+    @GET("api/v1/pt/profile")
+    suspend fun getMyPtProfile(): Response<ApiResponse<PtMyProfileDto>>
+
     @POST("api/v1/pt/availability")
     suspend fun createAvailability(
         @Body request: CreateAvailabilityRequest

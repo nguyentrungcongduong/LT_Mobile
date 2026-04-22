@@ -92,13 +92,28 @@ public class BookingNotificationListener {
             String scheduledStr = booking.getScheduledAt().format(DISPLAY_FMT);
 
             // Xác định ai hủy
-            boolean cancelledByUser = switch (booking.getCancelBy()) {
+            boolean cancelledByAdmin = booking.getCancelBy() == com.gymapp.modules.booking.enums.CancelByType.ADMIN;
+            boolean cancelledByUser  = switch (booking.getCancelBy()) {
                 case USER   -> true;
                 case PT     -> false;
-                case SYSTEM -> true; // Hệ thống hủy → thông báo cho user
+                case SYSTEM -> true;
+                case ADMIN  -> false; // Admin hủy → thông báo cho cả 2
             };
 
-            if (cancelledByUser) {
+            if (cancelledByAdmin) {
+                // Admin hủy → thông báo cho cả user lẫn PT
+                String cancelTitle = "Lịch hẹn bị hủy bởi Admin ❌";
+                String userBody = String.format(
+                        "Buổi tập với PT %s vào lúc %s đã bị hủy bởi hệ thống. Bạn sẽ được hoàn tiền 100%%.",
+                        pt.getFullName(), scheduledStr);
+                String ptBody = String.format(
+                        "Buổi tập với học viên %s vào lúc %s đã bị hủy bởi admin.",
+                        user.getFullName(), scheduledStr);
+                saveNotification(user, cancelTitle, userBody, NotificationType.BOOKING_CANCELLED, booking.getId());
+                fcmService.sendPush(user.getFcmToken(), cancelTitle, userBody, "bookingId", booking.getId().toString());
+                saveNotification(pt, cancelTitle, ptBody, NotificationType.BOOKING_CANCELLED, booking.getId());
+                fcmService.sendPush(pt.getFcmToken(), cancelTitle, ptBody, "bookingId", booking.getId().toString());
+            } else if (cancelledByUser) {
                 // Báo cho PT rằng user đã hủy
                 String ptTitle = "Lịch hẹn bị hủy ❌";
                 String ptBody  = String.format(

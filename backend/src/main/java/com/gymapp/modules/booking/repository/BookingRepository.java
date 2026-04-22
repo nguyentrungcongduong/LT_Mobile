@@ -60,13 +60,24 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
 
     List<Booking> findAllByUserIdAndPtIdOrderByScheduledAtDesc(UUID userId, UUID ptId);
 
-        @Query("""
-                        SELECT b FROM Booking b
-                        LEFT JOIN FETCH b.pt
-                        LEFT JOIN FETCH b.user
-                        """)
+    /** Đếm số học viên khác nhau của 1 PT (theo status) */
+    @Query("SELECT COUNT(DISTINCT b.user.id) FROM Booking b WHERE b.pt.id = :ptId AND b.status IN :statuses")
+    long countDistinctClientsByPtId(@Param("ptId") UUID ptId, @Param("statuses") List<BookingStatus> statuses);
 
-    Optional<Booking> findFirstByAvailabilityIdAndStatusIn(UUID availabilityId, List<BookingStatus> statuses);
+    /** Đếm tổng số buổi (giờ dạy) của 1 PT theo status */
+    @Query("SELECT COUNT(b.id) FROM Booking b WHERE b.pt.id = :ptId AND b.status = :status")
+    long countByPtIdAndStatus(@Param("ptId") UUID ptId, @Param("status") BookingStatus status);
+
+    @Query("""
+                    SELECT b FROM Booking b
+                    LEFT JOIN FETCH b.pt
+                    LEFT JOIN FETCH b.user
+                    WHERE b.availability.id = :availabilityId
+                    AND b.status IN :statuses
+                    """)
+    Optional<Booking> findFirstByAvailabilityIdAndStatusIn(
+            @Param("availabilityId") UUID availabilityId,
+            @Param("statuses") List<BookingStatus> statuses);
 
     @Query("""
             SELECT b FROM Booking b

@@ -332,6 +332,69 @@ public class BookingServiceImpl implements BookingService {
         }
 
         @Override
+        @Transactional
+        public CancelBookingResponse adminCancelBooking(UUID adminId, UUID bookingId, String reason) {
+                Booking booking = bookingRepository.findById(bookingId)
+                                .orElseThrow(() -> new ResourceNotFoundException("BOOKING_NOT_FOUND", "Không tìm thấy booking"));
+
+                if (booking.getStatus() == BookingStatus.CANCELLED) {
+                        throw new BadRequestException("BOOKING_ALREADY_CANCELLED", "Booking đã bị hủy trước đó");
+                }
+                if (booking.getStatus() == BookingStatus.COMPLETED) {
+                        throw new BadRequestException("BOOKING_ALREADY_COMPLETED", "Booking đã hoàn thành, không thể hủy");
+                }
+
+                // Admin luôn hoàn 100%
+                BigDecimal refundAmount = booking.getTotalAmount();
+                BigDecimal refundPct = new BigDecimal("100");
+
+                booking.setStatus(BookingStatus.CANCELLED);
+                booking.setCancelBy(CancelByType.ADMIN);
+                booking.setCancelReason(reason != null ? reason : "Admin hủy lịch");
+                booking.setCancelledAt(OffsetDateTime.now());
+
+                // Mở lại slot lịch của PT
+                PtAvailability availability = booking.getAvailability();
+                if (availability != null) {
+                        availability.setBooked(false);
+                        availabilityRepository.save(availability);
+                }
+                bookingRepository.save(booking);
+
+                // Tạo refund → PROCESSED ngay (không qua gateway)
+                Payment payment = paymentRepository.findByBookingId(booking.getId())
+                                .filter(p -> p.getStatus() == PaymentStatus.SUCCESS)
+                                .orElse(null);
+
+                if (payment != null && refundAmount.compareTo(BigDecimal.ZERO) > 0) {
+                        Refund refund = Refund.builder()
+                                        .payment(payment)
+                                        .bookingId(booking.getId())
+                                        .amount(refundAmount)
+                                        .refundPct(refundPct)
+                                        .reason(reason != null ? reason : "Admin hủy lịch")
+                                        .status(RefundStatus.PROCESSED)        // Auto-done
+                                        .processedAt(OffsetDateTime.now())
+                                        .gatewayRefundId("ADMIN-CANCEL-" + bookingId)
+                                        .build();
+                        refundRepository.save(refund);
+
+                        payment.setStatus(PaymentStatus.REFUNDED);
+                        paymentRepository.save(payment);
+                        log.info("Admin cancelled booking {} — refund auto-processed", bookingId);
+                }
+
+                eventPublisher.publishEvent(new BookingCancelledEvent(this, booking));
+
+                return CancelBookingResponse.builder()
+                                .bookingId(booking.getId())
+                                .status(BookingStatus.CANCELLED)
+                                .refundAmount(refundAmount)
+                                .refundPct(refundPct)
+                                .build();
+        }
+
+        @Override
         @Transactional(readOnly = true)
         public PageResponse<BookingSummary> getUserBookings(UUID userId, BookingStatus status, Pageable pageable) {
                 Page<Booking> page = bookingRepository.findAllByUserIdAndStatus(userId, status, pageable);

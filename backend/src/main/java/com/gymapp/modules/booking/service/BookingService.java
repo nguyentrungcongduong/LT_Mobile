@@ -18,6 +18,9 @@ public interface BookingService {
 
         CancelBookingResponse cancelBooking(UUID userId, UUID bookingId, CancelBookingRequest request);
 
+        /** Admin hủy booking bất kỳ, hoàn tiền auto-processed */
+        CancelBookingResponse adminCancelBooking(UUID adminId, UUID bookingId, String reason);
+
         PageResponse<BookingSummary> getUserBookings(UUID userId, BookingStatus status, Pageable pageable);
 
         PageResponse<BookingSummary> getPtBookings(UUID ptId, BookingStatus status, Boolean upcomingOnly,

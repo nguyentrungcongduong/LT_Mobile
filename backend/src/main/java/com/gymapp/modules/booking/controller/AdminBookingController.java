@@ -1,8 +1,11 @@
 package com.gymapp.modules.booking.controller;
 
+import com.gymapp.common.exception.UnauthorizedException;
 import com.gymapp.common.response.ApiResponse;
 import com.gymapp.common.response.PageResponse;
+import com.gymapp.common.security.JwtUtil;
 import com.gymapp.modules.booking.dto.BookingSummary;
+import com.gymapp.modules.booking.dto.CancelBookingResponse;
 import com.gymapp.modules.booking.enums.BookingStatus;
 import com.gymapp.modules.booking.service.BookingService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.OffsetDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -45,7 +49,24 @@ public class AdminBookingController {
     @GetMapping("/{id}")
     @Operation(summary = "Get booking detail")
     public ResponseEntity<ApiResponse<BookingSummary>> getBookingDetail(@PathVariable UUID id) {
-        // TODO: Implement when needed
         return ResponseEntity.notFound().build();
+    }
+
+    /** Admin hủy booking → hoàn tiền tự động PROCESSED */
+    @PatchMapping("/{id}/cancel")
+    @Operation(summary = "Admin cancel booking with auto refund")
+    public ResponseEntity<ApiResponse<CancelBookingResponse>> adminCancelBooking(
+            @PathVariable UUID id,
+            @RequestBody(required = false) Map<String, String> body) {
+
+        UUID adminId = UUID.fromString(JwtUtil.getCurrentUserId()
+                .orElseThrow(() -> new UnauthorizedException("UNAUTHORIZED", "Chưa đăng nhập")));
+
+        String reason = (body != null && body.containsKey("reason") && !body.get("reason").isBlank())
+                ? body.get("reason")
+                : "Admin hủy lịch";
+
+        CancelBookingResponse response = bookingService.adminCancelBooking(adminId, id, reason);
+        return ResponseEntity.ok(ApiResponse.ok(response, "Đã hủy booking thành công"));
     }
 }

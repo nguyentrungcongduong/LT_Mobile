@@ -25,6 +25,15 @@ public class PtProfileController {
     private final PtProfileService ptProfileService;
 
     @PreAuthorize("hasRole('PT')")
+    @GetMapping
+    public ResponseEntity<ApiResponse<PtProfileDto>> getMyProfile() {
+        UUID userId = UUID.fromString(JwtUtil.getCurrentUserId()
+                .orElseThrow(() -> new UnauthorizedException("UNAUTHORIZED", "Không tìm thấy thông tin đăng nhập")));
+        PtProfileDto response = ptProfileService.getMyProfile(userId);
+        return ResponseEntity.ok(ApiResponse.ok(response));
+    }
+
+    @PreAuthorize("hasRole('PT')")
     @PostMapping
     public ResponseEntity<ApiResponse<PtProfileDto>> createProfile(
             @Valid @RequestBody PtProfileCreateReq req) {

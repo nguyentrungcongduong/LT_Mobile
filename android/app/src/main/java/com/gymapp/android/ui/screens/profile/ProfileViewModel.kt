@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gymapp.android.data.remote.api.CheckinApi
 import com.gymapp.android.data.remote.api.PtApi
+import com.gymapp.android.data.remote.api.PtMyProfileDto
 import com.gymapp.android.data.remote.api.PtProfileUpdateRequest
 import com.gymapp.android.data.remote.dto.checkin.CheckinStatsResponse
 import com.gymapp.android.domain.model.User
@@ -38,9 +39,13 @@ class ProfileViewModel @Inject constructor(
     private val _isUpdating = MutableStateFlow(false)
     val isUpdating: StateFlow<Boolean> = _isUpdating.asStateFlow()
 
-    // Stats thực từ checkin_logs
+    // Stats thực từ checkin_logs (USER)
     private val _workoutStats = MutableStateFlow<CheckinStatsResponse?>(null)
     val workoutStats: StateFlow<CheckinStatsResponse?> = _workoutStats.asStateFlow()
+
+    // Stats thực từ backend (PT)
+    private val _ptProfile = MutableStateFlow<PtMyProfileDto?>(null)
+    val ptProfile: StateFlow<PtMyProfileDto?> = _ptProfile.asStateFlow()
 
     init {
         loadProfile()
@@ -52,8 +57,23 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             userRepository.getProfile().onSuccess { user ->
                 _uiState.value = ProfileUiState.Success(user)
+                // Nếu là PT, fetch thêm PT profile stats
+                if (user.role == "PT") fetchPtProfile()
             }.onFailure { error ->
                 _uiState.value = ProfileUiState.Error(error.message ?: "Đã có lỗi xảy ra")
+            }
+        }
+    }
+
+    fun fetchPtProfile() {
+        viewModelScope.launch {
+            try {
+                val response = ptApi.getMyPtProfile()
+                if (response.isSuccessful) {
+                    _ptProfile.value = response.body()?.data
+                }
+            } catch (_: Exception) {
+                // Lỗi mạng → giữ null
             }
         }
     }

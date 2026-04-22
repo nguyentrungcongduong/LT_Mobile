@@ -19,6 +19,7 @@ import com.gymapp.modules.user.dto.response.ReviewDto;
 public interface PtProfileService {
     PtProfileDto createProfile(UUID userId, PtProfileCreateReq req);
     PtProfileDto updateProfile(UUID userId, PtProfileUpdateReq req);
+    PtProfileDto getMyProfile(UUID userId);  // PT xem profile + stats của chính mình
     
     PageResponse<PtListDto> getPtList(String specialization, BigDecimal minRating, BigDecimal maxPrice, Pageable pageable, boolean restrictToApproved);
     PtDetailDto getPtDetail(UUID ptId, boolean restrictToApproved);

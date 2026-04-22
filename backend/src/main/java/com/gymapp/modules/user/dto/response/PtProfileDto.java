@@ -26,6 +26,8 @@ public class PtProfileDto {
     private BigDecimal pricePerSession;
     private BigDecimal ratingAvg;
     private Integer totalReviews;
+    private Long totalClients;    // tổng học viên riêng biệt
+    private Long totalSessions;   // tổng buổi dạy (= giờ dạy)
     private Integer yearsExperience;
     private List<String> certificateUrls;
     private String cvUrl;
