@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gymapp.android.data.local.Prefs
 import com.gymapp.android.data.remote.api.BookingDto
+import com.gymapp.android.data.remote.api.NotificationApi
 import com.gymapp.android.domain.repository.PtRepository
 import com.gymapp.android.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,8 +29,10 @@ data class PtDashboardStats(
 class MainViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val ptRepository: PtRepository,
+    private val notificationApi: NotificationApi,
     @param:ApplicationContext private val context: Context
 ) : ViewModel() {
+
     private val _userRole = MutableStateFlow<String>("USER")
     val userRole: StateFlow<String> = _userRole.asStateFlow()
 
@@ -48,6 +51,14 @@ class MainViewModel @Inject constructor(
     private val _needSetupGoal = MutableStateFlow(false)
     val needSetupGoal: StateFlow<Boolean> = _needSetupGoal.asStateFlow()
 
+    /** Lịch tập sắp tới của USER thường (CONFIRMED, tối đa 3 buổi) */
+    private val _userUpcomingBookings = MutableStateFlow<List<BookingDto>>(emptyList())
+    val userUpcomingBookings: StateFlow<List<BookingDto>> = _userUpcomingBookings.asStateFlow()
+
+    /** Số thông báo chưa đọc — hiển thị trên badge icon chuông */
+    private val _unreadNotifCount = MutableStateFlow(0)
+    val unreadNotifCount: StateFlow<Int> = _unreadNotifCount.asStateFlow()
+
     init {
         fetchProfile()
     }
@@ -60,20 +71,40 @@ class MainViewModel @Inject constructor(
                 _currentUserId.value = user.id
 
                 val hasSetupLocal = Prefs.hasSetupGoal(context, user.id)
-                // Chỉ hiện GoalSetup cho USER, PT, MEMBER — không dành cho ADMIN
                 _needSetupGoal.value = !hasSetupLocal && user.role != "ADMIN"
 
                 when (user.role) {
                     "ADMIN" -> fetchAdminStats()
-                    "PT" -> fetchPtStats()
+                    "PT"    -> fetchPtStats()
+                    else    -> fetchUserUpcomingBookings()
                 }
+
+                // Fetch unread count sau khi profile thành công (token đã sẵn sàng)
+                fetchUnreadNotifCount()
             }.onFailure {
                 _needSetupGoal.value = false
             }
         }
     }
 
-    /** Gọi sau khi đã navigate đến GoalScreen để tránh trigger lại */
+    /** Fetch số thông báo chưa đọc */
+    fun fetchUnreadNotifCount() {
+        viewModelScope.launch {
+            try {
+                val resp = notificationApi.getNotifications()
+                if (resp.isSuccessful && resp.body()?.success == true) {
+                    val list = resp.body()!!.data ?: emptyList()
+                    _unreadNotifCount.value = list.count { !it.isRead }
+                }
+            } catch (_: Exception) {}
+        }
+    }
+
+    /** Gọi khi user đã vào màn thông báo → reset badge về 0 */
+    fun clearUnreadNotifCount() {
+        _unreadNotifCount.value = 0
+    }
+
     fun onGoalNavigated() {
         _needSetupGoal.value = false
     }
@@ -85,11 +116,22 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun fetchUserUpcomingBookings() {
+        viewModelScope.launch {
+            ptRepository.getUserBookings(
+                status = "CONFIRMED",
+                page = 0,
+                size = 3
+            ).onSuccess { page ->
+                _userUpcomingBookings.value = page.content
+            }
+        }
+    }
+
     fun fetchPtStats() {
         viewModelScope.launch {
             val todayStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
-            // 1. Lịch sắp tới (upcoming = true, lấy 5 cái đầu)
             ptRepository.getPtBookings(
                 status = "CONFIRMED",
                 upcomingOnly = true,
@@ -97,30 +139,21 @@ class MainViewModel @Inject constructor(
                 size = 5
             ).onSuccess { page ->
                 val all = page.content
-
-                // Ca hôm nay = số booking có scheduledAt là hôm nay
                 val todayCount = all.count { booking ->
                     val bookingDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                         .format(booking.scheduledAt)
                     bookingDate == todayStr
                 }
-
                 _ptStats.value = _ptStats.value.copy(
                     todaySessions = todayCount,
                     upcomingBookings = all
                 )
             }
 
-            // 2. Clients active (CONFIRMED + COMPLETED)
-            ptRepository.getPtClients(
-                status = null,
-                page = 0,
-                size = 100
-            ).onSuccess { page ->
-                _ptStats.value = _ptStats.value.copy(
-                    activeClients = page.content.size
-                )
-            }
+            ptRepository.getPtClients(status = null, page = 0, size = 100)
+                .onSuccess { page ->
+                    _ptStats.value = _ptStats.value.copy(activeClients = page.content.size)
+                }
         }
     }
 }

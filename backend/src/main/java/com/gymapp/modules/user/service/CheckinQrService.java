@@ -11,6 +11,7 @@ import com.gymapp.modules.user.dto.response.CheckinStatsResponse;
 import com.gymapp.modules.user.dto.response.QrTokenResponse;
 import com.gymapp.modules.user.entity.CheckinLog;
 import com.gymapp.modules.user.repository.CheckinLogRepository;
+import com.gymapp.modules.user.repository.PtProfileRepository;
 import com.gymapp.modules.membership.repository.MembershipRepository;
 import com.gymapp.modules.user.entity.User;
 import com.gymapp.modules.user.entity.UserRole;
@@ -49,15 +50,18 @@ public class CheckinQrService {
     private final UserRepository userRepository;
     private final MembershipRepository membershipRepository;
     private final CheckinLogRepository checkinLogRepository;
+    private final PtProfileRepository ptProfileRepository;
 
     public CheckinQrService(JwtUtil jwtUtil,
                              UserRepository userRepository,
                              MembershipRepository membershipRepository,
-                             CheckinLogRepository checkinLogRepository) {
+                             CheckinLogRepository checkinLogRepository,
+                             PtProfileRepository ptProfileRepository) {
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
         this.membershipRepository = membershipRepository;
         this.checkinLogRepository = checkinLogRepository;
+        this.ptProfileRepository = ptProfileRepository;
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -293,49 +297,52 @@ public class CheckinQrService {
                 .build();
     }
 
-    // ─── Helper ────────────────────────────────────────────────────────────────────────
-
     /**
      * Chuyển CheckinLog → Response.
      * Bổ sung branchName & planType dựa vào membership active của user:
-     *  - PT          → planType = "PT",  branchName = "PT"
-     *  - Gói ALL     → planType = "ALL", branchName = "Tất cả chi nhánh"
-     *  - Gói SINGLE  → planType = "SINGLE", branchName = tên chi nhánh
+     *  - PT có gói  → planType = "SINGLE"|"ALL", branchName = tên chi nhánh từ gói
+     *  - PT không gói → planType = "PT",  branchName = null
+     *  - Gói ALL    → planType = "ALL",    branchName = "Tất cả chi nhánh"
+     *  - Gói SINGLE → planType = "SINGLE", branchName = tên chi nhánh
      */
     private CheckinLogResponse toResponse(CheckinLog log) {
         User user = log.getUser();
         String branchName = null;
-        String planType = null;
+        String planType   = null;
 
-        if (user.getRole() == UserRole.PT) {
-            // PT không có membership, hiển thị riêng
-            planType  = "PT";
-            branchName = "PT";
-        } else {
-            // Tìm membership ACTIVE còn hiệu lực
-            List<Membership> actives = membershipRepository.findActiveMembershipsByUserId(user.getId());
-            java.util.Optional<Membership> validOpt = actives.stream()
-                    .filter(m -> !m.getEndDate().isBefore(LocalDate.now()))
-                    .findFirst();
+        // Tìm membership ACTIVE còn hiệu lực cho cả USER lẫn PT
+        List<Membership> actives = membershipRepository.findActiveMembershipsByUserId(user.getId());
+        java.util.Optional<Membership> validOpt = actives.stream()
+                .filter(m -> !m.getEndDate().isBefore(LocalDate.now()))
+                .findFirst();
 
-            if (validOpt.isPresent()) {
-                Membership m = validOpt.get();
-                planType = m.getPlan().getPlanType().name(); // "ALL" hoặc "SINGLE"
+        if (validOpt.isPresent()) {
+            // Có gói tập → hiện chi nhánh từ gói (áp dụng cả PT lẫn USER)
+            Membership m = validOpt.get();
+            planType = m.getPlan().getPlanType().name(); // "ALL" hoặc "SINGLE"
 
-                if (m.getPlan().getPlanType() == PlanType.ALL) {
-                    branchName = "Tất cả chi nhánh";
+            if (m.getPlan().getPlanType() == PlanType.ALL) {
+                branchName = "Tất cả chi nhánh";
+            } else {
+                // SINGLE: lấy từ membership.branch hoặc plan.branch
+                if (m.getBranch() != null) {
+                    branchName = m.getBranch().getName();
+                } else if (m.getPlan().getBranch() != null) {
+                    branchName = m.getPlan().getBranch().getName();
                 } else {
-                    // SINGLE: lấy từ membership.branch hoặc plan.branch
-                    if (m.getBranch() != null) {
-                        branchName = m.getBranch().getName();
-                    } else if (m.getPlan().getBranch() != null) {
-                        branchName = m.getPlan().getBranch().getName();
-                    } else {
-                        branchName = "Chi nhánh không xác định";
-                    }
+                    branchName = "Chi nhánh không xác định";
                 }
             }
+        } else if (user.getRole() == UserRole.PT) {
+            // PT không có gói → tra cứu chi nhánh từ PtProfile
+            planType = "PT";
+            branchName = ptProfileRepository.findByUserId(user.getId())
+                    .map(ptProfile -> ptProfile.getBranch() != null
+                            ? ptProfile.getBranch().getName()
+                            : null)
+                    .orElse(null);
         }
+        // USER không có gói → planType & branchName đều null → frontend hiện "—"
 
         return CheckinLogResponse.builder()
                 .id(log.getId())

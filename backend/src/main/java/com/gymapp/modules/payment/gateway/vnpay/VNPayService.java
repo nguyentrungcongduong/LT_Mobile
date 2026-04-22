@@ -92,14 +92,19 @@ public class VNPayService implements PaymentGateway {
 
         @Override
         public boolean refund(String orderCode, String transactionNo, String transactionDate, long amount,
-                        String reason) {
+                        long originalAmount, String reason) {
                 String refundUrl = paymentProperties.getVnpay().getRefundUrl();
 
                 String vnp_RequestId = UUID.randomUUID().toString();
                 String vnp_Version = "2.1.0";
                 String vnp_Command = "refund";
                 String vnp_TmnCode = paymentProperties.getVnpay().getTmnCode();
-                String vnp_TransactionType = "02"; // 02 for Full refund
+
+                // 02 = Hoàn toàn phần; 03 = Hoàn một phần
+                // VNPay yêu cầu "03" khi số tiền hoàn < tổng tiền giao dịch gốc
+                String vnp_TransactionType = (amount >= originalAmount) ? "02" : "03";
+                log.info("VNPay refund type: {} (refund={}, original={})", vnp_TransactionType, amount, originalAmount);
+
                 String vnp_TxnRef = orderCode;
                 long amountInVnd = amount * 100;
                 String vnp_Amount = String.valueOf(amountInVnd);

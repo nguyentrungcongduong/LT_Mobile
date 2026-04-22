@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Getter
@@ -35,4 +36,7 @@ public class PtProfileCreateReq {
     private Integer yearsExperience;
 
     private List<String> certificateUrls;
+
+    /** UUID của chi nhánh PT đang công tác (optional) */
+    private UUID branchId;
 }

@@ -18,6 +18,9 @@ public interface BookingService {
 
         CancelBookingResponse cancelBooking(UUID userId, UUID bookingId, CancelBookingRequest request);
 
+        /** Admin hủy booking bất kỳ, hoàn tiền auto-processed */
+        CancelBookingResponse adminCancelBooking(UUID adminId, UUID bookingId, String reason);
+
         PageResponse<BookingSummary> getUserBookings(UUID userId, BookingStatus status, Pageable pageable);
 
         PageResponse<BookingSummary> getPtBookings(UUID ptId, BookingStatus status, Boolean upcomingOnly,
@@ -40,4 +43,11 @@ public interface BookingService {
                         OffsetDateTime fromDate,
                         OffsetDateTime toDate,
                         Pageable pageable);
+
+        /**
+         * PT xác nhận học viên có tham gia buổi tập hay không.
+         * attended=true  → COMPLETED (PT nhận tiền)
+         * attended=false → NO_SHOW  (PT không nhận tiền, user mất tiền)
+         */
+        void confirmAttendance(UUID ptId, UUID bookingId, boolean attended);
 }

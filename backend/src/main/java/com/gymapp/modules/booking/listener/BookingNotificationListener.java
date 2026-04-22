@@ -3,6 +3,7 @@ package com.gymapp.modules.booking.listener;
 import com.gymapp.modules.booking.entity.Booking;
 import com.gymapp.modules.booking.event.BookingCancelledEvent;
 import com.gymapp.modules.booking.event.BookingConfirmedEvent;
+import com.gymapp.modules.booking.event.BookingAwaitingConfirmationEvent;
 import com.gymapp.modules.notification.entity.Notification;
 import com.gymapp.modules.notification.enums.NotificationType;
 import com.gymapp.modules.notification.repository.NotificationRepository;
@@ -77,6 +78,32 @@ public class BookingNotificationListener {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
+    // AWAITING CONFIRMATION — thông báo PT xác nhận buổi tập
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Async
+    @EventListener
+    public void handleAwaitingConfirmation(BookingAwaitingConfirmationEvent event) {
+        Booking booking = event.getBooking();
+        try {
+            User pt = booking.getPt();
+            User user = booking.getUser();
+            String scheduledStr = booking.getScheduledAt().format(DISPLAY_FMT);
+
+            String ptTitle = "Xác nhận buổi tập ✅";
+            String ptBody  = String.format(
+                    "Buổi tập với %s lúc %s đã kết thúc. Học viên có đến tập không? Hãy xác nhận trong app!",
+                    user.getFullName(), scheduledStr);
+
+            saveNotification(pt, ptTitle, ptBody, NotificationType.BOOKING_CONFIRMED, booking.getId());
+            fcmService.sendPush(pt.getFcmToken(), ptTitle, ptBody, "bookingId", booking.getId().toString());
+            log.info("Sent attendance confirmation request to PT {} for booking {}", pt.getId(), booking.getId());
+        } catch (Exception e) {
+            log.error("Error sending awaiting confirmation notification for booking {}", booking.getId(), e);
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
     // BOOKING CANCELLED
     // ─────────────────────────────────────────────────────────────────────────
 
@@ -92,13 +119,28 @@ public class BookingNotificationListener {
             String scheduledStr = booking.getScheduledAt().format(DISPLAY_FMT);
 
             // Xác định ai hủy
-            boolean cancelledByUser = switch (booking.getCancelBy()) {
+            boolean cancelledByAdmin = booking.getCancelBy() == com.gymapp.modules.booking.enums.CancelByType.ADMIN;
+            boolean cancelledByUser  = switch (booking.getCancelBy()) {
                 case USER   -> true;
                 case PT     -> false;
-                case SYSTEM -> true; // Hệ thống hủy → thông báo cho user
+                case SYSTEM -> true;
+                case ADMIN  -> false; // Admin hủy → thông báo cho cả 2
             };
 
-            if (cancelledByUser) {
+            if (cancelledByAdmin) {
+                // Admin hủy → thông báo cho cả user lẫn PT
+                String cancelTitle = "Lịch hẹn bị hủy bởi Admin ❌";
+                String userBody = String.format(
+                        "Buổi tập với PT %s vào lúc %s đã bị hủy bởi hệ thống. Bạn sẽ được hoàn tiền 100%%.",
+                        pt.getFullName(), scheduledStr);
+                String ptBody = String.format(
+                        "Buổi tập với học viên %s vào lúc %s đã bị hủy bởi admin.",
+                        user.getFullName(), scheduledStr);
+                saveNotification(user, cancelTitle, userBody, NotificationType.BOOKING_CANCELLED, booking.getId());
+                fcmService.sendPush(user.getFcmToken(), cancelTitle, userBody, "bookingId", booking.getId().toString());
+                saveNotification(pt, cancelTitle, ptBody, NotificationType.BOOKING_CANCELLED, booking.getId());
+                fcmService.sendPush(pt.getFcmToken(), cancelTitle, ptBody, "bookingId", booking.getId().toString());
+            } else if (cancelledByUser) {
                 // Báo cho PT rằng user đã hủy
                 String ptTitle = "Lịch hẹn bị hủy ❌";
                 String ptBody  = String.format(

@@ -54,6 +54,7 @@ data class BookingDto(
     @SerializedName("user_avatar") val userAvatar: String?,
     @SerializedName("scheduled_at") val scheduledAt: Date,
     @SerializedName("end_at") val endAt: Date,
+    @SerializedName("duration_minutes") val durationMinutes: Int?,
     @SerializedName("total_amount") val totalAmount: Double,
     @SerializedName("pt_amount") val ptAmount: Double?,
     val status: String
@@ -112,4 +113,19 @@ data class PtReviewDto(
     val rating: Int,
     val comment: String?,
     @SerializedName("createdAt") val createdAt: String?
+)
+
+/** DTO cho PT xem profile + stats của chính mình (GET /api/v1/pt/profile) */
+data class PtMyProfileDto(
+    val id: String?,
+    @SerializedName("user_id") val userId: String?,
+    val bio: String?,
+    val specializations: List<String>?,
+    @SerializedName("price_per_session") val pricePerSession: Double?,
+    @SerializedName("rating_avg") val ratingAvg: Double?,
+    @SerializedName("total_reviews") val totalReviews: Int?,
+    @SerializedName("total_clients") val totalClients: Long?,
+    @SerializedName("total_sessions") val totalSessions: Long?,
+    @SerializedName("years_experience") val yearsExperience: Int?,
+    @SerializedName("is_approved") val isApproved: Boolean = false
 )

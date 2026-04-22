@@ -60,6 +60,13 @@ interface PtApi {
         @Query("size") size: Int
     ): Response<ApiResponse<PageResponse<BookingDto>>>
 
+    /** PT xác nhận học viên đã tập (attended=true) hoặc vắng mặt (attended=false) */
+    @PUT("api/v1/pt/bookings/{booking_id}/attendance")
+    suspend fun confirmAttendance(
+        @Path("booking_id") bookingId: String,
+        @Body body: Map<String, Boolean>
+    ): Response<ApiResponse<Void>>
+
     @GET("api/v1/pt/clients")
     suspend fun getPtClients(
         @Query("status") status: String?,
@@ -87,6 +94,9 @@ interface PtApi {
     suspend fun updatePtProfile(
         @Body request: PtProfileUpdateRequest
     ): Response<ApiResponse<Map<String, Any>>>
+
+    @GET("api/v1/pt/profile")
+    suspend fun getMyPtProfile(): Response<ApiResponse<PtMyProfileDto>>
 
     @POST("api/v1/pt/availability")
     suspend fun createAvailability(

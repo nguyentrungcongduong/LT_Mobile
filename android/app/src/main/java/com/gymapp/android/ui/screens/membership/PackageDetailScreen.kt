@@ -118,8 +118,10 @@ fun PackageDetailScreen(
                                 
                                 val descText = if (uiState.isCurrentUserPlan && uiState.activeUntil != null) {
                                     "Gói hiện tại sẽ hết hạn vào ${uiState.activeUntil}"
-                                } else {
+                                } else if (plan.durationDays > 0) {
                                     "Chỉ khoảng ~${formatter.format(plan.price.toLong() / plan.durationDays)}đ/ngày"
+                                } else {
+                                    "$formattedPrice"
                                 }
                                 Text(descText, fontSize = 11.sp, color = Color.White.copy(alpha = 0.8f))
                             }

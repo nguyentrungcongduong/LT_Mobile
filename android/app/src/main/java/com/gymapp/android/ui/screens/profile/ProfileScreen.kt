@@ -61,6 +61,7 @@ fun ProfileScreen(
     val isUploading by viewModel.isUploading.collectAsState()
     val isUpdating by viewModel.isUpdating.collectAsState()
     val workoutStats by viewModel.workoutStats.collectAsState()
+    val ptProfile by viewModel.ptProfile.collectAsState()
 
     var showEditDialog by remember { mutableStateOf(false) }
     var showPasswordDialog by remember { mutableStateOf(false) }
@@ -155,7 +156,7 @@ fun ProfileScreen(
 
                         // ── Role-specific content ──────────────────────────────
                         when (user.role) {
-                            "PT" -> PtRoleSection(user = user, onShowPtProfile = { showPtProfileDialog = true })
+                            "PT" -> PtRoleSection(user = user, ptProfile = ptProfile, onShowPtProfile = { showPtProfileDialog = true })
                             "ADMIN" -> AdminRoleSection()
                             else -> UserRoleSection(user = user, stats = workoutStats, onNavigateToGoal = onNavigateToGoal)
                         }
@@ -261,6 +262,9 @@ fun ProfileScreen(
                         // ── Dialogs ────────────────────────────────────────────
                         if (showPtProfileDialog) {
                             UpdatePtProfileDialog(
+                                initialPrice = ptProfile?.pricePerSession?.toLong(),
+                                initialBio = ptProfile?.bio,
+                                initialYearsExp = ptProfile?.yearsExperience,
                                 isUpdating = isUpdating,
                                 onDismiss = { showPtProfileDialog = false },
                                 onConfirm = { price, bio, exp ->
@@ -459,8 +463,11 @@ private fun ProfileHeroBanner(
 
 // ── PT Role Section ─────────────────────────────────────────────────────────────
 @Composable
-private fun PtRoleSection(user: User, onShowPtProfile: () -> Unit) {
-
+private fun PtRoleSection(
+    user: User,
+    ptProfile: com.gymapp.android.data.remote.api.PtMyProfileDto?,
+    onShowPtProfile: () -> Unit
+) {
     Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         // Stats card with gradient
         Card(
@@ -486,15 +493,21 @@ private fun PtRoleSection(user: User, onShowPtProfile: () -> Unit) {
                     }
                     Spacer(modifier = Modifier.height(20.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        PtStatItem("150+", "Giờ dạy")
-                        PtStatItem("12", "Học viên")
-                        PtStatItem("4.9 ★", "Đánh giá")
+                        val sessions = ptProfile?.totalSessions?.toString() ?: "–"
+                        val clients  = ptProfile?.totalClients?.toString() ?: "–"
+                        val rating   = ptProfile?.ratingAvg?.let {
+                            if (it == 0.0) "–" else "$it ★"
+                        } ?: "–"
+                        PtStatItem(sessions, "Giờ dạy")
+                        PtStatItem(clients,  "Học viên")
+                        PtStatItem(rating,   "Đánh giá")
                     }
                 }
             }
         }
 
         // Specialty card
+        val mainSpecialty = ptProfile?.specializations?.firstOrNull() ?: "Chưa cập nhật"
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -513,7 +526,7 @@ private fun PtRoleSection(user: User, onShowPtProfile: () -> Unit) {
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text("Chuyên môn chính", color = TextGray, fontSize = 13.sp)
-                Text("Bodybuilding & Fitness", color = TextDark, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text(mainSpecialty, color = TextDark, fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
             Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = TextGray)
         }
@@ -828,13 +841,16 @@ fun ChangePasswordDialog(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdatePtProfileDialog(
+    initialPrice: Long?,
+    initialBio: String?,
+    initialYearsExp: Int?,
     isUpdating: Boolean,
     onDismiss: () -> Unit,
     onConfirm: (Long?, String?, Int?) -> Unit
 ) {
-    var priceText by remember { mutableStateOf("") }
-    var bio by remember { mutableStateOf("") }
-    var yearsExpText by remember { mutableStateOf("") }
+    var priceText by remember { mutableStateOf(initialPrice?.let { if (it > 0) it.toString() else "" } ?: "") }
+    var bio by remember { mutableStateOf(initialBio ?: "") }
+    var yearsExpText by remember { mutableStateOf(initialYearsExp?.let { if (it > 0) it.toString() else "" } ?: "") }
 
     AlertDialog(
         onDismissRequest = onDismiss,

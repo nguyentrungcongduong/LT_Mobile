@@ -391,6 +391,7 @@ public class PaymentServiceImpl implements PaymentService {
                 payment.getTransactionId(),
                 payment.getVnpPayDate(),
                 amount,
+                payment.getAmount().longValue(), // original payment amount
                 reason);
     }
 

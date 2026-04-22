@@ -74,25 +74,29 @@ const handleExport = async () => {
   const renderBranch = (_: any, r: any) => {
     const { branchName, planType } = r;
 
-    if (!branchName && !planType) return <span style={{ color: '#ccc' }}>—</span>;
+    // Không có thông tin chi nhánh → hiện "—"
+    if (!planType || !branchName) {
+      return <span style={{ color: '#bbb' }}>—</span>;
+    }
 
-    // Badge màu theo loại gói
-    const tagColor =
-      planType === 'ALL'    ? 'green'  :
-      planType === 'SINGLE' ? 'blue'   :
-      planType === 'PT'     ? 'purple' : 'default';
+    // PT có chi nhánh → hiện badge tím + tên chi nhánh
+    if (planType === 'PT') {
+      return (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <Tag color="purple" style={{ margin: 0 }}>PT</Tag>
+          <span style={{ fontSize: 13 }}>{branchName}</span>
+        </div>
+      );
+    }
 
-    const tagLabel =
-      planType === 'ALL'    ? 'Tất cả' :
-      planType === 'SINGLE' ? 'Single' :
-      planType === 'PT'     ? 'PT'     : planType;
+    const tagColor   = planType === 'ALL' ? 'green' : 'blue';
+    const tagLabel   = planType === 'ALL' ? 'Tất cả' : 'Single';
+    const displayText = planType === 'ALL' ? 'Tất cả chi nhánh' : branchName;
 
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <Tag color={tagColor} style={{ margin: 0 }}>{tagLabel}</Tag>
-        <span style={{ fontSize: 13 }}>
-          {planType === 'ALL' ? 'Tất cả chi nhánh' : branchName || '—'}
-        </span>
+        <span style={{ fontSize: 13 }}>{displayText}</span>
       </div>
     );
   };
