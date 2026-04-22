@@ -445,27 +445,77 @@ public class BookingServiceImpl implements BookingService {
 
         @Override
         @Transactional
-        @Scheduled(fixedRate = 300000) // Run every 5 minutes
+        @Scheduled(fixedRate = 300000) // chạy mỗi 5 phút
         public void autoCompleteBookings() {
-                List<Booking> pastBookings = bookingRepository.findAllByStatusAndEndAtBefore(
-                                BookingStatus.CONFIRMED, OffsetDateTime.now());
+                OffsetDateTime now = OffsetDateTime.now();
 
-                if (pastBookings.isEmpty()) {
-                        return;
+                // ① CONFIRMED đã qua giờ → AWAITING_CONFIRMATION, thông báo PT
+                List<Booking> needConfirmation = bookingRepository.findAllByStatusAndEndAtBefore(
+                                BookingStatus.CONFIRMED, now);
+                if (!needConfirmation.isEmpty()) {
+                        log.info("Moving {} CONFIRMED bookings → AWAITING_CONFIRMATION", needConfirmation.size());
+                        for (Booking booking : needConfirmation) {
+                                booking.setStatus(BookingStatus.AWAITING_CONFIRMATION);
+                                // Gửi thông báo cho PT để xác nhận
+                                eventPublisher.publishEvent(new com.gymapp.modules.booking.event.BookingAwaitingConfirmationEvent(this, booking));
+                        }
+                        bookingRepository.saveAll(needConfirmation);
                 }
 
-                log.info("Found {} confirmed bookings that have passed their end time. Auto-completing...",
-                                pastBookings.size());
-
-                for (Booking booking : pastBookings) {
-                        booking.setStatus(BookingStatus.COMPLETED);
-                        // Optionally, we could add a completedAt timestamp property to Booking entity,
-                        // but status is enough here
-                        eventPublisher.publishEvent(new BookingCompletedEvent(this, booking));
+                // ② AWAITING_CONFIRMATION đã chờ > 24h → auto COMPLETED
+                OffsetDateTime deadline = now.minusHours(24);
+                List<Booking> autoCompletes = bookingRepository.findAllByStatusAndEndAtBefore(
+                                BookingStatus.AWAITING_CONFIRMATION, deadline);
+                if (!autoCompletes.isEmpty()) {
+                        log.info("Auto-completing {} bookings after 24h without PT confirmation", autoCompletes.size());
+                        for (Booking booking : autoCompletes) {
+                                booking.setStatus(BookingStatus.COMPLETED);
+                                booking.setPtConfirmedAt(now);
+                                eventPublisher.publishEvent(new BookingCompletedEvent(this, booking));
+                        }
+                        bookingRepository.saveAll(autoCompletes);
                 }
-
-                bookingRepository.saveAll(pastBookings);
         }
+
+        @Override
+        @Transactional
+        public void confirmAttendance(UUID ptId, UUID bookingId, boolean attended) {
+                Booking booking = bookingRepository.findById(bookingId)
+                                .orElseThrow(() -> new ResourceNotFoundException("BOOKING_NOT_FOUND", "Không tìm thấy booking"));
+
+                // Chỉ PT của buổi tập được xác nhận
+                if (!booking.getPt().getId().equals(ptId)) {
+                        throw new com.gymapp.common.exception.ForbiddenException("FORBIDDEN",
+                                        "Bạn không có quyền xác nhận buổi tập này");
+                }
+
+                // Chỉ xác nhận khi đang ở trạng thái chờ xác nhận
+                if (booking.getStatus() != BookingStatus.AWAITING_CONFIRMATION) {
+                        throw new BadRequestException("INVALID_STATUS",
+                                        "Buổi tập phải ở trạng thái AWAITING_CONFIRMATION mới có thể xác nhận. Hiện tại: "
+                                                        + booking.getStatus());
+                }
+
+                OffsetDateTime now = OffsetDateTime.now();
+                booking.setPtConfirmedAt(now);
+
+                if (attended) {
+                        // Học viên đã tập → COMPLETED → PT nhận tiền
+                        log.info("PT {} confirmed attendance for booking {}: ATTENDED", ptId, bookingId);
+                        booking.setStatus(BookingStatus.COMPLETED);
+                        booking.setCompletedAt(now);
+                        bookingRepository.save(booking);
+                        eventPublisher.publishEvent(new BookingCompletedEvent(this, booking));
+                } else {
+                        // Học viên vắng mặt → NO_SHOW → PT KHÔNG nhận tiền
+                        log.info("PT {} confirmed attendance for booking {}: NO_SHOW", ptId, bookingId);
+                        booking.setStatus(BookingStatus.NO_SHOW);
+                        bookingRepository.save(booking);
+                        // Không publish BookingCompletedEvent → PT không được tính earning
+                        // Không hoàn tiền user vì user không hủy trước
+                }
+        }
+
 
         private BigDecimal calculateRefundPercentage(CancelByType cancelBy, OffsetDateTime scheduledAt) {
                 if (cancelBy == CancelByType.PT || cancelBy == CancelByType.SYSTEM) {

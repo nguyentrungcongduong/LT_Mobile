@@ -79,6 +79,9 @@ public class Booking {
     @Column(name = "completed_at")
     private OffsetDateTime completedAt;
 
+    @Column(name = "pt_confirmed_at")
+    private OffsetDateTime ptConfirmedAt;
+
     @Column(name = "expires_at")
     private OffsetDateTime expiresAt;
 

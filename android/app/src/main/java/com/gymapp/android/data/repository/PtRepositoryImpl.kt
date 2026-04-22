@@ -76,6 +76,16 @@ class PtRepositoryImpl @Inject constructor(
         handleApiCall { ptApi.suspendPt(ptId, mapOf("reason" to reason)) }
     }
 
+    override suspend fun confirmAttendance(bookingId: String, attended: Boolean): Result<Unit> = withContext(Dispatchers.IO) {
+        return@withContext try {
+            val response = ptApi.confirmAttendance(bookingId, mapOf("attended" to attended))
+            if (response.isSuccessful) Result.success(Unit)
+            else Result.failure(Exception(response.errorBody()?.string() ?: "Xác nhận thất bại"))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     private suspend fun <T> handleApiCall(apiCall: suspend () -> Response<ApiResponse<T>>): Result<T> {
         return try {
             val response = apiCall()

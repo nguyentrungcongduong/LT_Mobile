@@ -43,4 +43,11 @@ public interface BookingService {
                         OffsetDateTime fromDate,
                         OffsetDateTime toDate,
                         Pageable pageable);
+
+        /**
+         * PT xác nhận học viên có tham gia buổi tập hay không.
+         * attended=true  → COMPLETED (PT nhận tiền)
+         * attended=false → NO_SHOW  (PT không nhận tiền, user mất tiền)
+         */
+        void confirmAttendance(UUID ptId, UUID bookingId, boolean attended);
 }

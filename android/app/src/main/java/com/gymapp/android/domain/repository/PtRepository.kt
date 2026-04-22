@@ -28,4 +28,6 @@ interface PtRepository {
     suspend fun getClientProgress(userId: String): Result<ClientProgressDto>
     suspend fun approvePt(ptId: String): Result<Map<String, Any>>
     suspend fun suspendPt(ptId: String, reason: String): Result<Map<String, Any>>
+    /** PT xác nhận buổi tập: attended=true→COMPLETED, false→NO_SHOW */
+    suspend fun confirmAttendance(bookingId: String, attended: Boolean): Result<Unit>
 }

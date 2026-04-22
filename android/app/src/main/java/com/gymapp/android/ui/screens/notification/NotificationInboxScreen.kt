@@ -41,6 +41,9 @@ fun NotificationInboxScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    // Reload mỗi lần mở màn để badge ở Home Screen cũng được cập nhật khi quay lại
+    LaunchedEffect(Unit) { viewModel.load() }
+
     Scaffold(
         topBar = {
             TopAppBar(

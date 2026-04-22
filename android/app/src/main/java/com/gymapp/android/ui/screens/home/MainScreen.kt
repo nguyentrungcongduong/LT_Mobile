@@ -72,6 +72,7 @@ fun MainScreen(
     val adminStats by mainViewModel.adminStats.collectAsState()
     val ptStats by mainViewModel.ptStats.collectAsState()
     val banners by bannerViewModel.banners.collectAsState()
+    val unreadCount by mainViewModel.unreadNotifCount.collectAsState()
 
     val userItems = listOf(
         BottomNavRoute.Dashboard,
@@ -106,6 +107,7 @@ fun MainScreen(
     LaunchedEffect(currentRoute) {
         if (currentRoute == BottomNavRoute.Dashboard.route) {
             mainViewModel.fetchProfile()
+            mainViewModel.fetchUnreadNotifCount()
         }
         if (currentRoute == BottomNavRoute.Dashboard.route && userRole == "PT") {
             mainViewModel.fetchPtStats()
@@ -184,14 +186,35 @@ fun MainScreen(
                             )
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            // Notification bell
-                            androidx.compose.material3.IconButton(onClick = onNavigateToNotifications) {
-                                androidx.compose.material3.Icon(
-                                    imageVector = Icons.Default.NotificationsNone,
-                                    contentDescription = "Thông báo",
-                                    tint = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.size(26.dp)
-                                )
+                            // Notification bell với badge số chưa đọc
+                            androidx.compose.material3.BadgedBox(
+                                badge = {
+                                    if (unreadCount > 0) {
+                                        androidx.compose.material3.Badge(
+                                            containerColor = Color(0xFFFF3B30)
+                                        ) {
+                                            Text(
+                                                if (unreadCount > 99) "99+" else unreadCount.toString(),
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color.White
+                                            )
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.padding(end = 4.dp)
+                            ) {
+                                androidx.compose.material3.IconButton(onClick = {
+                                    mainViewModel.clearUnreadNotifCount()
+                                    onNavigateToNotifications()
+                                }) {
+                                    androidx.compose.material3.Icon(
+                                        imageVector = Icons.Default.NotificationsNone,
+                                        contentDescription = "Thông báo",
+                                        tint = MaterialTheme.colorScheme.onSurface,
+                                        modifier = Modifier.size(26.dp)
+                                    )
+                                }
                             }
                             Surface(
                                 shape = androidx.compose.foundation.shape.CircleShape,
@@ -364,47 +387,63 @@ fun MainScreen(
 
                         Spacer(modifier = Modifier.height(22.dp))
 
-                        // ── Daily Activity ───────────────────────────────────────
-                        Text("Hoạt động hôm nay", fontWeight = FontWeight.SemiBold, fontSize = 17.sp, color = Color(0xFF1A1A1A))
-                        Spacer(modifier = Modifier.height(12.dp))
-                        val activityGrad = Brush.linearGradient(
-                            listOf(Color(0xFF1A1A2E), Color(0xFF0F3460)),
-                            start = androidx.compose.ui.geometry.Offset(0f, 0f),
-                            end = androidx.compose.ui.geometry.Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
-                        )
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(20.dp))
-                                .background(activityGrad)
-                                .padding(20.dp)
+                        // ── Lịch tập sắp tới ─────────────────────────────────
+                        val userUpcomingBookings by mainViewModel.userUpcomingBookings.collectAsState()
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceEvenly
-                            ) {
-                                @Composable
-                                fun ActivityStat(label: String, value: String, unit: String, icon: androidx.compose.ui.graphics.vector.ImageVector) {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                                        Box(
-                                            modifier = Modifier.size(52.dp).clip(CircleShape)
-                                                .background(Color(0x22FFFFFF)),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Icon(icon, null, tint = Color(0xFFFF8C00), modifier = Modifier.size(24.dp))
+                            Text("Lịch tập sắp tới", fontWeight = FontWeight.SemiBold, fontSize = 17.sp, color = Color(0xFF1A1A1A))
+                            if (userUpcomingBookings.isNotEmpty()) {
+                                Text(
+                                    "Xem tất cả →",
+                                    fontSize = 13.sp,
+                                    color = Color(0xFFFF6B2B),
+                                    modifier = Modifier.clickable {
+                                        navController.navigate(BottomNavRoute.UserBookings.route) {
+                                            navController.graph.startDestinationRoute?.let { r -> popUpTo(r) { saveState = true } }
+                                            launchSingleTop = true; restoreState = true
                                         }
-                                        Text(value, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
-                                        Text(unit, color = Color(0x88FFFFFF), fontSize = 10.sp)
-                                        Text(label, color = Color(0xAAFFFFFF), fontSize = 11.sp)
                                     }
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        if (userUpcomingBookings.isEmpty()) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(Color(0xFFF5F5F5))
+                                    .padding(24.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Icon(Icons.Default.DateRange, null, tint = Color(0xFFCCCCCC), modifier = Modifier.size(36.dp))
+                                    Text("Chưa có lịch tập nào", color = Color(0xFF999999), fontSize = 14.sp)
+                                    Text(
+                                        "Thuê PT để đặt lịch tập ngay!",
+                                        fontSize = 12.sp,
+                                        color = Color(0xFFFF6B2B),
+                                        modifier = Modifier.clickable {
+                                            navController.navigate(BottomNavRoute.PTBooking.route) {
+                                                navController.graph.startDestinationRoute?.let { r -> popUpTo(r) { saveState = true } }
+                                                launchSingleTop = true; restoreState = true
+                                            }
+                                        }
+                                    )
                                 }
-                                ActivityStat("Calo", "320", "kcal", Icons.Default.FitnessCenter)
-                                Box(modifier = Modifier.width(1.dp).height(70.dp).background(Color(0x22FFFFFF))
-                                    .align(Alignment.CenterVertically))
-                                ActivityStat("Bước", "4.2k", "bước", Icons.Default.DateRange)
-                                Box(modifier = Modifier.width(1.dp).height(70.dp).background(Color(0x22FFFFFF))
-                                    .align(Alignment.CenterVertically))
-                                ActivityStat("Thời gian", "38", "phút", Icons.Default.Timer)
+                            }
+                        } else {
+                            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                userUpcomingBookings.forEach { booking ->
+                                    UpcomingBookingCard(booking = booking)
+                                }
                             }
                         }
 
@@ -967,4 +1006,56 @@ fun MainScreen(
         }
     }
     } // end GlowBackground
+}
+
+// ── Upcoming Booking Card ──────────────────────────────────────────────────────
+@Composable
+fun UpcomingBookingCard(booking: com.gymapp.android.data.remote.api.BookingDto) {
+    val formattedDate = remember(booking.scheduledAt) {
+        try {
+            val cal = java.util.Calendar.getInstance().apply { time = booking.scheduledAt }
+            val daysVI = listOf("CN", "T2", "T3", "T4", "T5", "T6", "T7")
+            val dow = daysVI.getOrElse(cal.get(java.util.Calendar.DAY_OF_WEEK) - 1) { "" }
+            val fmt = java.text.SimpleDateFormat("HH:mm · dd/MM/yyyy", java.util.Locale.getDefault())
+            "$dow, ${fmt.format(booking.scheduledAt)}"
+        } catch (e: Exception) { "" }
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(Color.White)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(Brush.linearGradient(listOf(Color(0xFFFF8C00), Color(0xFFFF4500)))),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(Icons.Default.FitnessCenter, null, tint = Color.White, modifier = Modifier.size(24.dp))
+        }
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            Text(
+                "PT ${booking.ptName ?: "Personal Trainer"}",
+                fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1A1A1A)
+            )
+            Text(formattedDate, fontSize = 13.sp, color = Color(0xFF888888))
+            Text(
+                "${booking.durationMinutes ?: 60} phút",
+                fontSize = 12.sp, color = Color(0xFFFF6B2B)
+            )
+        }
+        Box(
+            modifier = Modifier
+                .clip(CircleShape)
+                .background(Color(0xFFF0FFF8))
+                .padding(horizontal = 10.dp, vertical = 5.dp)
+        ) {
+            Text("Đã xác nhận", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = Color(0xFF00A86B))
+        }
+    }
 }

@@ -54,6 +54,7 @@ data class BookingDto(
     @SerializedName("user_avatar") val userAvatar: String?,
     @SerializedName("scheduled_at") val scheduledAt: Date,
     @SerializedName("end_at") val endAt: Date,
+    @SerializedName("duration_minutes") val durationMinutes: Int?,
     @SerializedName("total_amount") val totalAmount: Double,
     @SerializedName("pt_amount") val ptAmount: Double?,
     val status: String

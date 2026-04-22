@@ -3,6 +3,7 @@ package com.gymapp.modules.booking.listener;
 import com.gymapp.modules.booking.entity.Booking;
 import com.gymapp.modules.booking.event.BookingCancelledEvent;
 import com.gymapp.modules.booking.event.BookingConfirmedEvent;
+import com.gymapp.modules.booking.event.BookingAwaitingConfirmationEvent;
 import com.gymapp.modules.notification.entity.Notification;
 import com.gymapp.modules.notification.enums.NotificationType;
 import com.gymapp.modules.notification.repository.NotificationRepository;
@@ -73,6 +74,32 @@ public class BookingNotificationListener {
 
         } catch (Exception e) {
             log.error("Error handling BookingConfirmedEvent: bookingId={}", booking.getId(), e);
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // AWAITING CONFIRMATION — thông báo PT xác nhận buổi tập
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Async
+    @EventListener
+    public void handleAwaitingConfirmation(BookingAwaitingConfirmationEvent event) {
+        Booking booking = event.getBooking();
+        try {
+            User pt = booking.getPt();
+            User user = booking.getUser();
+            String scheduledStr = booking.getScheduledAt().format(DISPLAY_FMT);
+
+            String ptTitle = "Xác nhận buổi tập ✅";
+            String ptBody  = String.format(
+                    "Buổi tập với %s lúc %s đã kết thúc. Học viên có đến tập không? Hãy xác nhận trong app!",
+                    user.getFullName(), scheduledStr);
+
+            saveNotification(pt, ptTitle, ptBody, NotificationType.BOOKING_CONFIRMED, booking.getId());
+            fcmService.sendPush(pt.getFcmToken(), ptTitle, ptBody, "bookingId", booking.getId().toString());
+            log.info("Sent attendance confirmation request to PT {} for booking {}", pt.getId(), booking.getId());
+        } catch (Exception e) {
+            log.error("Error sending awaiting confirmation notification for booking {}", booking.getId(), e);
         }
     }
 

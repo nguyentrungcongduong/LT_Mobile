@@ -262,6 +262,9 @@ fun ProfileScreen(
                         // ── Dialogs ────────────────────────────────────────────
                         if (showPtProfileDialog) {
                             UpdatePtProfileDialog(
+                                initialPrice = ptProfile?.pricePerSession?.toLong(),
+                                initialBio = ptProfile?.bio,
+                                initialYearsExp = ptProfile?.yearsExperience,
                                 isUpdating = isUpdating,
                                 onDismiss = { showPtProfileDialog = false },
                                 onConfirm = { price, bio, exp ->
@@ -838,13 +841,16 @@ fun ChangePasswordDialog(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdatePtProfileDialog(
+    initialPrice: Long?,
+    initialBio: String?,
+    initialYearsExp: Int?,
     isUpdating: Boolean,
     onDismiss: () -> Unit,
     onConfirm: (Long?, String?, Int?) -> Unit
 ) {
-    var priceText by remember { mutableStateOf("") }
-    var bio by remember { mutableStateOf("") }
-    var yearsExpText by remember { mutableStateOf("") }
+    var priceText by remember { mutableStateOf(initialPrice?.let { if (it > 0) it.toString() else "" } ?: "") }
+    var bio by remember { mutableStateOf(initialBio ?: "") }
+    var yearsExpText by remember { mutableStateOf(initialYearsExp?.let { if (it > 0) it.toString() else "" } ?: "") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
