@@ -10,8 +10,14 @@ import java.util.UUID;
 
 public interface WorkoutPlanService {
     Page<WorkoutPlanResponse> getWorkoutPlans(UUID currentUserId, WpType type, Pageable pageable);
+
     Page<WorkoutPlanResponse> getRecommendedPlans(UUID currentUserId, Pageable pageable);
+
     WorkoutPlanResponse createWorkoutPlan(UUID currentUserId, WorkoutPlanRequest request);
+
     WorkoutPlanResponse updateWorkoutPlan(UUID currentUserId, UUID planId, WorkoutPlanRequest request);
+
     WorkoutPlanResponse getWorkoutPlanById(UUID currentUserId, UUID planId);
+
+    WorkoutPlanResponse createPlanForUser(UUID currentUserId, WorkoutPlanRequest request);
 }

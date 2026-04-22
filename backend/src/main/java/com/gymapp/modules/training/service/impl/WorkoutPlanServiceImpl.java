@@ -188,4 +188,26 @@ public class WorkoutPlanServiceImpl implements WorkoutPlanService {
                         .build()).collect(Collectors.toList()))
                 .build();
     }
+
+    @Transactional
+    public WorkoutPlanResponse createPlanForUser(UUID currentUserId, WorkoutPlanRequest request) {
+
+        User pt = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND", "User not found"));
+
+        if (pt.getRole() != UserRole.PT) {
+            throw new ForbiddenException("FORBIDDEN", "Only PT can assign plans");
+        }
+
+        if (request.getAssignedTo() == null) {
+            throw new IllegalArgumentException("assignedTo is required");
+        }
+
+        User user = userRepository.findById(request.getAssignedTo())
+                .orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND", "User not found"));
+
+        request.setPlanType(WpType.PT_ASSIGNED);
+
+        return createWorkoutPlan(currentUserId, request);
+    }
 }

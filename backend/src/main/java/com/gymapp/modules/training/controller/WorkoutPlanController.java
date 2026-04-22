@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -68,5 +69,18 @@ public class WorkoutPlanController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable UUID planId) {
         return ResponseEntity.ok(workoutPlanService.getWorkoutPlanById(userDetails.getId(), planId));
+    }
+
+    @PostMapping("/pt/assign")
+    public ResponseEntity<?> assignPlanToUser(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestBody WorkoutPlanRequest request) {
+
+        UUID currentUserId = userDetails.getId();
+
+        WorkoutPlanResponse res = workoutPlanService
+                .createPlanForUser(currentUserId, request);
+
+        return ResponseEntity.ok(res);
     }
 }
