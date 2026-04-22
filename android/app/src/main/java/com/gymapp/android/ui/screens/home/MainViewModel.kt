@@ -60,7 +60,8 @@ class MainViewModel @Inject constructor(
                 _currentUserId.value = user.id
 
                 val hasSetupLocal = Prefs.hasSetupGoal(context, user.id)
-                _needSetupGoal.value = !hasSetupLocal
+                // Chỉ hiện GoalSetup cho USER, PT, MEMBER — không dành cho ADMIN
+                _needSetupGoal.value = !hasSetupLocal && user.role != "ADMIN"
 
                 when (user.role) {
                     "ADMIN" -> fetchAdminStats()

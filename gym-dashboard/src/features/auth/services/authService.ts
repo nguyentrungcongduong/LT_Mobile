@@ -47,6 +47,13 @@ export const authService = {
     if (res.data.success && res.data.data?.refresh_token) {
       tokenStorage.setRefreshToken(res.data.data.refresh_token);
     }
+    // Lưu access_token + user → sessionStorage để survive F5 mà không cần refresh
+    if (res.data.success && res.data.data?.access_token) {
+      tokenStorage.setAccessToken(res.data.data.access_token);
+    }
+    if (res.data.success && res.data.data?.user) {
+      tokenStorage.setUser(res.data.data.user);
+    }
 
     return res.data;
   },

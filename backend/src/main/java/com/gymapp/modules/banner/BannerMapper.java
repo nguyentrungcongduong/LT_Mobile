@@ -8,6 +8,7 @@ public class BannerMapper {
                 .imageUrl(banner.getImageUrl())
                 .title(banner.getTitle())
                 .description(banner.getDescription())
+                .isActive(Boolean.TRUE.equals(banner.getIsActive()))
                 .build();
     }
 }

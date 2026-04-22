@@ -3,8 +3,9 @@ import type { ApiSuccessResponse } from '@/types/common.types';
 import type { MembershipPlan, MembershipPlanRequest } from '@/types/membership.types';
 
 export const membershipService = {
+  /** Admin: lấy TẤT CẢ plan (kể cả inactive) để quản lý */
   getAll: async (params?: { branch_id?: string; plan_type?: string }): Promise<ApiSuccessResponse<{ plans: MembershipPlan[] }>> => {
-    const res = await api.get<ApiSuccessResponse<{ plans: MembershipPlan[] }>>('/membership-plans', {
+    const res = await api.get<ApiSuccessResponse<{ plans: MembershipPlan[] }>>('/admin/membership-plans', {
       params
     });
     return res.data;

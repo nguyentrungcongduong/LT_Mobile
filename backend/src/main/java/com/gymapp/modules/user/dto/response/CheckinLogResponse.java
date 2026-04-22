@@ -24,7 +24,11 @@ public class CheckinLogResponse {
     private String userFullName;
     private UUID branchId;
 
+    /** Tên chi nhánh hoặc "Tất cả chi nhánh" nếu gói ALL */
     private String branchName;
+
+    /** "ALL" hoặc "SINGLE" — để frontend hiển thị badge */
+    private String planType;
 
     private LocalDate checkinDate;
     private OffsetDateTime checkinTime;

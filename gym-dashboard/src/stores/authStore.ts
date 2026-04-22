@@ -79,17 +79,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   getUser: () => get().user,
 
   // ── Primitive setters ──────────────────────────────────────────────────────
-  setAuth: (token, user) =>
+  setAuth: (token, user) => {
+    tokenStorage.setAccessToken(token); // Persist to sessionStorage for F5 survive
+    tokenStorage.setUser(user);
     set({
       accessToken: token,
       user,
       isAuthenticated: true,
       isAdmin: user.role === 'ADMIN',
       loginError: null,
-    }),
+    });
+  },
+
 
   clearAuth: () => {
-    tokenStorage.clearRefreshToken(); // Xóa refresh token khỏi localStorage
+    tokenStorage.clearAll(); // Xóa refresh token (localStorage) + access token + user (sessionStorage)
     set({
       accessToken: null,
       user: null,
@@ -97,6 +101,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       isAdmin: false,
     });
   },
+
 
   setInitializing: (value) => set({ isInitializing: value }),
 

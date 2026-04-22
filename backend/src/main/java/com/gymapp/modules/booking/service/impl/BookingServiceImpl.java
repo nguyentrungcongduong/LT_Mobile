@@ -87,7 +87,12 @@ public class BookingServiceImpl implements BookingService {
                                                 "Availability slot not found"));
 
                 if (availability.isBooked()) {
-                        throw new ConflictException("SLOT_ALREADY_BOOKED", "This slot is already booked");
+                        throw new ConflictException("SLOT_ALREADY_BOOKED",
+                                        "Slot " + availability.getAvailableDate()
+                                                .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                                        + " lúc " + availability.getStartTime()
+                                                .format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+                                        + " đã được đặt rồi");
                 }
 
                 // 3. Get PT Profile and Calculate Amounts
@@ -191,9 +196,13 @@ public class BookingServiceImpl implements BookingService {
 
                         if (availability.isBooked()) {
                                 throw new ConflictException("SLOT_ALREADY_BOOKED",
-                                                "Slot " + availability.getAvailableDate() + " "
-                                                                + availability.getStartTime()
-                                                                + " is already booked");
+                                                "Slot ngày "
+                                                + availability.getAvailableDate()
+                                                        .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                                                + " lúc "
+                                                + availability.getStartTime()
+                                                        .format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+                                                + " đã có người đặt rồi, vui lòng chọn slot khác");
                         }
 
                         BigDecimal platformFee = pricePerSession.multiply(commissionRate);

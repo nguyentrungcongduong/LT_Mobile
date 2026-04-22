@@ -45,6 +45,10 @@ public class MembershipPlanService {
             }
             Branch branch = branchRepository.findById(request.getBranchId())
                     .orElseThrow(() -> new BadRequestException("BRANCH_NOT_FOUND", "Chi nhánh không tồn tại"));
+            if (!branch.isActive()) {
+                throw new BadRequestException("BRANCH_INACTIVE",
+                        "Chi nhánh '" + branch.getName() + "' đang tạm ngưng. Không thể tạo gói mới cho chi nhánh này.");
+            }
             plan.setBranch(branch);
         } else {
             // CASE 2: ALL
@@ -73,8 +77,17 @@ public class MembershipPlanService {
             plan.setPrice(request.getPrice());
         if (request.getDurationDays() != null)
             plan.setDurationDays(request.getDurationDays());
-        if (request.getIsActive() != null)
+        if (request.getIsActive() != null) {
+            // Validate: không cho activate SINGLE plan khi branch đang tạm ngưng
+            if (Boolean.TRUE.equals(request.getIsActive())
+                    && plan.getPlanType() == PlanType.SINGLE
+                    && plan.getBranch() != null
+                    && !plan.getBranch().isActive()) {
+                throw new BadRequestException("BRANCH_INACTIVE",
+                        "Chi nhánh '" + plan.getBranch().getName() + "' đang tạm ngưng. Hãy kích hoạt chi nhánh trước.");
+            }
             plan.setActive(request.getIsActive());
+        }
 
         // Step 3: Nếu có thay đổi plan_type hoặc branch_id → chạy lại logic SINGLE /
         // ALL
@@ -119,11 +132,38 @@ public class MembershipPlanService {
     @Transactional(readOnly = true)
     public MembershipPlanListResponse getAllPlans(UUID branchId, PlanType planType) {
         List<MembershipPlan> plans = membershipPlanRepository.findAllWithFilters(branchId, planType);
-
         List<MembershipPlanResponse> responses = plans.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+        return new MembershipPlanListResponse(responses);
+    }
 
+    /** Mobile / public: chỉ trả về gói active, SINGLE plan phải có branch active */
+    @Transactional(readOnly = true)
+    public MembershipPlanListResponse getActivePlans(UUID branchId, PlanType planType) {
+        // Lấy tất cả plan từ DB (không dùng filter SQL để tránh PostgreSQL enum type issue)
+        List<MembershipPlan> plans = membershipPlanRepository.findAll();
+
+        // Filter trong Java:
+        // 1. Chỉ lấy plan active
+        // 2. SINGLE plan: branch phải active
+        // 3. Filter branchId nếu có
+        // 4. Filter planType nếu có
+        List<MembershipPlan> filtered = plans.stream()
+                .filter(p -> p.isActive())
+                .filter(p -> {
+                    if (p.getPlanType() == PlanType.ALL) return true;
+                    // SINGLE: branch phải active
+                    return p.getBranch() != null && p.getBranch().isActive();
+                })
+                .filter(p -> branchId == null
+                        || (p.getBranch() != null && branchId.equals(p.getBranch().getId())))
+                .filter(p -> planType == null || p.getPlanType() == planType)
+                .collect(Collectors.toList());
+
+        List<MembershipPlanResponse> responses = filtered.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
         return new MembershipPlanListResponse(responses);
     }
 
@@ -155,6 +195,7 @@ public class MembershipPlanService {
                 .branchName(plan.getBranch() != null ? plan.getBranch().getName() : null)
                 .branchLatitude(plan.getBranch() != null ? plan.getBranch().getLatitude() : null)
                 .branchLongitude(plan.getBranch() != null ? plan.getBranch().getLongitude() : null)
+                .branchIsActive(plan.getBranch() == null || plan.getBranch().isActive())
                 .isActive(plan.isActive())
                 .availableBranches(branches)
                 .createdAt(plan.getCreatedAt())

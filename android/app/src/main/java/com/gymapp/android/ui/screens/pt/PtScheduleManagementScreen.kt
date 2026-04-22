@@ -32,6 +32,12 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+// Chuẩn hóa "9:00:00" / "09:00:00" / "09:00" → "HH:mm"
+private fun fmtTime(t: String): String = try {
+    val p = t.trim().split(":")
+    String.format("%02d:%02d", p[0].toInt(), p[1].toInt())
+} catch (e: Exception) { if (t.length >= 5) t.substring(0, 5) else t }
+
 // ─── Dark Design Tokens ────────────────────────────────────────────────────────
 private val BgPrimary    = Color(0xFF121212)
 private val BgSecondary  = Color(0xFF1C1C1E)
@@ -75,6 +81,13 @@ fun PtScheduleManagementScreen(
 
     var showAddDialog by remember { mutableStateOf(false) }
     var viewingDate by remember { mutableStateOf(LocalDate.now()) }
+
+    // Compute here so both Scaffold body AND AddSlotDialog can access it
+    val slotsForDay = remember(mySlots, viewingDate) {
+        mySlots.filter { slot ->
+            slot.availableDate == viewingDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
+        }
+    }
 
     LaunchedEffect(currentPtId) {
         if (currentPtId.isNotBlank()) viewModel.setCurrentPtId(currentPtId)
@@ -143,9 +156,6 @@ fun PtScheduleManagementScreen(
             )
 
             // ── Summary row ─────────────────────────────────────────────────
-            val slotsForDay = mySlots.filter { slot ->
-                slot.availableDate == viewingDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
-            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -254,6 +264,7 @@ fun PtScheduleManagementScreen(
         AddSlotDialog(
             initialDate = viewingDate,
             isCreating = isCreating,
+            existingSlots = slotsForDay, // truyền slot hiện có để block preset trùng
             onDismiss = { showAddDialog = false },
             onConfirm = { date, sh, sm, eh, em ->
                 viewModel.createSlot(
@@ -379,8 +390,8 @@ private fun SlotCard(slot: PtAvailabilityDto) {
                 }
                 Spacer(Modifier.width(14.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(slot.startTime, fontWeight = FontWeight.ExtraBold, fontSize = 20.sp, color = Tprimary)
-                    Text("→  ${slot.endTime}", fontSize = 13.sp, color = Tsecondary)
+                    Text(fmtTime(slot.startTime), fontWeight = FontWeight.ExtraBold, fontSize = 20.sp, color = Tprimary)
+                    Text("→  ${fmtTime(slot.endTime)}", fontSize = 13.sp, color = Tsecondary)
                 }
                 Box(
                     modifier = Modifier
@@ -428,6 +439,7 @@ private fun SlotCard(slot: PtAvailabilityDto) {
 private fun AddSlotDialog(
     initialDate: LocalDate,
     isCreating: Boolean,
+    existingSlots: List<PtAvailabilityDto> = emptyList(),
     onDismiss: () -> Unit,
     onConfirm: (LocalDate, Int, Int, Int, Int) -> Unit
 ) {
@@ -511,13 +523,29 @@ private fun AddSlotDialog(
 
                 Text("🌅  Buổi sáng", fontSize = 11.sp, color = Tsecondary)
                 Spacer(Modifier.height(6.dp))
+                // Compute which presets are already taken for selectedDate
+                val takenPresets: Set<Int> = remember(existingSlots, selectedDate) {
+                    PRESET_SLOTS.mapIndexedNotNull { idx, (start, _) ->
+                        val h = start.split(":")[0].toInt()
+                        val m = start.split(":")[1].toInt()
+                        val matchesTaken = existingSlots.any { slot ->
+                            try {
+                                val sp = slot.startTime.trim().split(":")
+                                sp[0].toInt() == h && sp[1].toInt() == m
+                            } catch (e: Exception) { false }
+                        }
+                        if (matchesTaken) idx else null
+                    }.toSet()
+                }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     PRESET_SLOTS.take(5).forEachIndexed { idx, slot ->
+                        val isTaken = takenPresets.contains(idx)
                         TimeChip(
                             label = slot.first,
                             isSelected = selectedPresetIndex == idx,
+                            isTaken = isTaken,
                             modifier = Modifier.weight(1f),
-                            onClick = { selectedPresetIndex = if (selectedPresetIndex == idx) null else idx }
+                            onClick = { if (!isTaken) selectedPresetIndex = if (selectedPresetIndex == idx) null else idx }
                         )
                     }
                 }
@@ -528,11 +556,13 @@ private fun AddSlotDialog(
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     PRESET_SLOTS.drop(5).take(4).forEachIndexed { i, slot ->
                         val idx = i + 5
+                        val isTaken = takenPresets.contains(idx)
                         TimeChip(
                             label = slot.first,
                             isSelected = selectedPresetIndex == idx,
+                            isTaken = isTaken,
                             modifier = Modifier.weight(1f),
-                            onClick = { selectedPresetIndex = if (selectedPresetIndex == idx) null else idx }
+                            onClick = { if (!isTaken) selectedPresetIndex = if (selectedPresetIndex == idx) null else idx }
                         )
                     }
                 }
@@ -540,11 +570,13 @@ private fun AddSlotDialog(
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     PRESET_SLOTS.drop(9).forEachIndexed { i, slot ->
                         val idx = i + 9
+                        val isTaken = takenPresets.contains(idx)
                         TimeChip(
                             label = slot.first,
                             isSelected = selectedPresetIndex == idx,
+                            isTaken = isTaken,
                             modifier = Modifier.weight(1f),
-                            onClick = { selectedPresetIndex = if (selectedPresetIndex == idx) null else idx }
+                            onClick = { if (!isTaken) selectedPresetIndex = if (selectedPresetIndex == idx) null else idx }
                         )
                     }
                     repeat(4 - PRESET_SLOTS.drop(9).size) { Spacer(Modifier.weight(1f)) }
@@ -604,23 +636,48 @@ private fun AddSlotDialog(
 private fun TimeChip(
     label: String,
     isSelected: Boolean,
+    isTaken: Boolean = false,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
+    val bgColor = when {
+        isTaken    -> Color(0xFF2A2A2E)       // greyed out
+        isSelected -> Orange
+        else       -> Color(0xFF252528)
+    }
+    val borderColor = when {
+        isTaken    -> Color(0xFF3A3A3E)
+        isSelected -> Orange
+        else       -> BorderDark
+    }
+    val textColor = when {
+        isTaken    -> Color(0xFF555558)       // dimmed
+        isSelected -> Color.White
+        else       -> Tprimary
+    }
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
-            .background(if (isSelected) Orange else Color(0xFF252528))
-            .border(1.dp, if (isSelected) Orange else BorderDark, RoundedCornerShape(10.dp))
-            .clickable { onClick() }
+            .background(bgColor)
+            .border(1.dp, borderColor, RoundedCornerShape(10.dp))
+            .clickable(enabled = !isTaken) { onClick() }
             .padding(vertical = 9.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = label,
-            fontSize = 12.sp,
-            fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Normal,
-            color = if (isSelected) Color.White else Tprimary
-        )
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = label,
+                fontSize = 12.sp,
+                fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Normal,
+                color = textColor
+            )
+            if (isTaken) {
+                Text(
+                    text = "✓",
+                    fontSize = 9.sp,
+                    color = Color(0xFF666669)
+                )
+            }
+        }
     }
 }

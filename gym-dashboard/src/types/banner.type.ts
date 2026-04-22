@@ -1,14 +1,11 @@
 export interface Banner {
   id: string;
-
   imageUrl: string;
-  publicId: string;
-
+  publicId?: string;
   title: string;
-  description: string;
-
-  isActive?: boolean;
-
+  description?: string;
+  /** Backend trả về key "isActive" (có @JsonProperty) */
+  isActive: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

@@ -92,4 +92,20 @@ public class BannerService {
                 .map(BannerMapper::toResponse)
                 .toList();
     }
+
+    /** Admin: lấy TẤT CẢ banner (kể cả ẩn) để quản lý */
+    public List<BannerResponse> getAllBanners() {
+        return bannerRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .map(BannerMapper::toResponse)
+                .toList();
+    }
+
+    /** Toggle isActive: bật/tắt banner */
+    public BannerResponse toggleActive(UUID id) {
+        Banner banner = bannerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Banner not found"));
+        banner.setIsActive(!Boolean.TRUE.equals(banner.getIsActive()));
+        return BannerMapper.toResponse(bannerRepository.save(banner));
+    }
 }

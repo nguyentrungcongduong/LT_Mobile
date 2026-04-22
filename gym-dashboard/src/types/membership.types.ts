@@ -11,7 +11,10 @@ export interface MembershipPlan {
   branchName?: string;
   branchLatitude?: number;
   branchLongitude?: number;
+  /** Jackson serializes Java's isActive() getter → "active" (strips "is" prefix) */
   active: boolean;
+  /** false khi SINGLE plan gắn với branch đang tạm ngưng */
+  branchIsActive: boolean;
   createdAt: string;
 }
 

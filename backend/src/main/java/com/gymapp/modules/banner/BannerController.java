@@ -16,27 +16,43 @@ public class BannerController {
 
     private final BannerService bannerService;
 
-    // ADMIN
+    // ── ADMIN ────────────────────────────────────────────────────────────
+
+    /** Admin: lấy TẤT CẢ banner (kể cả ẩn) để quản lý */
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<List<BannerResponse>> getAll() {
+        return ApiResponse.ok(bannerService.getAllBanners(), "Get all banners success");
+    }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<Banner> create(
+    public ApiResponse<BannerResponse> create(
             @RequestParam MultipartFile file,
             @RequestParam String title,
-            @RequestParam String description) {
+            @RequestParam(required = false, defaultValue = "") String description) {
         Banner banner = bannerService.createBanner(file, title, description);
-        return ApiResponse.ok(banner, "Create banner success");
+        return ApiResponse.ok(BannerMapper.toResponse(banner), "Create banner success");
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<Banner> update(
+    public ApiResponse<BannerResponse> update(
             @PathVariable UUID id,
             @RequestParam(required = false) MultipartFile file,
             @RequestParam String title,
-            @RequestParam String description) {
+            @RequestParam(required = false, defaultValue = "") String description) {
         Banner banner = bannerService.updateBanner(id, file, title, description);
-        return ApiResponse.ok(banner, "Update banner success");
+        return ApiResponse.ok(BannerMapper.toResponse(banner), "Update banner success");
+    }
+
+    /** Admin: bật/tắt hiển thị banner */
+    @PatchMapping("/{id}/toggle")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<BannerResponse> toggle(@PathVariable UUID id) {
+        BannerResponse updated = bannerService.toggleActive(id);
+        String msg = updated.isActive() ? "Banner đã được hiển thị" : "Banner đã bị ẩn";
+        return ApiResponse.ok(updated, msg);
     }
 
     @DeleteMapping("/{id}")
@@ -46,7 +62,7 @@ public class BannerController {
         return ApiResponse.message("Delete banner success");
     }
 
-    // PUBLIC (ANDROID)
+    // ── PUBLIC (ANDROID) ─────────────────────────────────────────────────
 
     @GetMapping("/active")
     public ApiResponse<List<BannerResponse>> getActive() {

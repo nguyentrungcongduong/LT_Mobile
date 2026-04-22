@@ -461,7 +461,7 @@ fun PtBookingScreen(
                             ) {
                                 items(slotsForDay) { slot ->
                                     MultiSlotItem(
-                                        timeDisplay = "${slot.startTime.take(5)} - ${slot.endTime.take(5)}",
+                                        timeDisplay = "${formatTime(slot.startTime)} - ${formatTime(slot.endTime)}",
                                         isBooked = slot.isBooked,
                                         isSelected = selectedSlotIds.contains(slot.id),
                                         onClick = { if (!slot.isBooked) viewModel.toggleSlot(slot.id) }
@@ -635,6 +635,20 @@ private fun formatVnd(amount: Long): String {
         val fmt = NumberFormat.getNumberInstance(Locale("vi", "VN"))
         "${fmt.format(amount)}đ"
     } catch (e: Exception) { "${amount}đ" }
+}
+
+/**
+ * Chuẩn hóa chuỗi thời gian từ backend ("09:00:00", "9:00:00", "09:00") → "HH:mm"
+ */
+private fun formatTime(timeStr: String): String {
+    return try {
+        val parts = timeStr.trim().split(":")
+        val h = parts.getOrElse(0) { "0" }.toInt()
+        val m = parts.getOrElse(1) { "0" }.toInt()
+        String.format("%02d:%02d", h, m)
+    } catch (e: Exception) {
+        if (timeStr.length >= 5) timeStr.substring(0, 5) else timeStr
+    }
 }
 
 @Composable

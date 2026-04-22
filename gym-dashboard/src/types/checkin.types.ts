@@ -4,6 +4,9 @@ export interface CheckinLog {
   userEmail: string;
   userFullName: string;
   branchId: string;
+  branchName: string | null;
+  /** "ALL" | "SINGLE" | "PT" */
+  planType: string | null;
   checkinDate: string;
   checkinTime: string;
   qrTokenJti: string;

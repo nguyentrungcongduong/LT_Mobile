@@ -1,21 +1,19 @@
 package com.gymapp.modules.banner;
 
-import java.util.UUID;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+
+import java.util.UUID;
 
 @Data
-@Getter
-@Setter
 @Builder
-
 public class BannerResponse {
-
     private UUID id;
     private String imageUrl;
     private String title;
     private String description;
+    /** Dùng @JsonProperty để force key "isActive" (không bị Jackson strip thành "active") */
+    @JsonProperty("isActive")
+    private boolean isActive;
 }

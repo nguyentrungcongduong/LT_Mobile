@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Table, Spin, Empty, DatePicker, Input, Row, Col } from 'antd';
+import { Card, Table, Spin, Empty, DatePicker, Input, Row, Col, Tag, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import axios from '@/lib/axios';
 import { Button } from 'antd';
@@ -70,6 +70,33 @@ const handleExport = async () => {
     fetchData();
   }, [date, userId, branchId]);
 
+  /** Render cột Chi nhánh với badge planType */
+  const renderBranch = (_: any, r: any) => {
+    const { branchName, planType } = r;
+
+    if (!branchName && !planType) return <span style={{ color: '#ccc' }}>—</span>;
+
+    // Badge màu theo loại gói
+    const tagColor =
+      planType === 'ALL'    ? 'green'  :
+      planType === 'SINGLE' ? 'blue'   :
+      planType === 'PT'     ? 'purple' : 'default';
+
+    const tagLabel =
+      planType === 'ALL'    ? 'Tất cả' :
+      planType === 'SINGLE' ? 'Single' :
+      planType === 'PT'     ? 'PT'     : planType;
+
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Tag color={tagColor} style={{ margin: 0 }}>{tagLabel}</Tag>
+        <span style={{ fontSize: 13 }}>
+          {planType === 'ALL' ? 'Tất cả chi nhánh' : branchName || '—'}
+        </span>
+      </div>
+    );
+  };
+
   const columns = [
     {
       title: 'User',
@@ -82,8 +109,7 @@ const handleExport = async () => {
     },
     {
       title: 'Chi nhánh',
-      dataIndex: 'branchName',
-  render: (value: string) => value || '—',
+      render: renderBranch,
     },
     {
       title: 'Ngày',

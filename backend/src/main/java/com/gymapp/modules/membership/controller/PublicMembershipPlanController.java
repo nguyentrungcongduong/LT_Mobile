@@ -21,7 +21,8 @@ public class PublicMembershipPlanController {
     public ApiResponse<MembershipPlanListResponse> getAllPlans(
             @RequestParam(name = "branch_id", required = false) UUID branch_id,
             @RequestParam(name = "plan_type", required = false) PlanType plan_type) {
-        MembershipPlanListResponse data = membershipPlanService.getAllPlans(branch_id, plan_type);
+        // Mobile/public: chỉ trả plan active + SINGLE plan phải có branch active
+        MembershipPlanListResponse data = membershipPlanService.getActivePlans(branch_id, plan_type);
         return ApiResponse.ok(data);
     }
 

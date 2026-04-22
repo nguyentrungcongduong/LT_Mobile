@@ -3,6 +3,9 @@ package com.gymapp.modules.user.service;
 import com.gymapp.common.exception.BadRequestException;
 import com.gymapp.common.exception.UnauthorizedException;
 import com.gymapp.common.security.JwtUtil;
+import com.gymapp.modules.membership.entity.Membership;
+import com.gymapp.modules.membership.enums.MembershipStatus;
+import com.gymapp.modules.membership.enums.PlanType;
 import com.gymapp.modules.user.dto.response.CheckinLogResponse;
 import com.gymapp.modules.user.dto.response.CheckinStatsResponse;
 import com.gymapp.modules.user.dto.response.QrTokenResponse;
@@ -290,16 +293,58 @@ public class CheckinQrService {
                 .build();
     }
 
-    // ─── Helper ─────────────────────────────────────────────────────────────
+    // ─── Helper ────────────────────────────────────────────────────────────────────────
 
+    /**
+     * Chuyển CheckinLog → Response.
+     * Bổ sung branchName & planType dựa vào membership active của user:
+     *  - PT          → planType = "PT",  branchName = "PT"
+     *  - Gói ALL     → planType = "ALL", branchName = "Tất cả chi nhánh"
+     *  - Gói SINGLE  → planType = "SINGLE", branchName = tên chi nhánh
+     */
     private CheckinLogResponse toResponse(CheckinLog log) {
+        User user = log.getUser();
+        String branchName = null;
+        String planType = null;
+
+        if (user.getRole() == UserRole.PT) {
+            // PT không có membership, hiển thị riêng
+            planType  = "PT";
+            branchName = "PT";
+        } else {
+            // Tìm membership ACTIVE còn hiệu lực
+            List<Membership> actives = membershipRepository.findActiveMembershipsByUserId(user.getId());
+            java.util.Optional<Membership> validOpt = actives.stream()
+                    .filter(m -> !m.getEndDate().isBefore(LocalDate.now()))
+                    .findFirst();
+
+            if (validOpt.isPresent()) {
+                Membership m = validOpt.get();
+                planType = m.getPlan().getPlanType().name(); // "ALL" hoặc "SINGLE"
+
+                if (m.getPlan().getPlanType() == PlanType.ALL) {
+                    branchName = "Tất cả chi nhánh";
+                } else {
+                    // SINGLE: lấy từ membership.branch hoặc plan.branch
+                    if (m.getBranch() != null) {
+                        branchName = m.getBranch().getName();
+                    } else if (m.getPlan().getBranch() != null) {
+                        branchName = m.getPlan().getBranch().getName();
+                    } else {
+                        branchName = "Chi nhánh không xác định";
+                    }
+                }
+            }
+        }
+
         return CheckinLogResponse.builder()
                 .id(log.getId())
-                .userId(log.getUser().getId())
-                .userEmail(log.getUser().getEmail())
-                .userFullName(log.getUser().getFullName())
+                .userId(user.getId())
+                .userEmail(user.getEmail())
+                .userFullName(user.getFullName())
                 .branchId(log.getBranch() != null ? log.getBranch().getId() : null)
-                .branchName(log.getBranch() != null ? log.getBranch().getName() : null)
+                .branchName(branchName)
+                .planType(planType)
                 .checkinDate(log.getCheckinDate())
                 .checkinTime(log.getCheckinTime())
                 .qrTokenJti(log.getQrTokenJti())

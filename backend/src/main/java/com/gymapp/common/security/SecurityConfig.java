@@ -64,10 +64,15 @@ public class SecurityConfig {
                                 "/api/v1/payments/momo-return")
                         .permitAll()
 
-                        // Allow GET for PTS without auth maybe? Or according to docs, everyone can
-                        // access
+                        // Allow GET for PTS without auth
                         .requestMatchers(HttpMethod.GET, "/api/v1/pts/**").permitAll()
-                        .requestMatchers("/api/v1/users/me").authenticated() // chỉ cần login
+
+                        // Mobile public: gói hội viên & banner
+                        .requestMatchers(HttpMethod.GET, "/api/v1/membership-plans").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/membership-plans/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/banners/active").permitAll()
+
+                        .requestMatchers("/api/v1/users/me").authenticated()
                         .requestMatchers("/api/v1/users/update/me").authenticated()
                         // All other endpoints require authentication
                         .anyRequest().authenticated());

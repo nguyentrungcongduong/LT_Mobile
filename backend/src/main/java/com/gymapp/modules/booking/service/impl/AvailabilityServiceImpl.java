@@ -88,7 +88,7 @@ public class AvailabilityServiceImpl implements AvailabilityService {
 
 
         if (isOverlapping) {
-            throw new ConflictException("SLOT_ALREADY_EXISTS", "This time slot overlaps with an existing one");
+            throw new ConflictException("SLOT_ALREADY_EXISTS", "Khung giờ này bị trùng với slot bạn đã tạo, vui lòng chọn giờ khác");
         }
 
         // 4. Save

@@ -7,11 +7,15 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Data
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RegisterRequest {
 
     @NotBlank(message = "Email không được để trống")

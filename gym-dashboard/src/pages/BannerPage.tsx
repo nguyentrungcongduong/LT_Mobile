@@ -14,6 +14,8 @@ import {
   Modal,
   Popconfirm,
   Tag,
+  Switch,
+  Tooltip,
   App,
 } from "antd";
 import {
@@ -29,6 +31,7 @@ function BannerPageInner() {
 
   const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(false);
+  const [toggling, setToggling] = useState<string | null>(null);
 
   // ── CREATE form state ──
   const [createFile, setCreateFile] = useState<File | null>(null);
@@ -44,12 +47,12 @@ function BannerPageInner() {
   const [updating, setUpdating] = useState(false);
 
   // ─────────────────────────────────────────────
-  // FETCH
+  // FETCH — admin thấy TẤT CẢ banner
   // ─────────────────────────────────────────────
   const fetchBanners = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("/banners/active");
+      const res = await axios.get("/banners/all");
       const data = res.data?.data;
       setBanners(Array.isArray(data) ? data : []);
     } catch {
@@ -63,6 +66,22 @@ function BannerPageInner() {
   useEffect(() => {
     fetchBanners();
   }, []);
+
+  // ─────────────────────────────────────────────
+  // TOGGLE active/inactive
+  // ─────────────────────────────────────────────
+  const handleToggle = async (id: string) => {
+    setToggling(id);
+    try {
+      const res = await axios.patch(`/banners/${id}/toggle`);
+      message.success(res.data?.message || "Cập nhật trạng thái thành công");
+      fetchBanners();
+    } catch {
+      message.error("Không thể thay đổi trạng thái");
+    } finally {
+      setToggling(null);
+    }
+  };
 
   // ─────────────────────────────────────────────
   // CREATE
@@ -99,7 +118,7 @@ function BannerPageInner() {
   const openEditModal = (banner: Banner) => {
     setEditTarget(banner);
     setEditTitle(banner.title);
-    setEditDesc(banner.description);
+    setEditDesc(banner.description ?? "");
     setEditFile(null);
   };
 
@@ -179,9 +198,25 @@ function BannerPageInner() {
       title: "Trạng thái",
       key: "isActive",
       render: (_: any, record: Banner) => (
-        <Tag color={record.isActive ? "green" : "red"}>
+        <Tag color={record.isActive ? "green" : "default"}>
           {record.isActive ? "Đang hiển thị" : "Ẩn"}
         </Tag>
+      ),
+    },
+    {
+      title: "Hiển thị",
+      key: "toggle",
+      width: 100,
+      render: (_: any, record: Banner) => (
+        <Tooltip title={record.isActive ? "Ẩn banner" : "Hiển thị banner"}>
+          <Switch
+            checked={record.isActive}
+            loading={toggling === record.id}
+            onChange={() => handleToggle(record.id)}
+            checkedChildren="Bật"
+            unCheckedChildren="Tắt"
+          />
+        </Tooltip>
       ),
     },
     {
@@ -289,6 +324,9 @@ function BannerPageInner() {
               columns={columns}
               dataSource={banners}
               rowKey={(record) => record.id}
+              rowClassName={(record) =>
+                !record.isActive ? "opacity-50" : ""
+              }
               pagination={{
                 pageSize: 10,
                 showTotal: (total) => `Tổng ${total} banner`,

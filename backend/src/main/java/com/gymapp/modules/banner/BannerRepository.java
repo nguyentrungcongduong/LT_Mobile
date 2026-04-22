@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BannerRepository extends JpaRepository<Banner, UUID> {
     List<Banner> findByIsActiveTrueOrderByCreatedAtDesc();
-}
+    List<Banner> findAllByOrderByCreatedAtDesc();
+}

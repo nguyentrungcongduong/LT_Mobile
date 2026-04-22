@@ -63,21 +63,15 @@ fun MainScreen(
     onNavigateToCheckinLog: () -> Unit = {},
     onNavigateToNotifications: () -> Unit = {},
     onNavigateToWorkoutScheduleSettings: () -> Unit = {},
-    mainViewModel: MainViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+    mainViewModel: MainViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
+    bannerViewModel: com.gymapp.android.ui.screens.banner.BannerViewModel = androidx.hilt.navigation.compose.hiltViewModel()
 ) {
     val navController = rememberNavController()
     val userRole by mainViewModel.userRole.collectAsState()
     val userAvatar by mainViewModel.userAvatar.collectAsState()
-    val needSetupGoal by mainViewModel.needSetupGoal.collectAsState()
     val adminStats by mainViewModel.adminStats.collectAsState()
     val ptStats by mainViewModel.ptStats.collectAsState()
-
-    LaunchedEffect(needSetupGoal) {
-        if (needSetupGoal) {
-            mainViewModel.onGoalNavigated() // reset trước để không trigger lại
-            onNavigateToGoal()
-        }
-    }
+    val banners by bannerViewModel.banners.collectAsState()
 
     val userItems = listOf(
         BottomNavRoute.Dashboard,
@@ -106,6 +100,8 @@ fun MainScreen(
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: BottomNavRoute.Dashboard.route
+    // Chỉ hiện BottomBar khi ở các tab chính, ẩn khi vào sub-screen (payment_history, v.v.)
+    val showBottomBar = items.any { it.route == currentRoute }
 
     LaunchedEffect(currentRoute) {
         if (currentRoute == BottomNavRoute.Dashboard.route) {
@@ -120,6 +116,7 @@ fun MainScreen(
     Scaffold(
         containerColor = Color.Transparent,
         bottomBar = {
+            if (showBottomBar) {
             NavigationBar(
                 containerColor = Color(0xFF1A1A1E),
                 contentColor = Color(0xFFB0B0B5),
@@ -152,6 +149,7 @@ fun MainScreen(
                     )
                 }
             }
+            } // end if showBottomBar
         }
     ) { innerPadding ->
         NavHost(
@@ -159,6 +157,7 @@ fun MainScreen(
             startDestination = BottomNavRoute.Dashboard.route,
             modifier = Modifier.padding(innerPadding)
         ) {
+
             composable(BottomNavRoute.Dashboard.route) {
                 val scrollState = rememberScrollState()
                 Column(
@@ -308,58 +307,12 @@ fun MainScreen(
 
                         Spacer(modifier = Modifier.height(20.dp))
 
-                        // ── Image Carousel (meme1/2/3.jpg) ──────────────
-                        val context = androidx.compose.ui.platform.LocalContext.current
-                        val memeImages = remember(context) {
-                            listOf(
-                                android.net.Uri.parse("android.resource://${context.packageName}/${com.gymapp.android.R.drawable.meme1}"),
-                                android.net.Uri.parse("android.resource://${context.packageName}/${com.gymapp.android.R.drawable.meme2}"),
-                                android.net.Uri.parse("android.resource://${context.packageName}/${com.gymapp.android.R.drawable.meme3}")
-                            )
-                        }
-                        val userPagerState = rememberPagerState(pageCount = { memeImages.size })
-                        // Use Unit as key so the coroutine is only launched once, not on every scroll
-                        LaunchedEffect(Unit) {
-                            while (true) {
-                                delay(3500)
-                                val next = (userPagerState.currentPage + 1) % memeImages.size
-                                userPagerState.animateScrollToPage(next)
-                            }
-                        }
-                        HorizontalPager(
-                            state = userPagerState,
+                        // ── Banner Carousel (from admin) ──────────────────
+                        com.gymapp.android.ui.screens.banner.BannerCarousel(
+                            banners = banners,
                             modifier = Modifier.fillMaxWidth()
-                        ) { page ->
-                            coil.compose.AsyncImage(
-                                model = memeImages[page],
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(180.dp)
-                                    .clip(RoundedCornerShape(18.dp))
-                            )
-                        }
-                        // Dot indicators
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            repeat(memeImages.size) { i ->
-                                val sel = userPagerState.currentPage == i
-                                Box(
-                                    modifier = Modifier
-                                        .padding(horizontal = 3.dp)
-                                        .height(5.dp)
-                                        .width(if (sel) 20.dp else 6.dp)
-                                        .clip(CircleShape)
-                                        .background(if (sel) Color(0xFFFF8C00) else Color(0xFFDDDDDD))
-                                )
-                            }
-                        }
+                        )
 
-                        Spacer(modifier = Modifier.height(22.dp))
 
                         // ── Quick Actions ───────────────────────────────────
                         Text("Thao tác nhanh", fontWeight = FontWeight.SemiBold, fontSize = 17.sp, color = Color(0xFF1A1A1A))
@@ -457,55 +410,11 @@ fun MainScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
                     } else if (userRole == "PT") {
-                        // ── Image Carousel (meme1/2/3.jpg) - PT ─────────────
-                        val ptContext = androidx.compose.ui.platform.LocalContext.current
-                        val ptMemeImages = remember(ptContext) {
-                            listOf(
-                                android.net.Uri.parse("android.resource://${ptContext.packageName}/${com.gymapp.android.R.drawable.meme1}"),
-                                android.net.Uri.parse("android.resource://${ptContext.packageName}/${com.gymapp.android.R.drawable.meme2}"),
-                                android.net.Uri.parse("android.resource://${ptContext.packageName}/${com.gymapp.android.R.drawable.meme3}")
-                            )
-                        }
-                        val pagerState = rememberPagerState(pageCount = { ptMemeImages.size })
-                        LaunchedEffect(Unit) {
-                            while (true) {
-                                delay(3500)
-                                val next = (pagerState.currentPage + 1) % ptMemeImages.size
-                                pagerState.animateScrollToPage(next)
-                            }
-                        }
-                        HorizontalPager(
-                            state = pagerState,
+                        // ── Banner Carousel (from admin) - PT ─────────────
+                        com.gymapp.android.ui.screens.banner.BannerCarousel(
+                            banners = banners,
                             modifier = Modifier.fillMaxWidth()
-                        ) { page ->
-                            coil.compose.AsyncImage(
-                                model = ptMemeImages[page],
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(180.dp)
-                                    .clip(RoundedCornerShape(18.dp))
-                            )
-                        }
-                        // Dot indicators
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            repeat(ptMemeImages.size) { i ->
-                                val sel = pagerState.currentPage == i
-                                Box(
-                                    modifier = Modifier
-                                        .padding(horizontal = 3.dp)
-                                        .height(5.dp)
-                                        .width(if (sel) 20.dp else 6.dp)
-                                        .clip(CircleShape)
-                                        .background(if (sel) Color(0xFFFF8C00) else Color(0xFF444448))
-                                )
-                            }
-                        }
+                        )
 
                         Spacer(modifier = Modifier.height(20.dp))
 

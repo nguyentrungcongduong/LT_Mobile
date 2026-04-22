@@ -138,7 +138,11 @@ const BranchesMembershipsPage: React.FC = () => {
 
   const handleEditPlan = (record: MembershipPlan) => {
     setEditingPlan(record);
-    planForm.setFieldsValue(record);
+    // Map record.active → form field "isActive" (form field name differs from API field name)
+    planForm.setFieldsValue({
+      ...record,
+      isActive: record.active,
+    });
     setPlanModalVisible(true);
   };
 
@@ -209,12 +213,24 @@ const BranchesMembershipsPage: React.FC = () => {
       key: 'planType',
       render: (type) => <Tag color={type === 'ALL' ? 'purple' : 'blue'}>{type === 'ALL' ? 'Toàn hệ thống' : 'Tại chi nhánh'}</Tag>
     },
-    { title: 'Chi nhánh', dataIndex: 'branchName', key: 'branchName', render: (text) => text || 'Tất cả' },
+    {
+      title: 'Chi nhánh',
+      dataIndex: 'branchName',
+      key: 'branchName',
+      render: (text: string, record: MembershipPlan) => (
+        <Space direction="vertical" size={2}>
+          <span>{text || 'Tất cả'}</span>
+          {record.planType === 'SINGLE' && !record.branchIsActive && (
+            <Tag color="warning" style={{ fontSize: 11 }}>⚠ Chi nhánh tạm ngưng</Tag>
+          )}
+        </Space>
+      )
+    },
     {
       title: 'Trạng thái',
-      dataIndex: 'isActive',
-      key: 'isActive',
-      render: (isActive) => <Tag color={isActive ? 'success' : 'error'}>{isActive ? 'Đang hoạt động' : 'Tạm ngưng'}</Tag>
+      dataIndex: 'active',  // Backend sends 'active' (from isActive() getter, Jackson strips 'is')
+      key: 'active',
+      render: (active: boolean) => <Tag color={active ? 'success' : 'error'}>{active ? 'Đang hoạt động' : 'Tạm ngưng'}</Tag>
     },
     {
       title: 'Thao tác',
