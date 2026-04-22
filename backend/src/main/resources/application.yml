@@ -5,7 +5,7 @@ spring:
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/gymapp}
     username: ${DB_USERNAME:${USER:postgres}}
-    password: ${DB_PASSWORD:123456}
+    password: ${DB_PASSWORD:1234}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 20
@@ -87,11 +87,11 @@ cloudinary:
 
 payment:
   vnpay:
-    tmn-code: ${VNPAY_TMN_CODE:HIIH4PO2}
-    hash-secret: ${VNPAY_HASH_SECRET:2K225CSQ0N8UPZCQN51QYROBB3VUK27J}
+    tmn-code: ${VNPAY_TMN_CODE:83QW4N51}
+    hash-secret: ${VNPAY_HASH_SECRET:AUAK1Y6F60GW36AMN19V08BEZ9IJAX8B}
     base-url: ${VNPAY_BASE_URL:https://sandbox.vnpayment.vn/paymentv2/vpcpay.html}
 
-    return-url: ${VNPAY_RETURN_URL:https://hyphen-tasty-treadmill.ngrok-free.dev/api/v1/payments/vnpay-return}
+    return-url: ${VNPAY_RETURN_URL:https://roster-upscale-okay.ngrok-free.dev/api/v1/payments/vnpay-return}
     refund-url: ${VNPAY_REFUND_URL:https://sandbox.vnpayment.vn/merchant_webapi/api/transaction}
     mobile-redirect-url: ${VNPAY_MOBILE_REDIRECT_URL:gymapp://payment/result}
     api-url: ${VNPAY_API_URL:https://sandbox.vnpayment.vn/merchant_webapi/api/transaction}

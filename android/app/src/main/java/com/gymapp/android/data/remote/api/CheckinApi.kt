@@ -21,11 +21,16 @@ interface CheckinApi {
     @GET("/api/v1/checkin/stats")
     suspend fun getMyStats(): Response<CheckinStatsResponse>
 
+    @GET("/api/v1/checkin/my-history")
+    suspend fun getMyCheckinHistory(): Response<List<CheckinLogResponse>>
+
     @GET("/api/v1/admin/checkin/logs")
     suspend fun getCheckinLogs(
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 50
     ): Response<AdminCheckinLogsResponse>
+
+
 }
 
 data class AdminCheckinLogsResponse(

@@ -19,7 +19,8 @@ data class CheckinLogResponse(
     val checkinDate: String,
     val checkinTime: String,
     val qrTokenJti: String,
-    val createdAt: String
+    val createdAt: String,
+    val branchName: String?
 )
 
 data class CheckinStatsResponse(

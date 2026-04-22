@@ -28,7 +28,7 @@ object NetworkModule {
     // 192.168.137.1     → PC phát Mobile Hotspot, điện thoại kết nối vào
     // 10.195.242.159    → PC kết nối vào hotspot 4G điện thoại phát
     // 192.168.1.229     → Cả PC và điện thoại dùng chung WiFi (hiện tại)
-    private const val BASE_URL = "http://192.168.1.229:8082/"
+    private const val BASE_URL = "http://192.168.1.49:8082/"
 
     @Provides
     @Singleton

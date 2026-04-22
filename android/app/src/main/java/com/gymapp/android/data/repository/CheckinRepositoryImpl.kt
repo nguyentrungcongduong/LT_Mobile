@@ -2,6 +2,7 @@ package com.gymapp.android.data.repository
 
 import com.gymapp.android.data.remote.api.CheckinApi
 import com.gymapp.android.data.remote.dto.checkin.CheckinLogResponse
+import com.gymapp.android.data.remote.dto.checkin.CheckinStatsResponse
 import com.gymapp.android.data.remote.dto.checkin.CheckinVerifyRequest
 import com.gymapp.android.data.remote.dto.checkin.QrTokenResponse
 import com.gymapp.android.domain.repository.CheckinRepository
@@ -47,4 +48,28 @@ class CheckinRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
     }
-}
+    override suspend fun getMyCheckinHistory(): Result<List<CheckinLogResponse>> {
+        return try {
+            val response = checkinApi.getMyCheckinHistory()
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Failed to load history"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getCheckinStats(): Result<CheckinStatsResponse> {
+        return try {
+            val response = checkinApi.getMyStats()
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Failed to load stats"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+}}

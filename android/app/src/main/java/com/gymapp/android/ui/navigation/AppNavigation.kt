@@ -20,8 +20,10 @@ import com.gymapp.android.ui.screens.training.WorkoutHistoryScreen
 import com.gymapp.android.ui.screens.training.WorkoutMenuScreen
 import com.gymapp.android.ui.screens.training.WorkoutScreen
 import com.gymapp.android.ui.screens.checkin.AdminCheckinLogScreen
+import com.gymapp.android.ui.screens.checkin.CheckinHistoryScreen
 import com.gymapp.android.ui.screens.checkin.QrDisplayScreen
 import com.gymapp.android.ui.screens.checkin.QrScanScreen
+import com.gymapp.android.ui.screens.home.BottomNavRoute
 import com.gymapp.android.ui.screens.pt.PaymentWebViewScreen
 import kotlinx.coroutines.flow.collectLatest
 
@@ -35,6 +37,8 @@ sealed class Route(val route: String) {
     object CreateSchedule : Route("create_schedule")
     object NotificationInbox : Route("notification_inbox")
     object WorkoutScheduleSettings : Route("workout_schedule_settings")
+    object CheckinHistory : Route("checkin_history")
+
 }
 
 
@@ -92,6 +96,11 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
                 }
             )
         }
+        composable(BottomNavRoute.CheckinHistory.route) {
+            com.gymapp.android.ui.screens.checkin.CheckinHistoryScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
         composable(
             route = "goal/{isPt}",
             arguments = listOf(navArgument("isPt") { type = NavType.BoolType; defaultValue = false })
@@ -126,6 +135,9 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
                 onNavigateToQrScan = { navController.navigate("qr_scan") },
                 onNavigateToPtApproval = { navController.navigate("admin_pt_approval") },
                 onNavigateToCheckinLog = { navController.navigate("admin_checkin_log") },
+                onNavigateToCheckinHistory = {
+                    navController.navigate(Route.CheckinHistory.route)
+                },
                 onNavigateToNotifications = { navController.navigate(Route.NotificationInbox.route) },
                 onNavigateToWorkoutScheduleSettings = { navController.navigate(Route.WorkoutScheduleSettings.route) }
             )

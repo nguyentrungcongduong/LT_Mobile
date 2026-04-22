@@ -3,8 +3,10 @@ package com.gymapp.modules.user.controller;
 import com.gymapp.modules.user.dto.response.CheckinLogResponse;
 import com.gymapp.modules.user.dto.response.CheckinStatsResponse;
 import com.gymapp.modules.user.dto.request.CheckinVerifyRequest;
+import com.gymapp.common.exception.UnauthorizedException;
 import com.gymapp.modules.user.dto.request.CheckinRequest;
 import com.gymapp.modules.user.dto.response.QrTokenResponse;
+import com.gymapp.modules.user.repository.UserRepository;
 import com.gymapp.modules.user.service.CheckinQrService;
 import com.gymapp.modules.user.service.CheckinService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController("checkinQrController")
@@ -22,6 +25,7 @@ public class CheckinController {
 
     private final CheckinService checkinService;
     private final CheckinQrService checkinQrService;
+    private final UserRepository userRepository;
 
     /**
      * [1] GET /api/v1/checkin/qr
@@ -43,8 +47,7 @@ public class CheckinController {
             @RequestBody CheckinVerifyRequest request) {
         CheckinLogResponse response = checkinQrService.verifyQrToken(
                 request.getQrToken(),
-                request.getBranchId()
-        );
+                request.getBranchId());
         return ResponseEntity.ok(response);
     }
 
@@ -78,4 +81,24 @@ public class CheckinController {
             return ResponseEntity.status(500).body("Internal server error");
         }
     }
+
+    @GetMapping("/my-history")
+    @PreAuthorize("hasRole('USER') or hasRole('PT')")
+    public ResponseEntity<List<CheckinLogResponse>> getMyHistory() {
+
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new UnauthorizedException("UNAUTHORIZED", "Chưa đăng nhập");
+        }
+
+        String email = auth.getName();
+
+        var user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User không tồn tại"));
+
+        return ResponseEntity.ok(
+                checkinService.getMyCheckinHistory(user.getId()));
+    }
+
 }

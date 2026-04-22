@@ -46,6 +46,7 @@ sealed class BottomNavRoute(val route: String, val title: String, val icon: andr
     object UserBookings : BottomNavRoute("user_bookings", "Lịch", Icons.Default.DateRange)
     object PtSchedule : BottomNavRoute("pt_schedule", "Lịch dạy", Icons.Default.DateRange)
     object PtQueue : BottomNavRoute("pt_queue", "Lịch hẹn", Icons.Default.DateRange)
+    object CheckinHistory : BottomNavRoute("checkin_history", "Lịch sử", Icons.Default.DateRange)
     object PtClients : BottomNavRoute("pt_clients", "Clients", Icons.Default.AddCircle) // Assuming Icons.Default.AddCircle as Group isn't imported
 }
 
@@ -63,6 +64,7 @@ fun MainScreen(
     onNavigateToCheckinLog: () -> Unit = {},
     onNavigateToNotifications: () -> Unit = {},
     onNavigateToWorkoutScheduleSettings: () -> Unit = {},
+    onNavigateToCheckinHistory: () -> Unit = {},
     mainViewModel: MainViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
     bannerViewModel: com.gymapp.android.ui.screens.banner.BannerViewModel = androidx.hilt.navigation.compose.hiltViewModel()
 ) {
@@ -77,6 +79,7 @@ fun MainScreen(
         BottomNavRoute.Dashboard,
         BottomNavRoute.PTBooking,
         BottomNavRoute.UserBookings,
+        BottomNavRoute.CheckinHistory,
         BottomNavRoute.Profile
     )
 
@@ -157,7 +160,11 @@ fun MainScreen(
             startDestination = BottomNavRoute.Dashboard.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-
+            composable(BottomNavRoute.CheckinHistory.route) {
+                com.gymapp.android.ui.screens.checkin.CheckinHistoryScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
             composable(BottomNavRoute.Dashboard.route) {
                 val scrollState = rememberScrollState()
                 Column(
@@ -351,6 +358,9 @@ fun MainScreen(
                                         }
                                     }
                                 }
+                            }
+                            UserActionCard("Check-in", Icons.Default.Timer, isPrimary = false) {
+                                onNavigateToCheckinHistory()
                             }
                             UserActionCard("Mua gói", Icons.Default.AddCircle, onClick = onNavigateToPackages)
                             UserActionCard("Thuê PT", Icons.Default.Star) {

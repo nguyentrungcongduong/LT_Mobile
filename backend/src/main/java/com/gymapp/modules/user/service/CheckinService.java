@@ -1,6 +1,9 @@
 package com.gymapp.modules.user.service;
 
+import com.gymapp.modules.user.dto.response.CheckinLogResponse;
 import com.gymapp.modules.user.entity.Checkin;
+import com.gymapp.modules.user.entity.CheckinLog;
+import com.gymapp.modules.user.repository.CheckinLogRepository;
 import com.gymapp.modules.user.repository.CheckinRepository;
 import com.gymapp.modules.membership.entity.Membership;
 import com.gymapp.modules.membership.enums.MembershipStatus;
@@ -9,6 +12,8 @@ import com.gymapp.modules.user.entity.User;
 import com.gymapp.modules.user.entity.UserRole;
 import com.gymapp.modules.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +21,7 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +30,7 @@ public class CheckinService {
     private final CheckinRepository checkinRepository;
     private final UserRepository userRepository;
     private final MembershipRepository membershipRepository;
+    private final CheckinLogRepository checkinLogRepository;
 
     public String checkin(String qrData) {
 
@@ -56,7 +63,7 @@ public class CheckinService {
 
         // 4. Membership
         List<Membership> memberships = membershipRepository
-            .findActiveMembershipsByUserIdAndStatus(user.getId(), MembershipStatus.ACTIVE);
+                .findActiveMembershipsByUserIdAndStatus(user.getId(), MembershipStatus.ACTIVE);
 
         if (memberships.isEmpty()) {
             throw new IllegalArgumentException("Chưa có gói");
@@ -88,4 +95,24 @@ public class CheckinService {
 
         return "Check-in thành công";
     }
+
+    public List<CheckinLogResponse> getMyCheckinHistory(UUID userId) {
+
+        List<CheckinLog> logs = checkinLogRepository.findByUserIdWithAll(userId);
+
+        return logs.stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    private CheckinLogResponse mapToResponse(CheckinLog c) {
+        return CheckinLogResponse.builder()
+                .id(c.getId())
+                .checkinTime(c.getCheckinTime())
+                .checkinDate(c.getCheckinDate())
+                .branchId(c.getBranch() != null ? c.getBranch().getId() : null)
+                .branchName(c.getBranch() != null ? c.getBranch().getName() : null)
+                .build();
+    }
+
 }

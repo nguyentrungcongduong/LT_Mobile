@@ -20,8 +20,7 @@ public interface CheckinLogRepository extends JpaRepository<CheckinLog, UUID> {
     @Query("SELECT c FROM CheckinLog c WHERE c.user.id = :userId AND c.checkinDate = :date")
     Optional<CheckinLog> findByUserIdAndCheckinDate(
             @Param("userId") UUID userId,
-            @Param("date") LocalDate date
-    );
+            @Param("date") LocalDate date);
 
     /** Admin: lấy toàn bộ lịch sử check-in, mới nhất trước */
     @Query("SELECT c FROM CheckinLog c ORDER BY c.checkinTime DESC")
@@ -50,4 +49,13 @@ public interface CheckinLogRepository extends JpaRepository<CheckinLog, UUID> {
     /** Stats: lấy danh sách ngày check-in của user (để tính streak) */
     @Query("SELECT DISTINCT c.checkinDate FROM CheckinLog c WHERE c.user.id = :userId ORDER BY c.checkinDate DESC")
     List<LocalDate> findDistinctCheckinDatesByUserId(@Param("userId") UUID userId);
+
+    @Query("""
+                SELECT c FROM CheckinLog c
+                JOIN FETCH c.user
+                LEFT JOIN FETCH c.branch
+                WHERE c.user.id = :userId
+                ORDER BY c.createdAt DESC
+            """)
+    List<CheckinLog> findByUserIdWithAll(@Param("userId") UUID userId);
 }
