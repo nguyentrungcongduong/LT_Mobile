@@ -150,7 +150,8 @@ public class MoMoService implements PaymentGateway {
     }
 
     @Override
-    public boolean refund(String orderCode, String transactionNo, String transactionDate, long amount, String reason) {
+    public boolean refund(String orderCode, String transactionNo, String transactionDate, long amount,
+            long originalAmount, String reason) {
         String transactionId = transactionNo;
         String refundUrl = paymentProperties.getMomo().getApiRefundUrl();
         String requestId = UUID.randomUUID().toString();

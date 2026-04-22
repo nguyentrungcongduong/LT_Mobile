@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import com.gymapp.modules.branch.entity.Branch;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -65,6 +66,11 @@ public class PtProfile {
 
     @Column(name = "approved_at")
     private OffsetDateTime approvedAt;
+
+    /** Chi nhánh PT đang công tác */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "branch_id")
+    private Branch branch;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "approved_by")

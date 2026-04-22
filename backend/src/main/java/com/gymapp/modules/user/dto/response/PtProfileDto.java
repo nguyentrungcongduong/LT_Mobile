@@ -21,6 +21,8 @@ import java.util.UUID;
 public class PtProfileDto {
     private UUID id;
     private UUID userId;
+    private UUID branchId;
+    private String branchName;
     private String bio;
     private List<String> specializations;
     private BigDecimal pricePerSession;

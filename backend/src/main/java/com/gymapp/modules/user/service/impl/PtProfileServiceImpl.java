@@ -23,6 +23,8 @@ import com.gymapp.modules.user.repository.UserRepository;
 import com.gymapp.modules.booking.enums.BookingStatus;
 import com.gymapp.modules.booking.repository.BookingRepository;
 import com.gymapp.modules.user.service.PtProfileService;
+import com.gymapp.modules.branch.repository.BranchRepository;
+import com.gymapp.modules.branch.entity.Branch;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +50,7 @@ public class PtProfileServiceImpl implements PtProfileService {
     private final UserRepository userRepository;
     private final PtReviewRepository ptReviewRepository;
     private final BookingRepository bookingRepository;
+    private final BranchRepository branchRepository;
 
     @Override
     @Transactional
@@ -76,6 +79,13 @@ public class PtProfileServiceImpl implements PtProfileService {
                 .totalReviews(0)
                 .build();
 
+        // Gán chi nhánh nếu có truyền branchId
+        if (req.getBranchId() != null) {
+            Branch branch = branchRepository.findById(req.getBranchId())
+                    .orElseThrow(() -> new ResourceNotFoundException("BRANCH_NOT_FOUND", "Không tìm thấy chi nhánh"));
+            profile.setBranch(branch);
+        }
+
         PtProfile saved = ptProfileRepository.save(profile);
         return mapToEventDto(saved);
     }
@@ -96,6 +106,12 @@ public class PtProfileServiceImpl implements PtProfileService {
             profile.setYearsExperience(req.getYearsExperience());
         if (req.getCertificateUrls() != null)
             profile.setCertificateUrls(new ArrayList<>(req.getCertificateUrls()));
+        // Cập nhật chi nhánh nếu có truyền
+        if (req.getBranchId() != null) {
+            Branch branch = branchRepository.findById(req.getBranchId())
+                    .orElseThrow(() -> new ResourceNotFoundException("BRANCH_NOT_FOUND", "Không tìm thấy chi nhánh"));
+            profile.setBranch(branch);
+        }
 
         PtProfile saved = ptProfileRepository.save(profile);
         return mapToEventDto(saved);
@@ -286,6 +302,8 @@ public class PtProfileServiceImpl implements PtProfileService {
         return PtProfileDto.builder()
                 .id(profile.getId())
                 .userId(profile.getUser().getId())
+                .branchId(profile.getBranch() != null ? profile.getBranch().getId() : null)
+                .branchName(profile.getBranch() != null ? profile.getBranch().getName() : null)
                 .bio(profile.getBio())
                 .specializations(profile.getSpecializations())
                 .pricePerSession(profile.getPricePerSession())
