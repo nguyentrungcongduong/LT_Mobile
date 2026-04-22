@@ -1,12 +1,13 @@
 package com.gymapp.android.ui.screens.profile
 
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gymapp.android.data.remote.api.CheckinApi
+import com.gymapp.android.data.remote.api.PtApi
 import com.gymapp.android.data.remote.api.PtProfileUpdateRequest
+import com.gymapp.android.data.remote.dto.checkin.CheckinStatsResponse
 import com.gymapp.android.domain.model.User
 import com.gymapp.android.domain.repository.UserRepository
-import com.gymapp.android.data.remote.api.PtApi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,7 +25,8 @@ sealed class ProfileUiState {
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val ptApi: PtApi
+    private val ptApi: PtApi,
+    private val checkinApi: CheckinApi
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ProfileUiState>(ProfileUiState.Loading)
@@ -36,8 +38,13 @@ class ProfileViewModel @Inject constructor(
     private val _isUpdating = MutableStateFlow(false)
     val isUpdating: StateFlow<Boolean> = _isUpdating.asStateFlow()
 
+    // Stats thực từ checkin_logs
+    private val _workoutStats = MutableStateFlow<CheckinStatsResponse?>(null)
+    val workoutStats: StateFlow<CheckinStatsResponse?> = _workoutStats.asStateFlow()
+
     init {
         loadProfile()
+        fetchWorkoutStats()
     }
 
     fun loadProfile() {
@@ -51,15 +58,26 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+    fun fetchWorkoutStats() {
+        viewModelScope.launch {
+            try {
+                val response = checkinApi.getMyStats()
+                if (response.isSuccessful) {
+                    _workoutStats.value = response.body()
+                }
+            } catch (_: Exception) {
+                // Lỗi mạng → giữ null, UI sẽ hiện 0
+            }
+        }
+    }
+
     fun updateProfile(fullName: String, email: String, phone: String) {
         val currentState = _uiState.value
         if (currentState !is ProfileUiState.Success) return
 
         _isUpdating.value = true
         viewModelScope.launch {
-            android.util.Log.d("ProfileViewModel", "Updating profile: fullName=$fullName, email=$email, phone=$phone")
             userRepository.updateProfile(fullName, email, phone, currentState.user.avatarUrl).onSuccess { user ->
-                android.util.Log.d("ProfileViewModel", "Update success: $user")
                 _uiState.value = ProfileUiState.Success(user)
                 _isUpdating.value = false
             }.onFailure { error ->
@@ -77,7 +95,6 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             userRepository.uploadAvatar(file).onSuccess { avatarUrl ->
                 _isUploading.value = false
-                // Update profile with new avatar URL
                 val updatedUser = currentState.user.copy(avatarUrl = avatarUrl)
                 _uiState.value = ProfileUiState.Success(updatedUser)
             }.onFailure { _ ->
@@ -131,4 +148,3 @@ class ProfileViewModel @Inject constructor(
         }
     }
 }
-

@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -30,17 +31,22 @@ import coil.request.ImageRequest
 import com.gymapp.android.domain.model.User
 import com.gymapp.android.domain.model.goal.ExperienceLevel
 import com.gymapp.android.domain.model.goal.FitnessGoal
+import com.gymapp.android.data.remote.dto.checkin.CheckinStatsResponse
 import com.gymapp.android.util.FileUtil
 
-// ---- Light Theme Colors ----
-val BgColor = Color(0xFFF8F9FA) // Nền trắng hơi xám nhẹ để nổi bật Card
-val CardBackground = Color.White
-val PrimaryOrange = Color(0xFFFF5722)
-val PrimaryGreen = Color(0xFF4CAF50)
-val TextDark = Color(0xFF111827) // Chữ màu đen
-val TextGray = Color(0xFF6B7280) // Chữ phụ màu xám
-val IconBackground = Color(0xFFF3F4F6) // Nền của các viền icon
-val DividerColor = Color(0xFFE5E7EB)
+// ──────────────────────────────────────────────────────────────────────────────
+// Dark Design Tokens
+// ──────────────────────────────────────────────────────────────────────────────
+val BgColor        = Color(0xFF121212)
+val CardBackground = Color(0xFF1C1C1E)
+val BgSurface2     = Color(0xFF252528)
+val PrimaryOrange  = Color(0xFFFF6B2B)
+val OrangeGlow     = Color(0xFFFF8C00)
+val PrimaryGreen   = Color(0xFF2ECC8E)
+val TextDark       = Color(0xFFF2F2F2)   // was black → now bright white
+val TextGray       = Color(0xFF9A9A9E)
+val IconBackground = Color(0xFF2A2A2E)
+val DividerColor   = Color(0xFF2A2A2E)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,6 +60,7 @@ fun ProfileScreen(
     val uiState by viewModel.uiState.collectAsState()
     val isUploading by viewModel.isUploading.collectAsState()
     val isUpdating by viewModel.isUpdating.collectAsState()
+    val workoutStats by viewModel.workoutStats.collectAsState()
 
     var showEditDialog by remember { mutableStateOf(false) }
     var showPasswordDialog by remember { mutableStateOf(false) }
@@ -65,34 +72,11 @@ fun ProfileScreen(
     ) { uri: Uri? ->
         uri?.let {
             val file = FileUtil.getFileFromUri(context, it)
-            if (file != null) {
-                viewModel.uploadAvatar(file)
-            }
+            if (file != null) viewModel.uploadAvatar(file)
         }
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Hồ sơ", fontWeight = FontWeight.Bold, color = TextDark, fontSize = 24.sp) },
-                actions = {
-                    Box(
-                        modifier = Modifier
-                            .padding(end = 16.dp)
-                            .size(36.dp)
-                            .background(CardBackground, CircleShape)
-                            .border(1.dp, DividerColor, CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(Icons.Default.Search, contentDescription = null, tint = TextGray, modifier = Modifier.size(18.dp))
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = BgColor,
-                    titleContentColor = TextDark
-                )
-            )
-        },
         containerColor = BgColor
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
@@ -108,103 +92,47 @@ fun ProfileScreen(
                         modifier = Modifier.align(Alignment.Center),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(state.message, color = Color(0xFFE53935))
+                        Text(state.message, color = Color(0xFFEF5350))
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
                             onClick = { viewModel.loadProfile() },
                             colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange)
-                        ) {
-                            Text("Thử lại")
-                        }
+                        ) { Text("Thử lại", color = Color.White) }
                     }
                 }
                 is ProfileUiState.Success -> {
                     val user = state.user
                     val scrollState = rememberScrollState()
-
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .verticalScroll(scrollState)
-                            .padding(horizontal = 16.dp, vertical = 24.dp),
+                            .verticalScroll(scrollState),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        // Avatar Section
-                        Box(
-                            modifier = Modifier.size(110.dp),
-                            contentAlignment = Alignment.Center
+                        // ── Hero Banner ─────────────────────────────────────────
+                        ProfileHeroBanner(
+                            user = user,
+                            isUploading = isUploading,
+                            onUploadAvatar = { launcher.launch("image/*") }
+                        )
+
+                        // ── Rest of content ─────────────────────────────────────
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                                .padding(bottom = 24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(0.dp)
                         ) {
-                            // Orange circle stroke
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .border(2.dp, PrimaryOrange, CircleShape)
-                                    .padding(4.dp)
-                            ) {
-                                if (user.avatarUrl != null) {
-                                    AsyncImage(
-                                        model = ImageRequest.Builder(LocalContext.current)
-                                            .data(user.avatarUrl)
-                                            .crossfade(true)
-                                            .build(),
-                                        contentDescription = "${user.fullName}'s avatar",
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier.fillMaxSize().clip(CircleShape)
-                                    )
-                                } else {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize().background(IconBackground, CircleShape),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = user.fullName?.take(1)?.uppercase() ?: "N",
-                                            fontSize = 40.sp,
-                                            color = PrimaryOrange,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
-                                }
-                            }
+                            Spacer(modifier = Modifier.height(16.dp))
 
-                            // Uploading state or Edit icon
-                            if (isUploading) {
-                                CircularProgressIndicator(
-                                    color = PrimaryOrange,
-                                    modifier = Modifier.align(Alignment.Center)
-                                )
-                            } else {
-                                Box(
-                                    modifier = Modifier
-                                        .align(Alignment.BottomEnd)
-                                        .offset(x = (-4).dp, y = (-4).dp)
-                                        .background(BgColor, CircleShape)
-                                        .padding(2.dp)
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .background(PrimaryOrange, CircleShape)
-                                            .clickable { launcher.launch("image/*") }
-                                            .padding(6.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Edit,
-                                            contentDescription = "Upload Avatar",
-                                            tint = Color.White,
-                                            modifier = Modifier.size(14.dp)
-                                        )
-                                    }
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // User Info
+                        // ── Name & Email ───────────────────────────────────────
                         Text(
                             text = user.fullName ?: "Chưa cập nhật",
                             color = TextDark,
                             fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.ExtraBold
                         )
                         Text(
                             text = user.email,
@@ -213,8 +141,9 @@ fun ProfileScreen(
                             modifier = Modifier.padding(top = 4.dp)
                         )
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(14.dp))
 
+                        // ── Role & Level Badges ────────────────────────────────
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             BadgeItem(user.role, PrimaryOrange)
                             user.experienceLevel?.let { level ->
@@ -222,178 +151,32 @@ fun ProfileScreen(
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(32.dp))
+                        Spacer(modifier = Modifier.height(28.dp))
 
-                        // Logic UI theo Role
-                        if (user.role == "PT") {
-                            // PT View
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(20.dp),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                                colors = CardDefaults.cardColors(containerColor = Color.Transparent)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .background(
-                                            brush = androidx.compose.ui.graphics.Brush.linearGradient(
-                                                colors = listOf(Color(0xFF1E1E1E), Color(0xFF2D2D2D))
-                                            )
-                                        )
-                                        .padding(20.dp)
-                                ) {
-                                    Column {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Icon(Icons.Default.VerifiedUser, tint = Color(0xFFFFD700), contentDescription = null, modifier = Modifier.size(28.dp))
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                            Text("Trainer Chuyên Nghiệp", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                                        }
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween
-                                        ) {
-                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                                Text("150+", color = Color(0xFFFF5722), fontSize = 22.sp, fontWeight = FontWeight.ExtraBold)
-                                                Text("Giờ dạy", color = Color.LightGray, fontSize = 13.sp)
-                                            }
-                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                                Text("12", color = Color(0xFFFF5722), fontSize = 22.sp, fontWeight = FontWeight.ExtraBold)
-                                                Text("Học viên", color = Color.LightGray, fontSize = 13.sp)
-                                            }
-                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                                    Text("4.9", color = Color(0xFFFF5722), fontSize = 22.sp, fontWeight = FontWeight.ExtraBold)
-                                                    Icon(Icons.Default.Star, tint = Color(0xFFFFD700), contentDescription = null, modifier = Modifier.size(20.dp).padding(start = 2.dp))
-                                                }
-                                                Text("Đánh giá", color = Color.LightGray, fontSize = 13.sp)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            Spacer(modifier = Modifier.height(16.dp))
-                            
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(16.dp),
-                                colors = CardDefaults.cardColors(containerColor = CardBackground)
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(16.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Box(
-                                        modifier = Modifier.size(48.dp).background(Color(0xFFFFF3E0), CircleShape),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(Icons.Default.FitnessCenter, contentDescription = null, tint = PrimaryOrange)
-                                    }
-                                    Spacer(modifier = Modifier.width(16.dp))
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(text = "Chuyên môn chính", color = TextGray, fontSize = 13.sp)
-                                        Text(text = "Bodybuilding & Fitness", color = TextDark, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                                    }
-                                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = TextGray)
-                                }
-                            }
-                        } else if (user.role == "ADMIN") {
-                            // Admin View
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(CardBackground, RoundedCornerShape(16.dp))
-                                    .padding(16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Box(
-                                    modifier = Modifier.size(44.dp).background(Color(0xFFE8EAF6), RoundedCornerShape(12.dp)),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(Icons.Default.AdminPanelSettings, contentDescription = null, tint = Color(0xFF3F51B5))
-                                }
-                                Spacer(modifier = Modifier.width(16.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(text = "Quyền hạn", color = TextGray, fontSize = 12.sp)
-                                    Text(text = "Toàn quyền quản trị hệ thống", color = TextDark, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                                }
-                            }
-                        } else {
-                            // User View (Mặc định)
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                StatCard(modifier = Modifier.weight(1f), value = "24", label = "Buổi tập", valueColor = TextDark)
-                                StatCard(modifier = Modifier.weight(1f), value = "7", label = "Ngày streak", valueColor = PrimaryOrange)
-                                StatCard(modifier = Modifier.weight(1f), value = "36h", label = "Tổng giờ", valueColor = TextDark)
-                            }
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            Button(
-                                onClick = onNavigateToGoal,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(56.dp),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1A1A1A))
-                            ) {
-                                Text(
-                                    text = "Cập nhật mục tiêu (Goal)",
-                                    color = Color(0xFFFF5722),
-                                    fontSize = 16.sp
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            // Goal Card
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(CardBackground, RoundedCornerShape(16.dp))
-                                    .padding(16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Box(
-                                    modifier = Modifier.size(44.dp).background(Color(0xFFFFF0EC), RoundedCornerShape(12.dp)),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(Icons.Default.AdsClick, contentDescription = null, tint = PrimaryOrange)
-                                }
-                                Spacer(modifier = Modifier.width(16.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(text = "Mục tiêu hiện tại", color = TextGray, fontSize = 12.sp)
-                                    val goalText = when(user.fitnessGoal) {
-                                        FitnessGoal.WEIGHT_LOSS -> "Giảm cân & Mỡ"
-                                        FitnessGoal.MUSCLE_GAIN -> "Tăng cơ bắp"
-                                        FitnessGoal.ENDURANCE -> "Tăng thể lực & Sức bền"
-                                        null -> "Chưa thiết lập"
-                                    }
-                                    Text(text = goalText, color = TextDark, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                                }
-                                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = TextGray)
-                            }
+                        // ── Role-specific content ──────────────────────────────
+                        when (user.role) {
+                            "PT" -> PtRoleSection(user = user, onShowPtProfile = { showPtProfileDialog = true })
+                            "ADMIN" -> AdminRoleSection()
+                            else -> UserRoleSection(user = user, stats = workoutStats, onNavigateToGoal = onNavigateToGoal)
                         }
 
-                        Spacer(modifier = Modifier.height(32.dp))
+                        Spacer(modifier = Modifier.height(28.dp))
 
-                        // Account Settings Section
+                        // ── Account Settings ───────────────────────────────────
                         Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
                             Text(
                                 "TÀI KHOẢN",
                                 color = TextGray,
-                                fontSize = 13.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.5.sp,
                                 modifier = Modifier.padding(bottom = 12.dp, start = 4.dp)
                             )
-
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .background(CardBackground, RoundedCornerShape(16.dp))
+                                    .border(1.dp, DividerColor, RoundedCornerShape(16.dp))
                             ) {
                                 SettingRow(
                                     icon = Icons.Default.Person,
@@ -401,50 +184,45 @@ fun ProfileScreen(
                                     subtitle = "Tên, email, số điện thoại",
                                     onClick = { showEditDialog = true }
                                 )
-                                HorizontalDivider(color = DividerColor, thickness = 1.dp, modifier = Modifier.padding(horizontal = 16.dp))
-
+                                HorizontalDivider(color = DividerColor, thickness = 1.dp)
                                 SettingRow(
                                     icon = Icons.Default.Lock,
                                     title = "Đổi mật khẩu",
                                     subtitle = "Bảo mật tài khoản",
                                     onClick = { showPasswordDialog = true }
                                 )
-                                HorizontalDivider(color = DividerColor, thickness = 1.dp, modifier = Modifier.padding(horizontal = 16.dp))
-
                                 if (user.role == "PT") {
+                                    HorizontalDivider(color = DividerColor, thickness = 1.dp)
                                     SettingRow(
                                         icon = Icons.Default.AttachMoney,
                                         title = "Cập nhật hồ sơ PT",
                                         subtitle = "Giá/buổi, kinh nghiệm, bio",
                                         onClick = { showPtProfileDialog = true }
                                     )
-                                    HorizontalDivider(color = DividerColor, thickness = 1.dp, modifier = Modifier.padding(horizontal = 16.dp))
                                 }
-
                                 if (user.role == "USER") {
+                                    HorizontalDivider(color = DividerColor, thickness = 1.dp)
                                     SettingRow(
                                         icon = Icons.Default.List,
                                         title = "Lịch sử giao dịch",
                                         subtitle = "Thanh toán membership, PT",
                                         onClick = onNavigateToHistory
                                     )
-                                    HorizontalDivider(color = DividerColor, thickness = 1.dp, modifier = Modifier.padding(horizontal = 16.dp))
+                                    HorizontalDivider(color = DividerColor, thickness = 1.dp)
                                     SettingRow(
                                         icon = Icons.Default.FitnessCenter,
                                         title = "Lịch tập hàng tuần",
                                         subtitle = "Chọn ngày & giờ nhắc tập",
                                         onClick = onNavigateToWorkoutSchedule
                                     )
-                                    HorizontalDivider(color = DividerColor, thickness = 1.dp, modifier = Modifier.padding(horizontal = 16.dp))
                                 }
-
+                                HorizontalDivider(color = DividerColor, thickness = 1.dp)
                                 SettingRowItemSwitch(
                                     icon = Icons.Default.Notifications,
                                     title = "Thông báo",
                                     subtitle = "Nhắc tập, booking, hết hạn"
                                 )
-                                HorizontalDivider(color = DividerColor, thickness = 1.dp, modifier = Modifier.padding(horizontal = 16.dp))
-
+                                HorizontalDivider(color = DividerColor, thickness = 1.dp)
                                 SettingRow(
                                     icon = Icons.Default.Language,
                                     title = "Ngôn ngữ",
@@ -456,28 +234,31 @@ fun ProfileScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Logout Button
+                        // ── Logout ─────────────────────────────────────────────
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(CardBackground, RoundedCornerShape(16.dp))
+                                .background(Color(0xFF2A0E0E), RoundedCornerShape(16.dp))
+                                .border(1.dp, Color(0xFF4A1515), RoundedCornerShape(16.dp))
                                 .clickable { onLogout() }
                                 .padding(16.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Box(
-                                modifier = Modifier.size(44.dp).background(Color(0xFFFEE2E2), RoundedCornerShape(12.dp)),
+                                modifier = Modifier
+                                    .size(44.dp)
+                                    .background(Color(0xFF3D1010), RoundedCornerShape(12.dp)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null, tint = Color(0xFFE53935))
+                                Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null, tint = Color(0xFFEF5350))
                             }
                             Spacer(modifier = Modifier.width(16.dp))
-                            Text(text = "Đăng xuất", color = Color(0xFFE53935), fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                            Text("Đăng xuất", color = Color(0xFFEF5350), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                         }
 
                         Spacer(modifier = Modifier.height(32.dp))
 
-                        // PT Profile Dialog
+                        // ── Dialogs ────────────────────────────────────────────
                         if (showPtProfileDialog) {
                             UpdatePtProfileDialog(
                                 isUpdating = isUpdating,
@@ -491,15 +272,11 @@ fun ProfileScreen(
                                             showPtProfileDialog = false
                                             Toast.makeText(context, "Cập nhật thành công!", Toast.LENGTH_SHORT).show()
                                         },
-                                        onError = { err ->
-                                            Toast.makeText(context, err, Toast.LENGTH_SHORT).show()
-                                        }
+                                        onError = { err -> Toast.makeText(context, err, Toast.LENGTH_SHORT).show() }
                                     )
                                 }
                             )
                         }
-
-                        // Edit Dialog
                         if (showEditDialog) {
                             EditProfileDialog(
                                 user = user,
@@ -511,8 +288,6 @@ fun ProfileScreen(
                                 }
                             )
                         }
-
-                        // Password Dialog
                         if (showPasswordDialog) {
                             ChangePasswordDialog(
                                 isUpdating = isUpdating,
@@ -525,27 +300,331 @@ fun ProfileScreen(
                                             showPasswordDialog = false
                                             Toast.makeText(context, "Đổi mật khẩu thành công!", Toast.LENGTH_SHORT).show()
                                         },
-                                        onError = { errorMsg ->
-                                            Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
-                                        }
+                                        onError = { errorMsg -> Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show() }
                                     )
                                 }
                             )
                         }
                     }
                 }
+                }
             }
         }
     }
 }
 
+// ── Profile Hero Banner ─────────────────────────────────────────────────────────
+@Composable
+private fun ProfileHeroBanner(
+    user: User,
+    isUploading: Boolean,
+    onUploadAvatar: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(220.dp)
+    ) {
+        // Background gradient
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xFF1A0A00),
+                            Color(0xFF2A1508),
+                            Color(0xFF1C1C1E),
+                            Color(0xFF121212)
+                        )
+                    )
+                )
+        )
+
+        // Decorative orbs
+        Box(
+            modifier = Modifier
+                .size(160.dp)
+                .offset(x = (-40).dp, y = (-40).dp)
+                .background(
+                    Brush.radialGradient(listOf(OrangeGlow.copy(alpha = 0.25f), Color.Transparent)),
+                    CircleShape
+                )
+        )
+        Box(
+            modifier = Modifier
+                .size(120.dp)
+                .align(Alignment.TopEnd)
+                .offset(x = 30.dp, y = (-20).dp)
+                .background(
+                    Brush.radialGradient(listOf(PrimaryOrange.copy(alpha = 0.15f), Color.Transparent)),
+                    CircleShape
+                )
+        )
+
+        // "Hồ sơ" title row at top
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                "Hồ sơ",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = TextDark
+            )
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .background(Color(0xFF2A2A2E), CircleShape)
+                    .border(1.dp, DividerColor, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Default.Search, null, tint = TextGray, modifier = Modifier.size(18.dp))
+            }
+        }
+
+        // Avatar centered in banner
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .offset(y = 44.dp)
+                .size(100.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .border(
+                        width = 3.dp,
+                        brush = Brush.linearGradient(listOf(OrangeGlow, PrimaryOrange)),
+                        shape = CircleShape
+                    )
+                    .padding(4.dp)
+            ) {
+                if (user.avatarUrl != null) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(user.avatarUrl).crossfade(true).build(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize().clip(CircleShape)
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.linearGradient(listOf(Color(0xFF2A1508), PrimaryOrange.copy(alpha = 0.4f))),
+                                CircleShape
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = user.fullName?.take(1)?.uppercase() ?: "N",
+                            fontSize = 36.sp,
+                            color = PrimaryOrange,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
+                }
+            }
+            if (isUploading) {
+                CircularProgressIndicator(color = PrimaryOrange, modifier = Modifier.align(Alignment.Center))
+            } else {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .background(BgColor, CircleShape)
+                        .padding(2.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .background(PrimaryOrange, CircleShape)
+                            .clickable { onUploadAvatar() }
+                            .padding(5.dp)
+                    ) {
+                        Icon(Icons.Default.Edit, null, tint = Color.White, modifier = Modifier.size(13.dp))
+                    }
+                }
+            }
+        }
+    }
+
+    // Spacing to account for avatar overflow
+    Spacer(modifier = Modifier.height(52.dp))
+}
+
+// ── PT Role Section ─────────────────────────────────────────────────────────────
+@Composable
+private fun PtRoleSection(user: User, onShowPtProfile: () -> Unit) {
+
+    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        // Stats card with gradient
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+            elevation = CardDefaults.cardElevation(0.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Brush.linearGradient(listOf(Color(0xFF1E1E28), Color(0xFF2D2D3D)))
+                    )
+                    .border(1.dp, Color(0xFF3A3A4E), RoundedCornerShape(20.dp))
+                    .padding(20.dp)
+            ) {
+                Column {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.VerifiedUser, tint = Color(0xFFFFD700), contentDescription = null, modifier = Modifier.size(26.dp))
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text("Trainer Chuyên Nghiệp", color = TextDark, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                    }
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        PtStatItem("150+", "Giờ dạy")
+                        PtStatItem("12", "Học viên")
+                        PtStatItem("4.9 ★", "Đánh giá")
+                    }
+                }
+            }
+        }
+
+        // Specialty card
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(CardBackground, RoundedCornerShape(16.dp))
+                .border(1.dp, DividerColor, RoundedCornerShape(16.dp))
+                .clickable { onShowPtProfile() }
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier.size(48.dp).background(Color(0xFF2A1508), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Default.FitnessCenter, null, tint = PrimaryOrange)
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text("Chuyên môn chính", color = TextGray, fontSize = 13.sp)
+                Text("Bodybuilding & Fitness", color = TextDark, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            }
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = TextGray)
+        }
+    }
+}
+
+@Composable
+private fun PtStatItem(value: String, label: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(value, color = PrimaryOrange, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
+        Text(label, color = TextGray, fontSize = 12.sp)
+    }
+}
+
+// ── Admin Role Section ─────────────────────────────────────────────────────────
+@Composable
+private fun AdminRoleSection() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(CardBackground, RoundedCornerShape(16.dp))
+            .border(1.dp, DividerColor, RoundedCornerShape(16.dp))
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier.size(48.dp).background(Color(0xFF1A1A3A), RoundedCornerShape(12.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(Icons.Default.AdminPanelSettings, null, tint = Color(0xFF7C8FF4))
+        }
+        Spacer(modifier = Modifier.width(16.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text("Quyền hạn", color = TextGray, fontSize = 12.sp)
+            Text("Toàn quyền quản trị hệ thống", color = TextDark, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
+// ── User Role Section ──────────────────────────────────────────────────────────
+@Composable
+private fun UserRoleSection(user: User, stats: CheckinStatsResponse?, onNavigateToGoal: () -> Unit) {
+    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        // Stat cards — fetch từ backend /api/v1/checkin/stats
+        val sessions = stats?.totalSessions?.toString() ?: "–"
+        val streak   = stats?.streakDays?.toString() ?: "–"
+        val hours    = if (stats != null) {
+            if (stats.totalHours % 1.0 == 0.0) "${stats.totalHours.toInt()}h" else "${stats.totalHours}h"
+        } else "–"
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            StatCard(modifier = Modifier.weight(1f), value = sessions, label = "Buổi tập", valueColor = TextDark)
+            StatCard(modifier = Modifier.weight(1f), value = streak, label = "Ngày streak", valueColor = PrimaryOrange)
+            StatCard(modifier = Modifier.weight(1f), value = hours, label = "Tổng giờ", valueColor = TextDark)
+        }
+
+        // Goal button (gradient)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(54.dp)
+                .clip(RoundedCornerShape(14.dp))
+                .background(Brush.horizontalGradient(listOf(Color(0xFF2A1508), Color(0xFF1C1C1E))))
+                .border(1.dp, PrimaryOrange.copy(alpha = 0.4f), RoundedCornerShape(14.dp))
+                .clickable { onNavigateToGoal() },
+            contentAlignment = Alignment.Center
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Icon(Icons.Default.Flag, null, tint = PrimaryOrange, modifier = Modifier.size(18.dp))
+                Text("Cập nhật mục tiêu (Goal)", color = PrimaryOrange, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+
+        // Goal card
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(CardBackground, RoundedCornerShape(16.dp))
+                .border(1.dp, DividerColor, RoundedCornerShape(16.dp))
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier.size(48.dp).background(Color(0xFF2A1508), RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Default.AdsClick, null, tint = PrimaryOrange)
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text("Mục tiêu hiện tại", color = TextGray, fontSize = 12.sp)
+                val goalText = when (user.fitnessGoal) {
+                    FitnessGoal.WEIGHT_LOSS  -> "Giảm cân & Mỡ"
+                    FitnessGoal.MUSCLE_GAIN  -> "Tăng cơ bắp"
+                    FitnessGoal.ENDURANCE    -> "Tăng thể lực & Sức bền"
+                    null                     -> "Chưa thiết lập"
+                }
+                Text(goalText, color = TextDark, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            }
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = TextGray)
+        }
+    }
+}
+
+// ── Shared Composables ─────────────────────────────────────────────────────────
 @Composable
 fun BadgeItem(text: String, color: Color) {
     Box(
         modifier = Modifier
             .border(1.dp, color.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
-            .background(color.copy(alpha = 0.1f), RoundedCornerShape(16.dp))
-            .padding(horizontal = 12.dp, vertical = 6.dp)
+            .background(color.copy(alpha = 0.12f), RoundedCornerShape(16.dp))
+            .padding(horizontal = 12.dp, vertical = 5.dp)
     ) {
         Text(text = text.uppercase(), color = color, fontSize = 10.sp, fontWeight = FontWeight.Bold)
     }
@@ -555,12 +634,12 @@ fun BadgeItem(text: String, color: Color) {
 fun StatCard(modifier: Modifier = Modifier, value: String, label: String, valueColor: Color) {
     Column(
         modifier = modifier
-            .background(CardBackground, RoundedCornerShape(12.dp))
-            .border(1.dp, DividerColor, RoundedCornerShape(12.dp))
+            .background(CardBackground, RoundedCornerShape(14.dp))
+            .border(1.dp, DividerColor, RoundedCornerShape(14.dp))
             .padding(vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = value, color = valueColor, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+        Text(text = value, color = valueColor, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold)
         Spacer(modifier = Modifier.height(4.dp))
         Text(text = label, color = TextGray, fontSize = 12.sp)
     }
@@ -579,15 +658,15 @@ fun SettingRow(icon: ImageVector, title: String, subtitle: String, onClick: () -
             modifier = Modifier.size(44.dp).background(IconBackground, RoundedCornerShape(12.dp)),
             contentAlignment = Alignment.Center
         ) {
-            Icon(icon, contentDescription = null, tint = TextGray, modifier = Modifier.size(20.dp))
+            Icon(icon, null, tint = TextGray, modifier = Modifier.size(20.dp))
         }
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(14.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = title, color = TextDark, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+            Text(title, color = TextDark, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
             Spacer(modifier = Modifier.height(2.dp))
-            Text(text = subtitle, color = TextGray, fontSize = 13.sp)
+            Text(subtitle, color = TextGray, fontSize = 13.sp)
         }
-        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = TextGray)
+        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = TextGray)
     }
 }
 
@@ -604,13 +683,13 @@ fun SettingRowItemSwitch(icon: ImageVector, title: String, subtitle: String) {
             modifier = Modifier.size(44.dp).background(IconBackground, RoundedCornerShape(12.dp)),
             contentAlignment = Alignment.Center
         ) {
-            Icon(icon, contentDescription = null, tint = TextGray, modifier = Modifier.size(20.dp))
+            Icon(icon, null, tint = TextGray, modifier = Modifier.size(20.dp))
         }
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(14.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = title, color = TextDark, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+            Text(title, color = TextDark, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
             Spacer(modifier = Modifier.height(2.dp))
-            Text(text = subtitle, color = TextGray, fontSize = 13.sp)
+            Text(subtitle, color = TextGray, fontSize = 13.sp)
         }
         Switch(
             checked = checked,
@@ -627,6 +706,23 @@ fun SettingRowItemSwitch(icon: ImageVector, title: String, subtitle: String) {
     }
 }
 
+// ── Dialogs ────────────────────────────────────────────────────────────────────
+private val DialogBg = Color(0xFF1C1C1E)
+private val FieldBg  = Color(0xFF252528)
+
+@Composable
+private fun darkTextFieldColors() = OutlinedTextFieldDefaults.colors(
+    focusedContainerColor   = FieldBg,
+    unfocusedContainerColor = FieldBg,
+    focusedTextColor        = TextDark,
+    unfocusedTextColor      = TextDark,
+    focusedBorderColor      = PrimaryOrange,
+    unfocusedBorderColor    = DividerColor,
+    focusedLabelColor       = PrimaryOrange,
+    unfocusedLabelColor     = TextGray,
+    cursorColor             = PrimaryOrange
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileDialog(
@@ -641,59 +737,19 @@ fun EditProfileDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = CardBackground,
-        title = {
-            Text(text = "Chỉnh sửa thông tin", color = TextDark, fontWeight = FontWeight.Bold)
-        },
+        containerColor = DialogBg,
+        title = { Text("Chỉnh sửa thông tin", color = TextDark, fontWeight = FontWeight.Bold) },
         text = {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Họ tên", color = TextGray) },
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = BgColor,
-                        unfocusedContainerColor = BgColor,
-                        focusedTextColor = TextDark,
-                        unfocusedTextColor = TextDark,
-                        focusedBorderColor = PrimaryOrange,
-                        unfocusedBorderColor = DividerColor
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email", color = TextGray) },
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = BgColor,
-                        unfocusedContainerColor = BgColor,
-                        focusedTextColor = TextDark,
-                        unfocusedTextColor = TextDark,
-                        focusedBorderColor = PrimaryOrange,
-                        unfocusedBorderColor = DividerColor
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                OutlinedTextField(
-                    value = phone,
-                    onValueChange = { phone = it },
-                    label = { Text("Số điện thoại", color = TextGray) },
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = BgColor,
-                        unfocusedContainerColor = BgColor,
-                        focusedTextColor = TextDark,
-                        unfocusedTextColor = TextDark,
-                        focusedBorderColor = PrimaryOrange,
-                        unfocusedBorderColor = DividerColor
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                )
+            Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                OutlinedTextField(value = name, onValueChange = { name = it },
+                    label = { Text("Họ tên") }, singleLine = true,
+                    colors = darkTextFieldColors(), modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = email, onValueChange = { email = it },
+                    label = { Text("Email") }, singleLine = true,
+                    colors = darkTextFieldColors(), modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = phone, onValueChange = { phone = it },
+                    label = { Text("Số điện thoại") }, singleLine = true,
+                    colors = darkTextFieldColors(), modifier = Modifier.fillMaxWidth())
             }
         },
         confirmButton = {
@@ -701,14 +757,10 @@ fun EditProfileDialog(
                 onClick = { onConfirm(name, email, phone) },
                 colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange),
                 enabled = !isUpdating
-            ) {
-                Text(if (isUpdating) "Đang lưu..." else "Lưu", color = Color.White)
-            }
+            ) { Text(if (isUpdating) "Đang lưu..." else "Lưu", color = Color.White) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Hủy", color = TextGray)
-            }
+            TextButton(onClick = onDismiss) { Text("Hủy", color = TextGray) }
         }
     )
 }
@@ -726,64 +778,37 @@ fun ChangePasswordDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = CardBackground,
-        title = {
-            Text(text = "Đổi mật khẩu", color = TextDark, fontWeight = FontWeight.Bold)
-        },
+        containerColor = DialogBg,
+        title = { Text("Đổi mật khẩu", color = TextDark, fontWeight = FontWeight.Bold) },
         text = {
-            Column(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                OutlinedTextField(value = oldPassword, onValueChange = { oldPassword = it },
+                    label = { Text("Mật khẩu hiện tại") }, singleLine = true,
+                    colors = darkTextFieldColors(), modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = newPassword, onValueChange = { newPassword = it },
+                    label = { Text("Mật khẩu mới") }, singleLine = true,
+                    colors = darkTextFieldColors(), modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(
-                    value = oldPassword,
-                    onValueChange = { oldPassword = it },
-                    label = { Text("Mật khẩu hiện tại", color = TextGray) },
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = BgColor,
-                        unfocusedContainerColor = BgColor,
-                        focusedTextColor = TextDark,
-                        unfocusedTextColor = TextDark,
-                        focusedBorderColor = PrimaryOrange,
-                        unfocusedBorderColor = DividerColor
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                OutlinedTextField(
-                    value = newPassword,
-                    onValueChange = { newPassword = it },
-                    label = { Text("Mật khẩu mới", color = TextGray) },
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = BgColor,
-                        unfocusedContainerColor = BgColor,
-                        focusedTextColor = TextDark,
-                        unfocusedTextColor = TextDark,
-                        focusedBorderColor = PrimaryOrange,
-                        unfocusedBorderColor = DividerColor
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                OutlinedTextField(
-                    value = confirmPassword,
-                    onValueChange = { confirmPassword = it },
-                    label = { Text("Xác nhận mật khẩu mới", color = TextGray) },
-                    singleLine = true,
+                    value = confirmPassword, onValueChange = { confirmPassword = it },
+                    label = { Text("Xác nhận mật khẩu mới") }, singleLine = true,
                     isError = newPassword.isNotEmpty() && confirmPassword.isNotEmpty() && newPassword != confirmPassword,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = BgColor,
-                        unfocusedContainerColor = BgColor,
-                        focusedTextColor = TextDark,
-                        unfocusedTextColor = TextDark,
-                        focusedBorderColor = PrimaryOrange,
-                        unfocusedBorderColor = DividerColor,
-                        errorBorderColor = Color.Red,
-                        errorTextColor = Color.Red
+                        focusedContainerColor   = FieldBg,
+                        unfocusedContainerColor = FieldBg,
+                        focusedTextColor        = TextDark,
+                        unfocusedTextColor      = TextDark,
+                        focusedBorderColor      = PrimaryOrange,
+                        unfocusedBorderColor    = DividerColor,
+                        focusedLabelColor       = PrimaryOrange,
+                        unfocusedLabelColor     = TextGray,
+                        cursorColor             = PrimaryOrange,
+                        errorBorderColor        = Color(0xFFEF5350),
+                        errorTextColor          = Color(0xFFEF5350)
                     ),
                     modifier = Modifier.fillMaxWidth()
                 )
                 if (newPassword.isNotEmpty() && confirmPassword.isNotEmpty() && newPassword != confirmPassword) {
-                    Text("Mật khẩu xác nhận không khớp", color = Color.Red, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
+                    Text("Mật khẩu xác nhận không khớp", color = Color(0xFFEF5350), fontSize = 12.sp)
                 }
             }
         },
@@ -792,14 +817,10 @@ fun ChangePasswordDialog(
                 onClick = { onConfirm(oldPassword, newPassword) },
                 colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange),
                 enabled = !isUpdating && oldPassword.isNotBlank() && newPassword.isNotBlank() && newPassword == confirmPassword
-            ) {
-                Text(if (isUpdating) "Đang lưu..." else "Lưu", color = Color.White)
-            }
+            ) { Text(if (isUpdating) "Đang lưu..." else "Lưu", color = Color.White) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Hủy", color = TextGray)
-            }
+            TextButton(onClick = onDismiss) { Text("Hủy", color = TextGray) }
         }
     )
 }
@@ -817,69 +838,38 @@ fun UpdatePtProfileDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = CardBackground,
-        title = {
-            Text(
-                text = "Cập nhật hồ sơ PT",
-                color = TextDark,
-                fontWeight = FontWeight.Bold
-            )
-        },
+        containerColor = DialogBg,
+        title = { Text("Cập nhật hồ sơ PT", color = TextDark, fontWeight = FontWeight.Bold) },
         text = {
-            Column(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
                     value = priceText,
                     onValueChange = { priceText = it.filter { c -> c.isDigit() } },
-                    label = { Text("Giá/buổi (VNĐ)", color = TextGray) },
-                    singleLine = true,
+                    label = { Text("Giá/buổi (VNĐ)") }, singleLine = true,
                     keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
                         keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
                     ),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = BgColor,
-                        unfocusedContainerColor = BgColor,
-                        focusedTextColor = TextDark,
-                        unfocusedTextColor = TextDark,
-                        focusedBorderColor = PrimaryOrange,
-                        unfocusedBorderColor = DividerColor
-                    ),
+                    colors = darkTextFieldColors(),
                     placeholder = { Text("VD: 300000", color = TextGray) },
                     modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(modifier = Modifier.height(12.dp))
                 OutlinedTextField(
                     value = yearsExpText,
                     onValueChange = { yearsExpText = it.filter { c -> c.isDigit() } },
-                    label = { Text("Số năm kinh nghiệm", color = TextGray) },
-                    singleLine = true,
+                    label = { Text("Số năm kinh nghiệm") }, singleLine = true,
                     keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
                         keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
                     ),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = BgColor,
-                        unfocusedContainerColor = BgColor,
-                        focusedTextColor = TextDark,
-                        unfocusedTextColor = TextDark,
-                        focusedBorderColor = PrimaryOrange,
-                        unfocusedBorderColor = DividerColor
-                    ),
+                    colors = darkTextFieldColors(),
                     placeholder = { Text("VD: 3", color = TextGray) },
                     modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(modifier = Modifier.height(12.dp))
                 OutlinedTextField(
                     value = bio,
                     onValueChange = { bio = it },
-                    label = { Text("Giới thiệu bản thân", color = TextGray) },
+                    label = { Text("Giới thiệu bản thân") },
                     maxLines = 3,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = BgColor,
-                        unfocusedContainerColor = BgColor,
-                        focusedTextColor = TextDark,
-                        unfocusedTextColor = TextDark,
-                        focusedBorderColor = PrimaryOrange,
-                        unfocusedBorderColor = DividerColor
-                    ),
+                    colors = darkTextFieldColors(),
                     placeholder = { Text("Mô tả kinh nghiệm, chuyên môn...", color = TextGray) },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -894,14 +884,10 @@ fun UpdatePtProfileDialog(
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange),
                 enabled = !isUpdating && (priceText.isNotBlank() || bio.isNotBlank() || yearsExpText.isNotBlank())
-            ) {
-                Text(if (isUpdating) "Đang lưu..." else "Lưu", color = Color.White)
-            }
+            ) { Text(if (isUpdating) "Đang lưu..." else "Lưu", color = Color.White) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Hủy", color = TextGray)
-            }
+            TextButton(onClick = onDismiss) { Text("Hủy", color = TextGray) }
         }
     )
 }

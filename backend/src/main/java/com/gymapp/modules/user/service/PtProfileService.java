@@ -13,6 +13,9 @@ import java.util.UUID;
 
 import com.gymapp.common.response.PageResponse;
 
+import com.gymapp.modules.user.dto.request.CreateReviewRequest;
+import com.gymapp.modules.user.dto.response.ReviewDto;
+
 public interface PtProfileService {
     PtProfileDto createProfile(UUID userId, PtProfileCreateReq req);
     PtProfileDto updateProfile(UUID userId, PtProfileUpdateReq req);
@@ -22,4 +25,7 @@ public interface PtProfileService {
     
     void approvePt(UUID adminId, UUID ptId);
     void suspendPt(UUID adminId, UUID ptId, SuspendReq req);
+
+    ReviewDto submitReview(UUID userId, UUID ptId, CreateReviewRequest req);
+    boolean hasUserReviewed(UUID userId, UUID ptId);
 }

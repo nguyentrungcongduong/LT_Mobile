@@ -30,28 +30,28 @@ import com.gymapp.android.data.remote.api.WorkoutLogDto
 import java.text.SimpleDateFormat
 import java.util.*
 
-// ── Design Tokens ──────────────────────────────────────────────────────────────
-private val BgPrimary      = Color(0xFFFFFFFF)
-private val BgSecondary    = Color(0xFFF5F5F5)
-private val BorderTertiary = Color(0xFFEBEBEB)
-private val Tprimary       = Color(0xFF1A1A1A)
-private val Tsecondary     = Color(0xFF6B6B6B)
-private val Ttertiary      = Color(0xFFAAAAAA)
-private val GreenPrimary   = Color(0xFF1D9E75)
-private val GreenLight     = Color(0xFFE1F5EE)
-private val GreenBorder    = Color(0xFF9FE1CB)
-private val BlueActive     = Color(0xFF185FA5)
-private val BlueBg         = Color(0xFFE8F1FB)
-private val BlueBorder     = Color(0xFFB0CCF0)
-private val OrangePrimary  = Color(0xFFE87C2E)
-private val OrangeBg       = Color(0xFFFFF0E6)
-private val OrangeBorder   = Color(0xFFF5C89A)
-private val RedPrimary     = Color(0xFFD9534F)
-private val RedBg          = Color(0xFFFDECEC)
-private val RedBorder      = Color(0xFFF3A9A8)
-private val PendingPrimary = Color(0xFF8B5CF6)
-private val PendingBg      = Color(0xFFF3EFFE)
-private val PendingBorder  = Color(0xFFC4B0F5)
+// ── Design Tokens (Dark Theme) ────────────────────────────────────────────────
+private val BgPrimary      = Color(0xFF121212)
+private val BgSecondary    = Color(0xFF1C1C1E)
+private val BorderTertiary = Color(0xFF2A2A2E)
+private val Tprimary       = Color(0xFFF2F2F2)
+private val Tsecondary     = Color(0xFF9A9A9E)
+private val Ttertiary      = Color(0xFF505055)
+private val GreenPrimary   = Color(0xFF2ECC8E)
+private val GreenLight     = Color(0xFF0D2B1E)
+private val GreenBorder    = Color(0xFF174D34)
+private val BlueActive     = Color(0xFF64B5F6)
+private val BlueBg         = Color(0xFF0D1E2E)
+private val BlueBorder     = Color(0xFF1A3A55)
+private val OrangePrimary  = Color(0xFFFF6B2B)
+private val OrangeBg       = Color(0xFF2A1508)
+private val OrangeBorder   = Color(0xFF4A2510)
+private val RedPrimary     = Color(0xFFEF5350)
+private val RedBg          = Color(0xFF2A0E0E)
+private val RedBorder      = Color(0xFF4A1515)
+private val PendingPrimary = Color(0xFFA78BFA)
+private val PendingBg      = Color(0xFF1E1530)
+private val PendingBorder  = Color(0xFF3A2A50)
 
 private fun formatSessionDatetime(dateInput: Any?): String {
     return try {
@@ -99,7 +99,7 @@ private fun getStatusStyle(status: String): StatusStyle = when (status.uppercase
     "CONFIRMED" -> StatusStyle("Xác nhận", Icons.Default.Event, BlueActive, BlueBg, BlueBorder)
     "PENDING"   -> StatusStyle("Chờ thanh toán", Icons.Default.HourglassEmpty, PendingPrimary, PendingBg, PendingBorder)
     "CANCELLED" -> StatusStyle("Đã hủy", Icons.Default.Cancel, RedPrimary, RedBg, RedBorder)
-    else        -> StatusStyle(status, Icons.Default.Info, Tsecondary, BgSecondary, BorderTertiary)
+    else        -> StatusStyle(status, Icons.Default.Info, Tsecondary, Color(0xFF252528), BorderTertiary)
 }
 
 // ── Screen: PT Client Progress ─────────────────────────────────────────────────
@@ -122,7 +122,7 @@ fun ClientProgressScreen(
                         Spacer(Modifier.width(10.dp))
                         Column {
                             val dateInfo = if (viewModel.lastSessionAt == "none") "-" else viewModel.lastSessionAt
-                            Text(viewModel.clientName, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            Text(viewModel.clientName, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Tprimary)
                             Text(
                                 "Tổng: ${viewModel.totalSessions} buổi · Buổi cuối: $dateInfo",
                                 fontSize = 13.sp, color = Tsecondary
@@ -132,13 +132,17 @@ fun ClientProgressScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Trở về")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Trở về", tint = Tprimary)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = BgSecondary),
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = BgSecondary,
+                    titleContentColor = Tprimary
+                ),
                 modifier = Modifier.border(0.5.dp, BorderTertiary)
             )
-        }
+        },
+        containerColor = BgPrimary
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -150,7 +154,7 @@ fun ClientProgressScreen(
             TabRow(
                 selectedTabIndex = selectedTab,
                 containerColor = BgSecondary,
-                contentColor = GreenPrimary,
+                contentColor = OrangePrimary,
                 divider = { HorizontalDivider(thickness = 0.5.dp, color = BorderTertiary) }
             ) {
                 tabs.forEachIndexed { index, title ->

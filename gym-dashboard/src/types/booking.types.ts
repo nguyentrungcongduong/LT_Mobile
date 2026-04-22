@@ -11,17 +11,25 @@ export type BookingStatus =
 
 export interface BookingSummary {
   id: string;
-  userId: string;
+  userId: string;         // user_id from API
   userName: string;
-  ptId: string;
+  ptId: string;           // pt_id from API
   ptName: string;
   ptAvatarUrl?: string;
-  scheduledAt: string;
-  endAt: string;
-  durationMinutes: number;
-  totalAmount: number;
+  scheduledAt: string;    // scheduled_at from API
+  endAt: string;          // end_at from API
+  durationMinutes: number; // duration_minutes from API
+  totalAmount: number;    // total_amount from API
   status: BookingStatus;
-  createdAt: string;
+  createdAt: string;      // created_at from API
+  // snake_case aliases (raw API response)
+  total_amount?: number;
+  scheduled_at?: string;
+  end_at?: string;
+  duration_minutes?: number;
+  user_id?: string;
+  pt_id?: string;
+  created_at?: string;
 }
 
 export interface BookingResponse {

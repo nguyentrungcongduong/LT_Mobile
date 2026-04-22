@@ -21,3 +21,10 @@ data class CheckinLogResponse(
     val qrTokenJti: String,
     val createdAt: String
 )
+
+data class CheckinStatsResponse(
+    val totalSessions: Long,
+    val streakDays: Int,
+    val totalHours: Double
+)
+

@@ -98,5 +98,18 @@ data class PtPublicDto(
     @SerializedName("ratingAvg") val rating: Double,
     @SerializedName("totalReviews") val reviewCount: Int,
     @SerializedName("pricePerSession") val price: Double,
-    @SerializedName("approved") val isApproved: Boolean = false
+    @SerializedName("approved") val isApproved: Boolean = false,
+    val bio: String? = null,
+    @SerializedName("yearsExperience") val yearsExperience: Int? = null,
+    val reviews: List<PtReviewDto> = emptyList()
+)
+
+data class PtReviewDto(
+    val id: String?,
+    @SerializedName("userId") val userId: String?,
+    @SerializedName("userName") val userName: String?,
+    @SerializedName("avatarUrl") val avatarUrl: String?,
+    val rating: Int,
+    val comment: String?,
+    @SerializedName("createdAt") val createdAt: String?
 )

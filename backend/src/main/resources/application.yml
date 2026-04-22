@@ -5,7 +5,7 @@ spring:
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/gymapp}
     username: ${DB_USERNAME:${USER:postgres}}
-    password: ${DB_PASSWORD:" "}
+    password: ${DB_PASSWORD:"123456"}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 20
@@ -35,7 +35,10 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
-      timeout: 5000ms
+      timeout: 1000ms
+      lettuce:
+        pool:
+          enabled: false
 
   flyway:
     enabled: true
@@ -43,6 +46,11 @@ spring:
     baseline-on-migrate: true
     validate-on-migrate: true
     encoding: UTF-8
+
+management:
+  health:
+    redis:
+      enabled: false
 
 server:
   port: ${SERVER_PORT:8082}
@@ -53,7 +61,7 @@ jwt:
   secret: ${JWT_SECRET:ThisIsAVeryLongSecretKeyForJWTSigningPleaseChangeInProduction1234567890}
   access-token-expiration-ms: ${JWT_ACCESS_EXPIRE_MS:1800000}     # 30 minutes
   refresh-token-expiration-ms: ${JWT_REFRESH_EXPIRE_MS:604800000}  # 7 days
-  qr-token-expiration-seconds: ${JWT_QR_EXPIRE_S:60}               # 60 seconds
+  qr-token-expiration-seconds: ${JWT_QR_EXPIRE_S:300}              # 300 seconds = 5 phút (demo mode)
 
 springdoc:
   api-docs:

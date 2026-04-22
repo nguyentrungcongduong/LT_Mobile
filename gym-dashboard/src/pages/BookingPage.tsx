@@ -139,27 +139,40 @@ total: response.data.data?.totalElements || 0,      });
     {
       title: 'Lịch hẹn',
       key: 'scheduledAt',
-      render: (_: any, record: BookingSummary) => (
-        <Tooltip title={`Kết thúc: ${dayjs(record.endAt).format('HH:mm')}`}>
-          <div>
-            <p className="m-0 font-semibold">
-              {dayjs(record.scheduledAt).format('DD/MM/YYYY HH:mm')}
-            </p>
-            <p className="text-xs text-gray-500 m-0">
-              {record.durationMinutes} phút
-            </p>
-          </div>
-        </Tooltip>
-      ),
+      render: (_: any, record: BookingSummary) => {
+        // Backend: scheduled_at, end_at, duration_minutes
+        const scheduledAt = (record as any).scheduled_at ?? record.scheduledAt;
+        const endAt = (record as any).end_at ?? record.endAt;
+        const duration = (record as any).duration_minutes ?? record.durationMinutes;
+        return (
+          <Tooltip title={`Kết thúc: ${dayjs(endAt).format('HH:mm')}`}>
+            <div>
+              <p className="m-0 font-semibold">
+                {dayjs(scheduledAt).format('DD/MM/YYYY HH:mm')}
+              </p>
+              <p className="text-xs text-gray-500 m-0">
+                {duration} phút
+              </p>
+            </div>
+          </Tooltip>
+        );
+      },
     },
     {
       title: 'Giá tiền',
       key: 'totalAmount',
-      render: (_: any, record: BookingSummary) => (
-        <span className="text-green-600 font-semibold">
-          {record.totalAmount?.toLocaleString('vi-VN')}đ
-        </span>
-      ),
+      render: (_: any, record: BookingSummary) => {
+        // Backend trả về snake_case: total_amount
+        const amount = (record as any).total_amount ?? record.totalAmount;
+        return (
+          <span className="text-green-600 font-semibold">
+            {amount != null
+              ? Number(amount).toLocaleString('vi-VN') + 'đ'
+              : <span className="text-gray-400">—</span>
+            }
+          </span>
+        );
+      },
     },
     {
       title: 'Trạng thái',
@@ -173,11 +186,14 @@ total: response.data.data?.totalElements || 0,      });
     {
       title: 'Ngày tạo',
       key: 'createdAt',
-      render: (_: any, record: BookingSummary) => (
-        <span className="text-gray-600">
-          {dayjs(record.createdAt).format('DD/MM/YYYY')}
-        </span>
-      ),
+      render: (_: any, record: BookingSummary) => {
+        const createdAt = (record as any).created_at ?? record.createdAt;
+        return (
+          <span className="text-gray-600">
+            {dayjs(createdAt).format('DD/MM/YYYY')}
+          </span>
+        );
+      },
     },
   ];
 

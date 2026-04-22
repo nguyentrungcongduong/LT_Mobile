@@ -1,23 +1,32 @@
 package com.gymapp.android.ui.screens.home
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-
-
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-
-
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.NotificationsNone
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -25,17 +34,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-import androidx.compose.ui.zIndex
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
-import com.gymapp.android.ui.screens.banner.BannerCarousel
-import com.gymapp.android.ui.screens.banner.BannerViewModel
-import com.gymapp.android.ui.screens.banner.FloatingLogo
-
-import androidx.navigation.compose.rememberNavController
-
-
+import com.gymapp.android.ui.theme.GlowBackground
+import com.gymapp.android.ui.theme.OrangePrimary
+import kotlinx.coroutines.delay
 
 sealed class BottomNavRoute(val route: String, val title: String, val icon: androidx.compose.ui.graphics.vector.ImageVector) {
     object Dashboard : BottomNavRoute("dashboard", "Trang Chủ", Icons.Default.Home)
@@ -58,6 +60,7 @@ fun MainScreen(
     onNavigateToQrDisplay: () -> Unit = {},
     onNavigateToQrScan: () -> Unit = {},
     onNavigateToPtApproval: () -> Unit = {},
+    onNavigateToCheckinLog: () -> Unit = {},
     onNavigateToNotifications: () -> Unit = {},
     onNavigateToWorkoutScheduleSettings: () -> Unit = {},
     mainViewModel: MainViewModel = androidx.hilt.navigation.compose.hiltViewModel()
@@ -113,14 +116,28 @@ fun MainScreen(
         }
     }
 
+    GlowBackground {
     Scaffold(
+        containerColor = Color.Transparent,
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                containerColor = Color(0xFF1A1A1E),
+                contentColor = Color(0xFFB0B0B5),
+                tonalElevation = 0.dp
+            ) {
                 items.forEach { screen ->
+                    val isSelected = currentRoute == screen.route
                     NavigationBarItem(
                         icon = { Icon(screen.icon, contentDescription = screen.title) },
-                        label = { Text(screen.title) },
-                        selected = currentRoute == screen.route,
+                        label = { Text(screen.title, fontSize = 11.sp) },
+                        selected = isSelected,
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = OrangePrimary,
+                            selectedTextColor = OrangePrimary,
+                            indicatorColor = Color(0xFF2A1A0D),
+                            unselectedIconColor = Color(0xFF606068),
+                            unselectedTextColor = Color(0xFF606068)
+                        ),
                         onClick = {
                             navController.navigate(screen.route) {
                                 navController.graph.startDestinationRoute?.let { route ->
@@ -137,42 +154,32 @@ fun MainScreen(
             }
         }
     ) { innerPadding ->
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ){
         NavHost(
             navController = navController,
             startDestination = BottomNavRoute.Dashboard.route,
-
+            modifier = Modifier.padding(innerPadding)
         ) {
             composable(BottomNavRoute.Dashboard.route) {
-                val bannerViewModel: BannerViewModel = hiltViewModel()
-                val banners by bannerViewModel.banners.collectAsState()
-
+                val scrollState = rememberScrollState()
                 Column(
-                    modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp)
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState)
+                        .padding(16.dp)
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth()
-                            ,
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-
                         Column {
                             Text(
-                                if (userRole == "PT") "COOL TRAINING ❄" else "COOL FITNESS ❄",
+                                if (userRole == "PT") "Xin chào, HLV 👋" else "Xin chào, bạn 👋", 
                                 fontSize = 24.sp, 
-                                fontWeight = FontWeight.Bold ,
-                                color = Color(0xFF00BCD4)
+                                fontWeight = FontWeight.Bold
                             )
                             Text(
-                                if (userRole == "PT") "Trang dành cho PT" else "Trang dành cho khách hàng",
-
-
+                                if (userRole == "PT") "Chúc một ngày làm việc hiệu quả!" else "Hôm nay là ngày tập luyện tuyệt vời!", 
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontSize = 14.sp
                             )
@@ -210,168 +217,577 @@ fun MainScreen(
                             }
                         }
                     }
-
-                    BannerCarousel(
-                        banners = banners,
-                        modifier = Modifier.fillMaxWidth()
-
-                    )
-
-
+                    
                     Spacer(modifier = Modifier.height(24.dp))
                     
-                    // Banner Hội Viên
+                    // ── USER DASHBOARD ──────────────────────────────────────
                     if (userRole == "USER") {
-                        Card(
-                            onClick = onNavigateToActiveMembership,
-                            modifier = Modifier.fillMaxWidth().height(100.dp),
 
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFF81D4FA))
-
-
+                        // ── Premium Membership Card ──────────────────────────
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(130.dp)
+                                .clip(RoundedCornerShape(22.dp))
+                                .background(
+                                    Brush.linearGradient(
+                                        colors = listOf(Color(0xFF1A1A2E), Color(0xFF16213E), Color(0xFF0F3460)),
+                                        start = androidx.compose.ui.geometry.Offset(0f, 0f),
+                                        end = androidx.compose.ui.geometry.Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+                                    )
+                                )
+                                .clickable(onClick = onNavigateToActiveMembership)
+                                .padding(20.dp)
                         ) {
+                            // Decorative circles
+                            Box(
+                                modifier = Modifier
+                                    .size(120.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0x0DFFFFFF))
+                                    .align(Alignment.TopEnd)
+                                    .offset(x = 20.dp, y = (-20).dp)
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .size(80.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0x0AFFFFFF))
+                                    .align(Alignment.BottomEnd)
+                                    .offset(x = (-10).dp, y = 30.dp)
+                            )
+                            // Content
                             Column(
-                                modifier = Modifier.fillMaxSize().padding(16.dp),
-                                verticalArrangement = Arrangement.Center
+                                modifier = Modifier.align(Alignment.CenterStart),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
-
-                                Text("Hội viên của tôi", color = Color(0xFF0B3C49), fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                                Text("Nhấn vào đây để xem chi tiết & QR", color = Color(0xFF0F172A), fontSize = 14.sp)
-
-
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(24.dp))
-                    }
-
-                    // Quick Actions
-                    if (userRole == "USER") {
-                        Text("Thao tác nhanh", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                            Button(
-                                onClick = onNavigateToPackages,
-                                modifier = Modifier.weight(1f).height(60.dp),
-                                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722))
-                            ) {
-                                Text("🎫 Mua gói HV", fontSize = 16.sp)
-                            }
-                            
-                            Button(
-                                onClick = {
-                                    navController.navigate(BottomNavRoute.PTBooking.route) {
-                                        navController.graph.startDestinationRoute?.let { route ->
-                                            popUpTo(route) { saveState = true }
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(8.dp)
+                                            .clip(CircleShape)
+                                            .background(Color(0xFFFF8C00))
+                                    )
+                                    Text("HỘI VIÊN", color = Color(0xFFFF8C00), fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 2.sp)
+                                }
+                                Text("GYM FITNESS", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold)
+                                Spacer(modifier = Modifier.height(10.dp))
+                                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                                    Column {
+                                        Text("Đã tham gia", color = Color(0x88FFFFFF), fontSize = 10.sp)
+                                        Text("2024", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                                     }
-                                },
-                                modifier = Modifier.weight(1f).height(60.dp),
-                                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                                )
-                            ) {
-                                Text("🏋️ Thuê PT", fontSize = 16.sp)
+                                    Column {
+                                        Text("Gói", color = Color(0x88FFFFFF), fontSize = 10.sp)
+                                        Text("Standard", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                    }
+                                }
                             }
-                            
-                            Button(
-                                onClick = onNavigateToWorkout,
-                                modifier = Modifier.weight(1f).height(60.dp),
-                                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F51B5))
+                            // QR icon in top-right
+                            Column(
+                                modifier = Modifier.align(Alignment.BottomEnd),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(2.dp)
                             ) {
-                                Text("🔥 Tập luyện", fontSize = 16.sp)
+                                Box(
+                                    modifier = Modifier
+                                        .size(42.dp)
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .background(
+                                            Brush.linearGradient(
+                                                listOf(Color(0xFFFF8C00), Color(0xFFFF4500))
+                                            )
+                                        ),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(Icons.Default.Star, null, tint = Color.White, modifier = Modifier.size(22.dp))
+                                }
+                                Text("QR", color = Color(0xAAFFFFFF), fontSize = 9.sp)
                             }
                         }
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        // ── Image Carousel (meme1/2/3.jpg) ──────────────
+                        val context = androidx.compose.ui.platform.LocalContext.current
+                        val memeImages = remember(context) {
+                            listOf(
+                                android.net.Uri.parse("android.resource://${context.packageName}/${com.gymapp.android.R.drawable.meme1}"),
+                                android.net.Uri.parse("android.resource://${context.packageName}/${com.gymapp.android.R.drawable.meme2}"),
+                                android.net.Uri.parse("android.resource://${context.packageName}/${com.gymapp.android.R.drawable.meme3}")
+                            )
+                        }
+                        val userPagerState = rememberPagerState(pageCount = { memeImages.size })
+                        // Use Unit as key so the coroutine is only launched once, not on every scroll
+                        LaunchedEffect(Unit) {
+                            while (true) {
+                                delay(3500)
+                                val next = (userPagerState.currentPage + 1) % memeImages.size
+                                userPagerState.animateScrollToPage(next)
+                            }
+                        }
+                        HorizontalPager(
+                            state = userPagerState,
+                            modifier = Modifier.fillMaxWidth()
+                        ) { page ->
+                            coil.compose.AsyncImage(
+                                model = memeImages[page],
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(180.dp)
+                                    .clip(RoundedCornerShape(18.dp))
+                            )
+                        }
+                        // Dot indicators
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            repeat(memeImages.size) { i ->
+                                val sel = userPagerState.currentPage == i
+                                Box(
+                                    modifier = Modifier
+                                        .padding(horizontal = 3.dp)
+                                        .height(5.dp)
+                                        .width(if (sel) 20.dp else 6.dp)
+                                        .clip(CircleShape)
+                                        .background(if (sel) Color(0xFFFF8C00) else Color(0xFFDDDDDD))
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(22.dp))
+
+                        // ── Quick Actions ───────────────────────────────────
+                        Text("Thao tác nhanh", fontWeight = FontWeight.SemiBold, fontSize = 17.sp, color = Color(0xFF1A1A1A))
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            @Composable
+                            fun UserActionCard(label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, isPrimary: Boolean = false, onClick: () -> Unit) {
+                                Card(
+                                    onClick = onClick,
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(14.dp),
+                                    colors = CardDefaults.cardColors(containerColor = if (isPrimary) Color.Transparent else Color.White),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = if (isPrimary) 0.dp else 2.dp)
+                                ) {
+                                    Box(
+                                        modifier = if (isPrimary)
+                                            Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp))
+                                                .background(Brush.linearGradient(listOf(Color(0xFFFF8C00), Color(0xFFFF4500))))
+                                        else Modifier.fillMaxWidth()
+                                    ) {
+                                        Column(
+                                            modifier = Modifier.fillMaxWidth().padding(vertical = 14.dp, horizontal = 8.dp),
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.spacedBy(7.dp)
+                                        ) {
+                                            val iconBoxMod = if (isPrimary)
+                                                Modifier.size(44.dp).clip(CircleShape).background(Color(0x33FFFFFF))
+                                            else
+                                                Modifier.size(44.dp).clip(CircleShape).background(Brush.linearGradient(listOf(Color(0xFFFF8C00), Color(0xFFFF4500))))
+                                            Box(modifier = iconBoxMod, contentAlignment = Alignment.Center) {
+                                                Icon(icon, null, tint = Color.White, modifier = Modifier.size(22.dp))
+                                            }
+                                            Text(label, fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
+                                                color = if (isPrimary) Color.White else Color(0xFF333333),
+                                                textAlign = TextAlign.Center)
+                                        }
+                                    }
+                                }
+                            }
+                            UserActionCard("Mua gói", Icons.Default.AddCircle, onClick = onNavigateToPackages)
+                            UserActionCard("Thuê PT", Icons.Default.Star) {
+                                navController.navigate(BottomNavRoute.PTBooking.route) {
+                                    navController.graph.startDestinationRoute?.let { r -> popUpTo(r) { saveState = true } }
+                                    launchSingleTop = true; restoreState = true
+                                }
+                            }
+                            UserActionCard("Bắt đầu tập", Icons.Default.FitnessCenter, isPrimary = true, onClick = onNavigateToWorkout)
+                        }
+
+                        Spacer(modifier = Modifier.height(22.dp))
+
+                        // ── Daily Activity ───────────────────────────────────────
+                        Text("Hoạt động hôm nay", fontWeight = FontWeight.SemiBold, fontSize = 17.sp, color = Color(0xFF1A1A1A))
+                        Spacer(modifier = Modifier.height(12.dp))
+                        val activityGrad = Brush.linearGradient(
+                            listOf(Color(0xFF1A1A2E), Color(0xFF0F3460)),
+                            start = androidx.compose.ui.geometry.Offset(0f, 0f),
+                            end = androidx.compose.ui.geometry.Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(activityGrad)
+                                .padding(20.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                @Composable
+                                fun ActivityStat(label: String, value: String, unit: String, icon: androidx.compose.ui.graphics.vector.ImageVector) {
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                        Box(
+                                            modifier = Modifier.size(52.dp).clip(CircleShape)
+                                                .background(Color(0x22FFFFFF)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(icon, null, tint = Color(0xFFFF8C00), modifier = Modifier.size(24.dp))
+                                        }
+                                        Text(value, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
+                                        Text(unit, color = Color(0x88FFFFFF), fontSize = 10.sp)
+                                        Text(label, color = Color(0xAAFFFFFF), fontSize = 11.sp)
+                                    }
+                                }
+                                ActivityStat("Calo", "320", "kcal", Icons.Default.FitnessCenter)
+                                Box(modifier = Modifier.width(1.dp).height(70.dp).background(Color(0x22FFFFFF))
+                                    .align(Alignment.CenterVertically))
+                                ActivityStat("Bước", "4.2k", "bước", Icons.Default.DateRange)
+                                Box(modifier = Modifier.width(1.dp).height(70.dp).background(Color(0x22FFFFFF))
+                                    .align(Alignment.CenterVertically))
+                                ActivityStat("Thời gian", "38", "phút", Icons.Default.Timer)
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
                     } else if (userRole == "PT") {
-                        Text("Thống kê nhanh", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Card(modifier = Modifier.weight(1f), colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0))) {
-                                Column(modifier = Modifier.padding(16.dp)) {
-                                    Text("Ca hôm nay", color = Color.Gray, fontSize = 13.sp)
-                                    Text(ptStats.todaySessions.toString(), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFFE65100))
-                                }
-                            }
-                            Card(modifier = Modifier.weight(1f), colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9))) {
-                                Column(modifier = Modifier.padding(16.dp)) {
-                                    Text("Khách Active", color = Color.Gray, fontSize = 13.sp)
-                                    Text(ptStats.activeClients.toString(), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1B5E20))
-                                }
+                        // ── Image Carousel (meme1/2/3.jpg) - PT ─────────────
+                        val ptContext = androidx.compose.ui.platform.LocalContext.current
+                        val ptMemeImages = remember(ptContext) {
+                            listOf(
+                                android.net.Uri.parse("android.resource://${ptContext.packageName}/${com.gymapp.android.R.drawable.meme1}"),
+                                android.net.Uri.parse("android.resource://${ptContext.packageName}/${com.gymapp.android.R.drawable.meme2}"),
+                                android.net.Uri.parse("android.resource://${ptContext.packageName}/${com.gymapp.android.R.drawable.meme3}")
+                            )
+                        }
+                        val pagerState = rememberPagerState(pageCount = { ptMemeImages.size })
+                        LaunchedEffect(Unit) {
+                            while (true) {
+                                delay(3500)
+                                val next = (pagerState.currentPage + 1) % ptMemeImages.size
+                                pagerState.animateScrollToPage(next)
                             }
                         }
-
-                        Spacer(modifier = Modifier.height(24.dp))
-
-                        Text("Thao tác nhanh", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Button(
-                                onClick = {
-                                    navController.navigate(BottomNavRoute.PtQueue.route) {
-                                        navController.graph.startDestinationRoute?.let { route ->
-                                            popUpTo(route) { saveState = true }
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                },
-                                modifier = Modifier.weight(1f).height(56.dp),
-                                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722))
-                            ) {
-                                Text("📅 Lịch hẹn", fontSize = 14.sp)
-                            }
-                            Button(
-                                onClick = {
-                                    navController.navigate(BottomNavRoute.PtClients.route) {
-                                        navController.graph.startDestinationRoute?.let { route ->
-                                            popUpTo(route) { saveState = true }
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                },
-                                modifier = Modifier.weight(1f).height(56.dp),
-                                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                        HorizontalPager(
+                            state = pagerState,
+                            modifier = Modifier.fillMaxWidth()
+                        ) { page ->
+                            coil.compose.AsyncImage(
+                                model = ptMemeImages[page],
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(180.dp)
+                                    .clip(RoundedCornerShape(18.dp))
+                            )
+                        }
+                        // Dot indicators
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            repeat(ptMemeImages.size) { i ->
+                                val sel = pagerState.currentPage == i
+                                Box(
+                                    modifier = Modifier
+                                        .padding(horizontal = 3.dp)
+                                        .height(5.dp)
+                                        .width(if (sel) 20.dp else 6.dp)
+                                        .clip(CircleShape)
+                                        .background(if (sel) Color(0xFFFF8C00) else Color(0xFF444448))
                                 )
-                            ) {
-                                Text("👥 Clients", fontSize = 14.sp)
                             }
-                            Button(
-                                onClick = onNavigateToQrScan,
-                                modifier = Modifier.weight(1f).height(56.dp),
-                                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9C27B0))
+                        }
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        // ── Stat Cards ─────────────────────────────────────
+                        val orangeGrad = Brush.linearGradient(
+                            listOf(Color(0xFFFF8C00), Color(0xFFFF4500)),
+                            start = androidx.compose.ui.geometry.Offset(0f, 0f),
+                            end = androidx.compose.ui.geometry.Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+                        )
+                        val greenGrad = Brush.linearGradient(
+                            listOf(Color(0xFF66BB6A), Color(0xFF2E7D32)),
+                            start = androidx.compose.ui.geometry.Offset(0f, 0f),
+                            end = androidx.compose.ui.geometry.Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+                        )
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            // Card 1: Ca hôm nay
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(18.dp))
+                                    .background(orangeGrad)
+                                    .padding(horizontal = 20.dp, vertical = 18.dp)
                             ) {
-                                Text("📷 Quét QR", fontSize = 14.sp)
+                                Icon(
+                                    Icons.Default.Timer, null,
+                                    tint = Color(0x1AFFFFFF),
+                                    modifier = Modifier.size(70.dp).align(Alignment.CenterEnd)
+                                )
+                                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                    Text("Ca hôm nay", color = Color(0xBBFFFFFF), fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                                    Text(
+                                        ptStats.todaySessions.toString(),
+                                        fontSize = 40.sp, fontWeight = FontWeight.ExtraBold, color = Color.White,
+                                        lineHeight = 44.sp
+                                    )
+                                    Text("buổi", color = Color(0xAAFFFFFF), fontSize = 11.sp)
+                                }
+                            }
+                            // Card 2: Khách Active
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(18.dp))
+                                    .background(greenGrad)
+                                    .padding(horizontal = 20.dp, vertical = 18.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.FitnessCenter, null,
+                                    tint = Color(0x1AFFFFFF),
+                                    modifier = Modifier.size(70.dp).align(Alignment.CenterEnd)
+                                )
+                                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                    Text("Khách Active", color = Color(0xBBFFFFFF), fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                                    Text(
+                                        ptStats.activeClients.toString(),
+                                        fontSize = 40.sp, fontWeight = FontWeight.ExtraBold, color = Color.White,
+                                        lineHeight = 44.sp
+                                    )
+                                    Text("người", color = Color(0xAAFFFFFF), fontSize = 11.sp)
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(22.dp))
+
+                        // ── Quick Actions 2×2 ───────────────────────────────
+                        Text("Thao tác nhanh", fontWeight = FontWeight.SemiBold, fontSize = 17.sp, color = Color(0xFFF2F2F2))
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        @Composable
+                        fun PtActionCard(label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
+                            Card(
+                                onClick = onClick,
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E22)),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF2A2A2E))
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 16.dp, horizontal = 8.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(46.dp)
+                                            .clip(CircleShape)
+                                            .background(Color(0xFF2A1508)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(icon, null, tint = Color(0xFFFF6B2B), modifier = Modifier.size(22.dp))
+                                    }
+                                    Text(label, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFFF2F2F2), textAlign = TextAlign.Center)
+                                }
+                            }
+                        }
+
+                        // Row 1
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            Box(modifier = Modifier.weight(1f)) {
+                                PtActionCard("Lịch hẹn", Icons.Default.Timer) {
+                                    navController.navigate(BottomNavRoute.PtQueue.route) {
+                                        navController.graph.startDestinationRoute?.let { r -> popUpTo(r) { saveState = true } }
+                                        launchSingleTop = true; restoreState = true
+                                    }
+                                }
+                            }
+                            Box(modifier = Modifier.weight(1f)) {
+                                PtActionCard("Clients", Icons.Default.FitnessCenter) {
+                                    navController.navigate(BottomNavRoute.PtClients.route) {
+                                        navController.graph.startDestinationRoute?.let { r -> popUpTo(r) { saveState = true } }
+                                        launchSingleTop = true; restoreState = true
+                                    }
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+                        // Row 2
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            Box(modifier = Modifier.weight(1f)) {
+                                PtActionCard("Mua gói HV", Icons.Default.AddCircle, onNavigateToPackages)
+                            }
+                            Box(modifier = Modifier.weight(1f)) {
+                                PtActionCard("Mã QR vào", Icons.Default.DateRange, onNavigateToQrDisplay)
+                            }
+                        }
+
+
+                        Spacer(modifier = Modifier.height(22.dp))
+
+                        // ── Weekly Bar Chart ────────────────────────────────
+                        Text("Ca dạy trong tuần", fontWeight = FontWeight.SemiBold, fontSize = 17.sp, color = Color(0xFF1A1A1A))
+                        Spacer(modifier = Modifier.height(12.dp))
+                        val weekDays = listOf("T2", "T3", "T4", "T5", "T6", "T7", "CN")
+                        val weekData = listOf(3f, 5f, 2f, 6f, 4f, 7f, 1f)
+                        val maxVal = weekData.max()
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 20.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.Bottom
+                            ) {
+                                weekDays.forEachIndexed { idx, day ->
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Bottom
+                                    ) {
+                                        val fraction = weekData[idx] / maxVal
+                                        val isToday = idx == 3
+                                        val barHeight = (fraction * 80).dp
+                                        val minHeight = 10.dp
+                                        Box(
+                                            modifier = Modifier
+                                                .width(24.dp)
+                                                .height(if (barHeight < minHeight) minHeight else barHeight)
+                                                .clip(CircleShape) // full rounded
+                                                .background(
+                                                    if (isToday)
+                                                        Brush.verticalGradient(listOf(Color(0xFFFF8C00), Color(0xFFFF4500)))
+                                                    else
+                                                        Brush.verticalGradient(listOf(Color(0xFFFFD0A0), Color(0xFFFFBB80)))
+                                                )
+                                        )
+                                        Spacer(modifier = Modifier.height(6.dp))
+                                        Text(
+                                            day, fontSize = 10.sp,
+                                            color = if (isToday) Color(0xFFFF5722) else Color(0xFF999999),
+                                            fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal
+                                        )
+                                    }
+                                }
                             }
                         }
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        Text("Lịch sắp tới", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+                        // ── Upcoming Bookings ───────────────────────────────
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Lịch sắp tới", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+                            if (ptStats.upcomingBookings.isNotEmpty()) {
+                                Text(
+                                    "${ptStats.upcomingBookings.size} buổi",
+                                    fontSize = 13.sp,
+                                    color = Color(0xFFFF5722),
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+                        }
                         Spacer(modifier = Modifier.height(12.dp))
 
                         if (ptStats.upcomingBookings.isEmpty()) {
+                            // ── Empty State with CTA ─────────────────────────
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                                shape = RoundedCornerShape(20.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFBF8)),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                             ) {
-                                androidx.compose.foundation.layout.Box(
-                                    modifier = Modifier.fillMaxWidth().padding(24.dp),
-                                    contentAlignment = Alignment.Center
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 28.dp, horizontal = 20.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
                                 ) {
-                                    Text("Chưa có lịch sắp tới", color = Color.Gray, fontSize = 14.sp)
+                                    // Stacked circles illustration
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(80.dp)
+                                                .clip(CircleShape)
+                                                .background(Color(0xFFFFF3E0))
+                                        )
+                                        Box(
+                                            modifier = Modifier
+                                                .size(56.dp)
+                                                .clip(CircleShape)
+                                                .background(
+                                                    Brush.linearGradient(
+                                                        listOf(Color(0xFFFF8C00), Color(0xFFFF4500)),
+                                                        start = androidx.compose.ui.geometry.Offset(0f, 0f),
+                                                        end = androidx.compose.ui.geometry.Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+                                                    )
+                                                ),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(Icons.Default.Timer, null, tint = Color.White, modifier = Modifier.size(28.dp))
+                                        }
+                                    }
+                                    Text(
+                                        "Hôm nay thảnh thơi! ☀️",
+                                        fontWeight = FontWeight.ExtraBold,
+                                        fontSize = 17.sp,
+                                        color = Color(0xFF1A1A1A)
+                                    )
+                                    Text(
+                                        "Chưa có lịch nào sắp tới.\nHãy liên hệ học viên để đặt buổi mới nhé!",
+                                        fontSize = 13.sp,
+                                        color = Color(0xFF888888),
+                                        textAlign = TextAlign.Center,
+                                        lineHeight = 18.sp
+                                    )
+                                    // CTA Button
+                                    Button(
+                                        onClick = {
+                                            navController.navigate(BottomNavRoute.PtClients.route) {
+                                                navController.graph.startDestinationRoute?.let { r -> popUpTo(r) { saveState = true } }
+                                                launchSingleTop = true; restoreState = true
+                                            }
+                                        },
+                                        modifier = Modifier.height(44.dp),
+                                        shape = RoundedCornerShape(50.dp),
+                                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                                        contentPadding = PaddingValues(0.dp)
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .height(44.dp)
+                                                .clip(RoundedCornerShape(50.dp))
+                                                .background(Brush.horizontalGradient(listOf(Color(0xFFFF8C00), Color(0xFFFF4500))))
+                                                .padding(horizontal = 28.dp, vertical = 12.dp),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                "Xem danh sách clients →",
+                                                color = Color.White,
+                                                fontSize = 14.sp,
+                                                fontWeight = FontWeight.SemiBold
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         } else {
@@ -381,22 +797,56 @@ fun MainScreen(
                                 val dateStr = java.text.SimpleDateFormat("dd/MM", java.util.Locale.getDefault())
                                     .format(booking.scheduledAt)
                                 Card(
-                                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                                    modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
+                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFAFAFA)),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                                 ) {
-                                    Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                                        Surface(shape = androidx.compose.foundation.shape.CircleShape, color = Color.White, modifier = Modifier.size(40.dp)) {
-                                            Icon(Icons.Default.DateRange, contentDescription = null, tint = Color(0xFFFF5722), modifier = Modifier.padding(8.dp))
+                                    Row(
+                                        modifier = Modifier.padding(14.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        // Time badge
+                                        androidx.compose.foundation.layout.Box(
+                                            modifier = Modifier
+                                                .background(Color(0xFFFFF3E0), androidx.compose.foundation.shape.RoundedCornerShape(10.dp))
+                                                .padding(horizontal = 10.dp, vertical = 8.dp),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                                Text(timeStr, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFFFF5722))
+                                                Text(dateStr, fontSize = 11.sp, color = Color(0xFFFF7043))
+                                            }
                                         }
-                                        Spacer(modifier = Modifier.width(16.dp))
+                                        Spacer(modifier = Modifier.width(14.dp))
+                                        // Divider line
+                                        androidx.compose.foundation.layout.Box(
+                                            modifier = Modifier
+                                                .width(2.dp)
+                                                .height(40.dp)
+                                                .background(Color(0xFFFF5722), androidx.compose.foundation.shape.RoundedCornerShape(1.dp))
+                                        )
+                                        Spacer(modifier = Modifier.width(14.dp))
                                         Column(modifier = Modifier.weight(1f)) {
-                                            Text("$timeStr — $dateStr", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                                             Text(
-                                                "Học viên: ${booking.userName ?: "–"}",
+                                                booking.userName ?: "Học viên",
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 15.sp,
+                                                color = Color(0xFF1A1A1A)
+                                            )
+                                            Spacer(modifier = Modifier.height(2.dp))
+                                            Text(
+                                                "Buổi tập cá nhân",
                                                 color = Color.Gray,
-                                                fontSize = 14.sp
+                                                fontSize = 13.sp
                                             )
                                         }
+                                        Icon(
+                                            Icons.Default.DateRange,
+                                            contentDescription = null,
+                                            tint = Color(0xFFE0E0E0),
+                                            modifier = Modifier.size(18.dp)
+                                        )
                                     }
                                 }
                             }
@@ -405,10 +855,15 @@ fun MainScreen(
                         Text("Tổng quan Hệ Thống", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
                         Spacer(modifier = Modifier.height(16.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Card(modifier = Modifier.weight(1f), colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD))) {
+                            Card(
+                                onClick = onNavigateToCheckinLog,
+                                modifier = Modifier.weight(1f),
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD))
+                            ) {
                                 Column(modifier = Modifier.padding(16.dp)) {
                                     Text("Check-in", color = Color.Gray, fontSize = 13.sp)
                                     Text(adminStats?.totalCheckins?.toString() ?: "...", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1565C0))
+                                    Text("Xem lịch sử ›", fontSize = 11.sp, color = Color(0xFF1565C0))
                                 }
                             }
                             Card(modifier = Modifier.weight(1f), colors = CardDefaults.cardColors(containerColor = Color(0xFFFCE4EC))) {
@@ -600,17 +1055,7 @@ fun MainScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
-
-
         }
-        FloatingLogo(
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .zIndex(10f)
-                .padding(16.dp)
-        )
-    }}
-
-
+    }
+    } // end GlowBackground
 }
-

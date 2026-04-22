@@ -2,8 +2,10 @@ package com.gymapp.android.ui.screens.pt
 
 import android.content.Intent
 import android.net.Uri
+import android.net.http.SslError
 import android.os.Message
 import android.webkit.CookieManager
+import android.webkit.SslErrorHandler
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
@@ -117,6 +119,15 @@ fun PaymentWebViewScreen(
                             cookieManager.setAcceptThirdPartyCookies(this, true)
 
                             webViewClient = object : WebViewClient() {
+                                // Bỏ qua SSL error của VNPay sandbox (dùng self-signed cert)
+                                override fun onReceivedSslError(
+                                    view: WebView?,
+                                    handler: SslErrorHandler?,
+                                    error: SslError?
+                                ) {
+                                    handler?.proceed() // Cho phép load dù SSL không hợp lệ
+                                }
+
                                 override fun onPageFinished(view: WebView?, url: String?) {
                                     onPageDone?.invoke()
                                 }

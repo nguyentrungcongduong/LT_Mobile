@@ -19,6 +19,7 @@ import com.gymapp.android.ui.screens.training.WorkoutDetailScreenWrapper
 import com.gymapp.android.ui.screens.training.WorkoutHistoryScreen
 import com.gymapp.android.ui.screens.training.WorkoutMenuScreen
 import com.gymapp.android.ui.screens.training.WorkoutScreen
+import com.gymapp.android.ui.screens.checkin.AdminCheckinLogScreen
 import com.gymapp.android.ui.screens.checkin.QrDisplayScreen
 import com.gymapp.android.ui.screens.checkin.QrScanScreen
 import com.gymapp.android.ui.screens.pt.PaymentWebViewScreen
@@ -124,6 +125,7 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
                 onNavigateToQrDisplay = { navController.navigate("qr_display") },
                 onNavigateToQrScan = { navController.navigate("qr_scan") },
                 onNavigateToPtApproval = { navController.navigate("admin_pt_approval") },
+                onNavigateToCheckinLog = { navController.navigate("admin_checkin_log") },
                 onNavigateToNotifications = { navController.navigate(Route.NotificationInbox.route) },
                 onNavigateToWorkoutScheduleSettings = { navController.navigate(Route.WorkoutScheduleSettings.route) }
             )
@@ -138,6 +140,9 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
         }
         composable("qr_scan") {
             QrScanScreen(onNavigateBack = { navController.popBackStack() })
+        }
+        composable("admin_checkin_log") {
+            AdminCheckinLogScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable(Route.WorkoutList.route) {
             WorkoutScreen(navController)

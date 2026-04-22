@@ -14,4 +14,9 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    host: '0.0.0.0',   // Cho phép access từ mạng local (điện thoại)
+    port: 5173,
+  },
 })
+

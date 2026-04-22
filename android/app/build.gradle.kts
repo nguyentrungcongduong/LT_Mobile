@@ -109,12 +109,8 @@ dependencies {
     // firebase-messaging-ktx was merged into firebase-messaging since BOM 32.0.0
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-messaging")
-<<<<<<< HEAD
 
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
-
-=======
->>>>>>> 1f03042ff267dc81be6f3567bd59d12c8e670c4a
 }

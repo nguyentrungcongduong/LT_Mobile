@@ -92,6 +92,18 @@ interface PtApi {
     suspend fun createAvailability(
         @Body request: CreateAvailabilityRequest
     ): Response<ApiResponse<Map<String, Any>>>
+
+    // ── Reviews ──────────────────────────────────────────────────────
+    @POST("api/v1/pts/{pt_id}/reviews")
+    suspend fun submitReview(
+        @Path("pt_id") ptId: String,
+        @Body request: SubmitReviewRequest
+    ): Response<ApiResponse<ReviewResponseDto>>
+
+    @GET("api/v1/pts/{pt_id}/reviews/me")
+    suspend fun checkMyReview(
+        @Path("pt_id") ptId: String
+    ): Response<ApiResponse<Map<String, Boolean>>>
 }
 
 data class PtProfileUpdateRequest(
@@ -117,4 +129,19 @@ data class BatchBookingCreateResponse(
     @com.google.gson.annotations.SerializedName("total_amount") val totalAmount: Long,
     @com.google.gson.annotations.SerializedName("payment_url") val paymentUrl: String?,
     @com.google.gson.annotations.SerializedName("expires_at") val expiresAt: String?
+)
+
+data class SubmitReviewRequest(
+    val rating: Int,
+    val comment: String?
+)
+
+data class ReviewResponseDto(
+    val id: String?,
+    @com.google.gson.annotations.SerializedName("user_id") val userId: String?,
+    @com.google.gson.annotations.SerializedName("user_name") val userName: String?,
+    @com.google.gson.annotations.SerializedName("avatar_url") val avatarUrl: String?,
+    val rating: Int,
+    val comment: String?,
+    @com.google.gson.annotations.SerializedName("created_at") val createdAt: String?
 )

@@ -5,12 +5,19 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.HourglassTop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -18,35 +25,29 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gymapp.android.data.remote.api.BookingDto
 
-// ── Design Tokens ──────────────────────────────────────────────────────────────
-private val BgPrimary       = Color(0xFFFFFFFF)
-private val BgSecondary     = Color(0xFFF5F5F5)
-private val BorderTertiary  = Color(0xFFEBEBEB)
-private val Tprimary        = Color(0xFF1A1A1A)
-private val Tsecondary      = Color(0xFF6B6B6B)
-private val GreenPrimary    = Color(0xFF1D9E75)
-private val GreenLight      = Color(0xFFE1F5EE)
-private val GreenBorder     = Color(0xFF9FE1CB)
-private val GreenDark       = Color(0xFF085041)
-private val AmberBg         = Color(0xFFFAEEDA)
-private val AmberBorder     = Color(0xFFFAC775)
-private val AmberText       = Color(0xFF854F0B)
-private val AmberValue      = Color(0xFF633806)
-private val RejectBg        = Color(0xFFFCEBEB)
-private val RejectBorder    = Color(0xFFF7C1C1)
-private val RejectText      = Color(0xFFA32D2D)
-private val ConfirmedBg     = Color(0xFFEAF3DE)
-private val ConfirmedBorder = Color(0xFFC0DD97)
-private val ConfirmedText   = Color(0xFF3B6D11)
+// ── Dark Design Tokens ─────────────────────────────────────────────────────────
+private val BgPrimary      = Color(0xFF121212)
+private val BgSecondary    = Color(0xFF1C1C1E)
+private val BgCard         = Color(0xFF1E1E22)
+private val BorderDark     = Color(0xFF2A2A2E)
+private val Tprimary       = Color(0xFFF2F2F2)
+private val Tsecondary     = Color(0xFF9A9A9E)
+private val Orange         = Color(0xFFFF6B2B)
+private val OrangeGlow     = Color(0xFFFF8C00)
+private val OrangeDim      = Color(0xFF2A1508)
+private val GreenText      = Color(0xFF2ECC8E)
+private val GreenBg        = Color(0xFF0D2B1E)
+private val AmberText      = Color(0xFFF0B429)
+private val AmberBg        = Color(0xFF281A00)
+private val RedText        = Color(0xFFEF5350)
+private val RedBg          = Color(0xFF2A0A0A)
 
-// ── Screen 5: PT Booking Queue ────────────────────────────────────────────────
+// ── Screen: PT Booking Queue ──────────────────────────────────────────────────
 @Composable
 fun PtQueueScreen(
     viewModel: PtQueueViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.loadQueue()
-    }
+    LaunchedEffect(Unit) { viewModel.loadQueue() }
 
     val uiState by viewModel.uiState.collectAsState()
 
@@ -55,31 +56,53 @@ fun PtQueueScreen(
             .fillMaxSize()
             .background(BgPrimary)
     ) {
-        // Header
-        Row(
+        // ── Header ─────────────────────────────────────────────────────────
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(BgSecondary)
-                .border(0.5.dp, BorderTertiary)
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .background(Brush.verticalGradient(listOf(BgSecondary, BgPrimary)))
+                .padding(horizontal = 16.dp, vertical = 16.dp)
         ) {
-            Text("Lịch hẹn của tôi", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Tprimary)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .background(OrangeDim, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Default.CalendarMonth, null, tint = Orange, modifier = Modifier.size(18.dp))
+                }
+                Column {
+                    Text(
+                        "Lịch hẹn của tôi",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Tprimary
+                    )
+                    Text("Quản lý yêu cầu và buổi dạy", fontSize = 12.sp, color = Tsecondary)
+                }
+            }
         }
 
+        // ── Content ────────────────────────────────────────────────────────
         when (val state = uiState) {
             is PtQueueUiState.Loading -> {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = GreenPrimary)
+                    CircularProgressIndicator(color = Orange)
                 }
             }
             is PtQueueUiState.Error -> {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         Text(state.message, color = Tsecondary, fontSize = 14.sp)
                         TextButton(onClick = { viewModel.loadQueue() }) {
-                            Text("Thử lại", color = GreenPrimary)
+                            Text("Thử lại", color = Orange)
                         }
                     }
                 }
@@ -88,61 +111,124 @@ fun PtQueueScreen(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 12.dp, vertical = 10.dp),
-                    verticalArrangement = Arrangement.spacedBy(7.dp)
+                        .padding(horizontal = 14.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(top = 14.dp, bottom = 24.dp)
                 ) {
-                    // ── Stat Grid ──────────────────────────────────────────────
+                    // ── Stat Card ───────────────────────────────────────────
                     item {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(5.dp)
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            val confirmedCount = state.confirmed.size
-                            StatCard(label = "Đã xác nhận\ntháng này", value = "$confirmedCount", sub = "buổi", modifier = Modifier.weight(1f))
+                            DarkStatCard(
+                                label = "Đã xác nhận\ntháng này",
+                                value = "${state.confirmed.size}",
+                                sub = "buổi",
+                                accentColor = GreenText,
+                                bgColor = GreenBg,
+                                modifier = Modifier.weight(1f)
+                            )
+                            DarkStatCard(
+                                label = "Chờ xác nhận",
+                                value = "${state.pending.size}",
+                                sub = "yêu cầu",
+                                accentColor = AmberText,
+                                bgColor = AmberBg,
+                                modifier = Modifier.weight(1f)
+                            )
                         }
                     }
 
-                    // ── Pending ────────────────────────────────────────────────
+                    // ── Pending ─────────────────────────────────────────────
                     if (state.pending.isNotEmpty()) {
                         item {
-                            Spacer(Modifier.height(8.dp))
-                            Text(
-                                text = "Chờ xác nhận",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Tprimary
-                            )
-                            Spacer(Modifier.height(8.dp))
+                            Spacer(Modifier.height(6.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(6.dp)
+                                        .background(AmberText, CircleShape)
+                                )
+                                Text(
+                                    "Chờ xác nhận",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Tprimary
+                                )
+                            }
                         }
                         items(state.pending) { booking ->
                             PendingBookingCard(booking = booking)
                         }
                     }
 
-                    // ── Confirmed ──────────────────────────────────────────────
+                    // ── Confirmed ───────────────────────────────────────────
                     if (state.confirmed.isNotEmpty()) {
                         item {
-                            Spacer(Modifier.height(12.dp))
-                            Text(
-                                text = "Sắp tới (đã xác nhận)",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Tprimary
-                            )
-                            Spacer(Modifier.height(8.dp))
+                            Spacer(Modifier.height(6.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(6.dp)
+                                        .background(GreenText, CircleShape)
+                                )
+                                Text(
+                                    "Sắp tới · Đã xác nhận",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Tprimary
+                                )
+                            }
                         }
                         items(state.confirmed) { booking ->
                             ConfirmedBookingRow(booking = booking)
                         }
                     }
 
+                    // ── Empty State ─────────────────────────────────────────
                     if (state.pending.isEmpty() && state.confirmed.isEmpty()) {
                         item {
                             Box(
-                                modifier = Modifier.fillParentMaxSize(),
+                                modifier = Modifier
+                                    .fillParentMaxWidth()
+                                    .padding(top = 80.dp),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text("Chưa có lịch hẹn nào", color = Tsecondary, fontSize = 14.sp)
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(80.dp)
+                                            .background(BgSecondary, CircleShape),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            Icons.Default.CalendarMonth, null,
+                                            tint = Tsecondary,
+                                            modifier = Modifier.size(36.dp)
+                                        )
+                                    }
+                                    Text(
+                                        "Chưa có lịch hẹn nào",
+                                        color = Tprimary,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                    Text(
+                                        "Học viên đặt lịch sẽ xuất hiện ở đây",
+                                        color = Tsecondary,
+                                        fontSize = 13.sp
+                                    )
+                                }
                             }
                         }
                     }
@@ -152,30 +238,40 @@ fun PtQueueScreen(
     }
 }
 
+// ── Dark Stat Card ─────────────────────────────────────────────────────────────
 @Composable
-private fun StatCard(label: String, value: String, sub: String, modifier: Modifier = Modifier) {
+private fun DarkStatCard(
+    label: String,
+    value: String,
+    sub: String,
+    accentColor: Color,
+    bgColor: Color,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier
-            .background(BgSecondary, RoundedCornerShape(10.dp))
-            .border(0.5.dp, BorderTertiary, RoundedCornerShape(10.dp))
-            .padding(horizontal = 12.dp, vertical = 10.dp)
+            .background(bgColor, RoundedCornerShape(14.dp))
+            .border(1.dp, accentColor.copy(alpha = 0.25f), RoundedCornerShape(14.dp))
+            .padding(horizontal = 14.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
-        Text(text = label, fontSize = 14.sp, color = Tsecondary, lineHeight = 18.sp)
+        Text(label, fontSize = 12.sp, color = Tsecondary, lineHeight = 17.sp)
         Spacer(Modifier.height(4.dp))
-        Text(text = value, fontSize = 28.sp, fontWeight = FontWeight.Bold, color = GreenPrimary)
-        Text(text = sub, fontSize = 14.sp, color = Tsecondary)
+        Text(value, fontSize = 32.sp, fontWeight = FontWeight.ExtraBold, color = accentColor)
+        Text(sub, fontSize = 12.sp, color = Tsecondary)
     }
 }
 
+// ── Pending Booking Card ───────────────────────────────────────────────────────
 @Composable
 private fun PendingBookingCard(booking: BookingDto) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .border(0.5.dp, AmberBorder, RoundedCornerShape(8.dp))
-            .background(BgPrimary, RoundedCornerShape(8.dp))
-            .padding(horizontal = 8.dp, vertical = 7.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+            .background(BgCard, RoundedCornerShape(16.dp))
+            .border(1.dp, AmberText.copy(alpha = 0.25f), RoundedCornerShape(16.dp))
+            .padding(14.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -183,90 +279,118 @@ private fun PendingBookingCard(booking: BookingDto) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.weight(1f)
             ) {
-                AvatarBubble(name = booking.userName, modifier = Modifier.size(40.dp), bgColor = Color(0xFF9FE1CB), textColor = Color(0xFF04342C))
-                Column {
-                    Text(booking.userName ?: "User", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Tprimary)
-                    Text(formatDatetime(booking.scheduledAt), fontSize = 15.sp, color = Tsecondary)
-                    Text("%,.0fđ · PT nhận: %,.0fđ".format(booking.totalAmount, booking.ptAmount ?: 0.0), fontSize = 15.sp, color = Tsecondary)
+                AvatarBubble(
+                    name = booking.userName,
+                    modifier = Modifier.size(44.dp),
+                    bgColor = Color(0xFF3D2A00),
+                    textColor = AmberText
+                )
+                Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text(booking.userName ?: "User", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Tprimary)
+                    Text(formatDatetime(booking.scheduledAt), fontSize = 13.sp, color = Tsecondary)
+                    Text(
+                        "%,.0fđ · PT: %,.0fđ".format(booking.totalAmount, booking.ptAmount ?: 0.0),
+                        fontSize = 12.sp,
+                        color = AmberText
+                    )
                 }
             }
             Box(
                 modifier = Modifier
-                    .border(0.5.dp, AmberBorder, RoundedCornerShape(8.dp))
-                    .background(AmberBg, RoundedCornerShape(8.dp))
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                    .background(AmberBg, RoundedCornerShape(10.dp))
+                    .border(1.dp, AmberText.copy(0.3f), RoundedCornerShape(10.dp))
+                    .padding(horizontal = 10.dp, vertical = 5.dp)
             ) {
-                Text("Chờ", fontSize = 12.sp, fontWeight = FontWeight.W500, color = AmberText)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Icon(Icons.Default.HourglassTop, null, tint = AmberText, modifier = Modifier.size(12.dp))
+                    Text("Chờ", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = AmberText)
+                }
             }
         }
+
+        HorizontalDivider(color = BorderDark, thickness = 1.dp)
+
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(5.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Accept
+            // Accept button
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .height(44.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .border(0.5.dp, GreenBorder, RoundedCornerShape(8.dp))
-                    .background(GreenLight, RoundedCornerShape(8.dp)),
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(GreenBg)
+                    .border(1.dp, GreenText.copy(0.4f), RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Text("Xác nhận", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = GreenDark)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Icon(Icons.Default.Check, null, tint = GreenText, modifier = Modifier.size(16.dp))
+                    Text("Xác nhận", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = GreenText)
+                }
             }
-            // Reject
+            // Reject button
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .height(44.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .border(0.5.dp, RejectBorder, RoundedCornerShape(8.dp))
-                    .background(RejectBg, RoundedCornerShape(8.dp)),
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(RedBg)
+                    .border(1.dp, RedText.copy(0.4f), RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Text("Từ chối", fontSize = 16.sp, color = RejectText)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Icon(Icons.Default.Close, null, tint = RedText, modifier = Modifier.size(16.dp))
+                    Text("Từ chối", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = RedText)
+                }
             }
         }
     }
 }
 
+// ── Confirmed Booking Row ──────────────────────────────────────────────────────
 @Composable
 private fun ConfirmedBookingRow(booking: BookingDto) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(
-                width = 0.dp, color = Color.Transparent,
-                shape = RoundedCornerShape(0.dp)
-            )
-            .padding(vertical = 6.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    Column {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            AvatarBubble(name = booking.userName, modifier = Modifier.size(40.dp), bgColor = Color(0xFFB5D4F4), textColor = Color(0xFF042C53))
-            Column {
-                Text(booking.userName ?: "User", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Tprimary)
-                Text(formatDatetime(booking.scheduledAt), fontSize = 15.sp, color = Tsecondary)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                AvatarBubble(
+                    name = booking.userName,
+                    modifier = Modifier.size(44.dp),
+                    bgColor = Color(0xFF0D1F2D),
+                    textColor = Color(0xFF5BA8D4)
+                )
+                Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text(booking.userName ?: "User", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Tprimary)
+                    Text(formatDatetime(booking.scheduledAt), fontSize = 13.sp, color = Tsecondary)
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .background(GreenBg, RoundedCornerShape(10.dp))
+                    .border(1.dp, GreenText.copy(0.3f), RoundedCornerShape(10.dp))
+                    .padding(horizontal = 10.dp, vertical = 5.dp)
+            ) {
+                Text("Đã xác nhận", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = GreenText)
             }
         }
-        Box(
-            modifier = Modifier
-                .border(0.5.dp, ConfirmedBorder, RoundedCornerShape(8.dp))
-                .background(ConfirmedBg, RoundedCornerShape(8.dp))
-                .padding(horizontal = 8.dp, vertical = 4.dp)
-        ) {
-            Text("Đã xác nhận", fontSize = 12.sp, fontWeight = FontWeight.W500, color = ConfirmedText)
-        }
+        HorizontalDivider(color = BorderDark, thickness = 1.dp)
     }
-    HorizontalDivider(thickness = 0.5.dp, color = BorderTertiary)
 }

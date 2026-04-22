@@ -1,0 +1,63 @@
+﻿> Task :app:checkKotlinGradlePluginConfigurationErrors
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:processDebugGoogleServices UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources
+> Task :app:kaptGenerateStubsDebugKotlin
+> Task :app:kaptDebugKotlin FROM-CACHE
+> Task :app:compileDebugKotlin
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/admin/pt/AdminPtApprovalScreen.kt:53:44 'ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/checkin/QrDisplayScreen.kt:55:44 'ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/checkin/QrScanScreen.kt:43:17 Variable 'branchId' is never used
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/checkin/QrScanScreen.kt:54:44 'ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/home/GoalScreen.kt:243:46 'DirectionsRun: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.DirectionsRun
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/home/MainScreen.kt:60:5 Parameter 'onNavigateToQrDisplay' is never used
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/home/MainScreen.kt:891:17 Parameter 'backStackEntry' is never used, could be renamed to _
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/home/MainScreen.kt:915:54 Parameter 'bookingId' is never used, could be renamed to _
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/home/PtProfileSetupScreen.kt:68:30 'DirectionsRun: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.DirectionsRun
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/membership/PackageDetailScreen.kt:54:9 Variable 'context' is never used
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/profile/ProfileScreen.kt:204:62 'List: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.List
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/profile/ProfileScreen.kt:460:27 Parameter 'user' is never used
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/profile/ProfileScreen.kt:728:55 Elvis operator (?:) always returns the left operand of non-nullable type String
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/pt/BookingDetailScreen.kt:35:5 Parameter 'viewModel' is never used
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/pt/ClientProgressScreen.kt:154:13 'TabRow(Int, Modifier = ..., Color = ..., Color = ..., (tabPositions: List<TabPosition>) -> Unit = ..., () -> Unit = ..., () -> Unit): Unit' is deprecated. Replaced with PrimaryTabRow and SecondaryTabRow.
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/pt/ClientProgressScreen.kt:221:9 Variable 'pending' is never used
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/pt/ClientProgressScreen.kt:279:47 Elvis operator (?:) always returns the left operand of non-nullable type String
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/pt/ClientProgressScreen.kt:364:44 Unnecessary safe call on a non-null receiver of type List<WorkoutLogDto>
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/pt/PaymentWebViewScreen.kt:100:33 'setter for databaseEnabled: Boolean' is deprecated. Deprecated in Java
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/pt/PtBookingCancelScreen.kt:45:5 Parameter 'bookingId' is never used
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/pt/PtBookingScreen.kt:69:21 Variable 'url' is never used
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/pt/PtClientsViewModel.kt:37:79 Elvis operator (?:) always returns the left operand of non-nullable type List<ClientDto>
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/pt/PtListViewModel.kt:37:68 Unnecessary safe call on a non-null receiver of type List<PtPublicDto>
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/pt/PtListViewModel.kt:38:77 Elvis operator (?:) always returns the left operand of non-nullable type List<PtPublicDto>
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/pt/PtScheduleManagementScreen.kt:73:9 Variable 'selectedDate' is never used
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/pt/UserBookingsScreen.kt:87:55 'LocalLifecycleOwner: ProvidableCompositionLocal<LifecycleOwner>' is deprecated. Moved to lifecycle-runtime-compose library in androidx.lifecycle.compose package.
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/pt/UserBookingsScreen.kt:232:76 Unnecessary safe call on a non-null receiver of type Date
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/training/CreateScheduleScreen.kt:94:36 'ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/training/WorkoutDetailScreen.kt:72:36 'ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/training/WorkoutDetailScreen.kt:85:32 Elvis operator (?:) always returns the left operand of non-nullable type String
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/training/WorkoutScreen.kt:85:21 Variable 'scope' is never used
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/training/WorkoutViewModel.kt:61:73 Elvis operator (?:) always returns the left operand of non-nullable type List<WorkoutPlanResponse>
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/screens/training/WorkoutViewModel.kt:65:68 Elvis operator (?:) always returns the left operand of non-nullable type List<WorkoutPlanResponse>
+w: file:///D:/project/LT_Mobile/android/app/src/main/java/com/gymapp/android/ui/theme/Theme.kt:28:5 Parameter 'darkTheme' is never used
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.10.2/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 3m 5s
+18 actionable tasks: 4 executed, 1 from cache, 13 up-to-date

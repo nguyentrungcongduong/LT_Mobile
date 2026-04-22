@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
-
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,62 +20,34 @@ public interface CheckinLogRepository extends JpaRepository<CheckinLog, UUID> {
     @Query("SELECT c FROM CheckinLog c WHERE c.user.id = :userId AND c.checkinDate = :date")
     Optional<CheckinLog> findByUserIdAndCheckinDate(
             @Param("userId") UUID userId,
+            @Param("date") LocalDate date
+    );
 
-            @Param("date") LocalDate date);
-
-    /** Admin: lấy toàn bộ lịch sử check-in */
-    @Query("""
-                SELECT c FROM CheckinLog c
-                JOIN FETCH c.user
-                LEFT JOIN FETCH c.branch
-                ORDER BY c.checkinTime DESC
-            """)
+    /** Admin: lấy toàn bộ lịch sử check-in, mới nhất trước */
+    @Query("SELECT c FROM CheckinLog c ORDER BY c.checkinTime DESC")
     Page<CheckinLog> findAllOrderByCheckinTimeDesc(Pageable pageable);
 
     /** Admin: lọc theo ngày */
-    @Query("""
-                SELECT c FROM CheckinLog c
-                JOIN FETCH c.user
-                LEFT JOIN FETCH c.branch
-                WHERE c.checkinDate = :date
-                ORDER BY c.checkinTime DESC
-            """)
-    Page<CheckinLog> findByCheckinDate(
-            @Param("date") LocalDate date,
-            Pageable pageable);
+    @Query("SELECT c FROM CheckinLog c WHERE c.checkinDate = :date ORDER BY c.checkinTime DESC")
+    Page<CheckinLog> findByCheckinDate(@Param("date") LocalDate date, Pageable pageable);
 
     /** Admin: lọc theo chi nhánh */
-    @Query("""
-                SELECT c FROM CheckinLog c
-                JOIN FETCH c.user
-                LEFT JOIN FETCH c.branch
-                WHERE c.branch.id = :branchId
-                ORDER BY c.checkinTime DESC
-            """)
-    Page<CheckinLog> findByBranchId(
-            @Param("branchId") UUID branchId,
-            Pageable pageable);
+    @Query("SELECT c FROM CheckinLog c WHERE c.branch.id = :branchId ORDER BY c.checkinTime DESC")
+    Page<CheckinLog> findByBranchId(@Param("branchId") UUID branchId, Pageable pageable);
 
     /** Admin: lọc theo user */
-    @Query("""
-                SELECT c FROM CheckinLog c
-                JOIN FETCH c.user
-                LEFT JOIN FETCH c.branch
-                WHERE c.user.id = :userId
-                ORDER BY c.checkinTime DESC
-            """)
-    Page<CheckinLog> findByUserId(
-            @Param("userId") UUID userId,
-            Pageable pageable);
+    @Query("SELECT c FROM CheckinLog c WHERE c.user.id = :userId ORDER BY c.checkinTime DESC")
+    Page<CheckinLog> findByUserId(@Param("userId") UUID userId, Pageable pageable);
 
-    @Query("""
-                SELECT c FROM CheckinLog c
-                JOIN FETCH c.user
-                LEFT JOIN FETCH c.branch
-                ORDER BY c.checkinTime DESC
-            """)
-    List<CheckinLog> findAllForExport();
+    /** Stats: đếm tổng số buổi check-in của user */
+    @Query("SELECT COUNT(c) FROM CheckinLog c WHERE c.user.id = :userId")
+    long countByUserId(@Param("userId") UUID userId);
 
-    long countByCheckinDate(LocalDate checkinDate);
+    /** Stats: đếm check-in theo ngày (dùng cho DashboardService) */
+    @Query("SELECT COUNT(c) FROM CheckinLog c WHERE c.checkinDate = :date")
+    long countByCheckinDate(@Param("date") LocalDate date);
 
+    /** Stats: lấy danh sách ngày check-in của user (để tính streak) */
+    @Query("SELECT DISTINCT c.checkinDate FROM CheckinLog c WHERE c.user.id = :userId ORDER BY c.checkinDate DESC")
+    List<LocalDate> findDistinctCheckinDatesByUserId(@Param("userId") UUID userId);
 }

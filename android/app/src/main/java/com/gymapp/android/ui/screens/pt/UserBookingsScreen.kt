@@ -1,19 +1,27 @@
 package com.gymapp.android.ui.screens.pt
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.HourglassEmpty
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -23,52 +31,50 @@ import com.gymapp.android.ui.theme.*
 import java.text.SimpleDateFormat
 import java.util.*
 
-// ── Design Tokens (từ wireframe-spec.md) ──────────────────────────────────────
-private val BgPrimary       = Color(0xFFFFFFFF)
-private val BgSecondary     = Color(0xFFF5F5F5)
-private val BorderTertiary  = Color(0xFFEBEBEB)
-private val Tprimary        = Color(0xFF1A1A1A)
-private val Tsecondary      = Color(0xFF6B6B6B)
-private val GreenPrimary    = Color(0xFF1D9E75)
-private val GreenLight      = Color(0xFFE1F5EE)
-private val GreenBorder     = Color(0xFF9FE1CB)
-private val GreenDark       = Color(0xFF085041)
-private val AmberBg         = Color(0xFFFAEEDA)
-private val AmberBorder     = Color(0xFFFAC775)
-private val AmberText       = Color(0xFF854F0B)
-private val RejectBg        = Color(0xFFFCEBEB)
-private val RejectBorder    = Color(0xFFF7C1C1)
-private val RejectText      = Color(0xFFA32D2D)
-private val ConfirmedBg     = Color(0xFFEAF3DE)
-private val ConfirmedBorder = Color(0xFFC0DD97)
-private val ConfirmedText   = Color(0xFF3B6D11)
+// ── Dark Design Tokens ─────────────────────────────────────────────────────────
+private val BgPrimary       = Color(0xFF121212)
+private val BgSecondary     = Color(0xFF1C1C1E)
+private val BgCard          = Color(0xFF1E1E22)
+private val BorderDark      = Color(0xFF2A2A2E)
+private val Tprimary        = Color(0xFFF2F2F2)
+private val Tsecondary      = Color(0xFF9A9A9E)
+private val OrangePrimary   = Color(0xFFFF6B2B)
+private val OrangeGlow      = Color(0xFFFF8C00)
 
+// Status colors (dark-mode adapted)
+private val GreenText       = Color(0xFF2ECC8E)
+private val GreenBg         = Color(0xFF0D2B1E)
+private val GreenBorder     = Color(0xFF174D34)
 
+private val AmberText       = Color(0xFFFFB300)
+private val AmberBg         = Color(0xFF2A1F00)
+private val AmberBorder     = Color(0xFF4A3800)
 
-// ── Reusable: Status Badge ─────────────────────────────────────────────────────
-@Composable
-private fun StatusBadge(status: String) {
-    val (bg, border, text, label) = when (status) {
-        "CONFIRMED" -> listOf(ConfirmedBg, ConfirmedBorder, ConfirmedText, "Đã xác nhận")
-        "PENDING"   -> listOf(AmberBg, AmberBorder, AmberText, "Chờ")
-        "CANCELLED" -> listOf(RejectBg, RejectBorder, RejectText, "Đã hủy")
-        "COMPLETED" -> listOf(Color(0xFFF1EFE8), Color(0xFFD3D1C7), Color(0xFF5F5E5A), "Hoàn thành")
-        else        -> listOf(BgSecondary, BorderTertiary, Tsecondary, status)
-    }
-    @Suppress("UNCHECKED_CAST")
-    (bg as? Color)?.let { bgColor ->
-        Box(
-            modifier = Modifier
-                .border(0.5.dp, border as Color, RoundedCornerShape(8.dp))
-                .background(bgColor, RoundedCornerShape(8.dp))
-                .padding(horizontal = 8.dp, vertical = 4.dp)
-        ) {
-            Text(text = label as String, fontSize = 12.sp, fontWeight = FontWeight.W500, color = text as Color)
-        }
-    }
+private val RejectText      = Color(0xFFEF5350)
+private val RejectBg        = Color(0xFF2A0E0E)
+private val RejectBorder    = Color(0xFF4A1515)
+
+private val DoneText        = Color(0xFF9A9A9E)
+private val DoneBg          = Color(0xFF252528)
+private val DoneBorder      = Color(0xFF3A3A3E)
+
+data class StatusInfo(
+    val label: String,
+    val icon: ImageVector,
+    val textColor: Color,
+    val bgColor: Color,
+    val borderColor: Color
+)
+
+private fun getStatusInfo(status: String): StatusInfo = when (status) {
+    "CONFIRMED" -> StatusInfo("Đã xác nhận", Icons.Default.CheckCircle,  GreenText, GreenBg, GreenBorder)
+    "PENDING"   -> StatusInfo("Chờ thanh toán", Icons.Default.HourglassEmpty, AmberText, AmberBg, AmberBorder)
+    "CANCELLED" -> StatusInfo("Đã hủy", Icons.Default.Cancel, RejectText, RejectBg, RejectBorder)
+    "COMPLETED" -> StatusInfo("Hoàn thành", Icons.Default.EmojiEvents, DoneText, DoneBg, DoneBorder)
+    else        -> StatusInfo(status, Icons.Default.CalendarMonth, Tsecondary, BgSecondary, BorderDark)
 }
 
-// ── Screen 3: My Bookings (User) ───────────────────────────────────────────────
+// ── Screen ─────────────────────────────────────────────────────────────────────
 @Composable
 fun UserBookingsScreen(
     onNavigateToCancel: (String) -> Unit = {},
@@ -86,9 +92,7 @@ fun UserBookingsScreen(
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     Column(
@@ -96,75 +100,86 @@ fun UserBookingsScreen(
             .fillMaxSize()
             .background(BgPrimary)
     ) {
-        // Header
+        // ── Header with gradient ─────────────────────────────────────
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.horizontalGradient(listOf(Color(0xFF1C1C1E), Color(0xFF252528)))
+                )
+                .border(width = 0.5.dp, color = BorderDark)
+                .padding(horizontal = 16.dp, vertical = 16.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Icon(
+                    Icons.Default.CalendarMonth,
+                    contentDescription = null,
+                    tint = OrangePrimary,
+                    modifier = Modifier.size(22.dp)
+                )
+                Text(
+                    "Lịch hẹn của tôi",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Tprimary
+                )
+            }
+        }
+
+        // ── Custom Tab Row ────────────────────────────────────────────
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(BgSecondary)
-                .border(0.5.dp, BorderTertiary)
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .border(width = 0.5.dp, color = BorderDark)
         ) {
-            Text(
-                text = "Lịch hẹn của tôi",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Tprimary
-            )
-        }
-
-        // Tab Row
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(
-                    width = 0.5.dp,
-                    color = BorderTertiary,
-                    shape = RoundedCornerShape(0.dp)
-                )
-        ) {
-            val blueActive = Color(0xFF185FA5)
             tabs.forEachIndexed { index, label ->
                 val isActive = selectedTab == index
                 Column(
                     modifier = Modifier
                         .weight(1f)
                         .clickable { viewModel.selectTab(index) }
-                        .padding(vertical = 8.dp),
+                        .padding(vertical = 10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
                         text = label,
-                        fontSize = 16.sp,
+                        fontSize = 15.sp,
                         fontWeight = if (isActive) FontWeight.Bold else FontWeight.Normal,
-                        color = if (isActive) blueActive else Tsecondary
+                        color = if (isActive) OrangePrimary else Tsecondary
                     )
                     if (isActive) {
-                        Spacer(modifier = Modifier.height(3.dp))
+                        Spacer(modifier = Modifier.height(4.dp))
                         Box(
                             modifier = Modifier
-                                .fillMaxWidth(0.7f)
-                                .height(1.5.dp)
-                                .background(blueActive)
+                                .fillMaxWidth(0.6f)
+                                .height(2.dp)
+                                .background(
+                                    Brush.horizontalGradient(listOf(OrangeGlow, OrangePrimary)),
+                                    RoundedCornerShape(1.dp)
+                                )
                         )
                     }
                 }
             }
         }
 
-        // Content
+        // ── Content ────────────────────────────────────────────────────
         when (val state = uiState) {
             is UserBookingsUiState.Loading -> {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = Color(0xFF185FA5))
+                    CircularProgressIndicator(color = OrangePrimary)
                 }
             }
             is UserBookingsUiState.Error -> {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(text = state.message, color = Tsecondary, fontSize = 14.sp)
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text(state.message, color = Tsecondary, fontSize = 14.sp)
                         TextButton(onClick = { viewModel.loadBookings() }) {
-                            Text("Thử lại", color = Color(0xFF185FA5))
+                            Text("Thử lại", color = OrangePrimary, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -172,14 +187,41 @@ fun UserBookingsScreen(
             is UserBookingsUiState.Success -> {
                 if (state.bookings.isEmpty()) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("Không có lịch hẹn nào", color = Tsecondary, fontSize = 14.sp)
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(72.dp)
+                                    .background(BgSecondary, RoundedCornerShape(50.dp)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    Icons.Default.CalendarMonth,
+                                    contentDescription = null,
+                                    tint = Tsecondary,
+                                    modifier = Modifier.size(36.dp)
+                                )
+                            }
+                            Text(
+                                "Không có lịch hẹn nào",
+                                color = Tprimary,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Text(
+                                "Đặt lịch PT để bắt đầu hành trình tập luyện!",
+                                color = Tsecondary,
+                                fontSize = 13.sp
+                            )
+                        }
                     }
                 } else {
                     LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 12.dp, vertical = 10.dp),
-                        verticalArrangement = Arrangement.spacedBy(7.dp)
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         items(state.bookings) { booking ->
                             UserBookingCard(
@@ -202,36 +244,70 @@ fun UserBookingsScreen(
 
 @Composable
 private fun UserBookingCard(booking: BookingDto, onClick: () -> Unit) {
-    Row(
+    val info = getStatusInfo(booking.status)
+
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .clickable { onClick() }
-            .border(0.5.dp, BorderTertiary, RoundedCornerShape(8.dp))
-            .background(BgPrimary, RoundedCornerShape(8.dp))
-            .padding(horizontal = 8.dp, vertical = 7.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .clickable { onClick() },
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(containerColor = BgCard),
+        border = BorderStroke(1.dp, BorderDark),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        AvatarBubble(name = booking.ptName, modifier = Modifier.size(40.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = booking.ptName ?: "PT",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = Tprimary
-            )
-            Text(
-                text = formatDatetime(booking.scheduledAt),
-                fontSize = 15.sp,
-                color = Tsecondary
-            )
-            Text(
-                text = "%,.0fđ".format(booking.totalAmount),
-                fontSize = 15.sp,
-                color = Tsecondary
-            )
+        Row(
+            modifier = Modifier
+                .padding(14.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Avatar
+            AvatarBubble(name = booking.ptName, modifier = Modifier.size(48.dp))
+
+            // Info
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    text = booking.ptName ?: "PT",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Tprimary
+                )
+                Text(
+                    text = formatDatetime(booking.scheduledAt),
+                    fontSize = 13.sp,
+                    color = Tsecondary
+                )
+                Text(
+                    text = "%,.0fđ".format(booking.totalAmount),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = OrangePrimary
+                )
+            }
+
+            // Status badge
+            Column(
+                modifier = Modifier
+                    .background(info.bgColor, RoundedCornerShape(10.dp))
+                    .border(1.dp, info.borderColor, RoundedCornerShape(10.dp))
+                    .padding(horizontal = 10.dp, vertical = 6.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+                Icon(
+                    info.icon,
+                    contentDescription = null,
+                    tint = info.textColor,
+                    modifier = Modifier.size(16.dp)
+                )
+                Text(
+                    text = info.label,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = info.textColor
+                )
+            }
         }
-        StatusBadge(status = booking.status)
     }
 }

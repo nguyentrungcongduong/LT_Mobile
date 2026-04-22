@@ -3,6 +3,7 @@ package com.gymapp.modules.user.service.impl;
 import com.gymapp.common.exception.BadRequestException;
 import com.gymapp.common.exception.ConflictException;
 import com.gymapp.common.exception.ResourceNotFoundException;
+import com.gymapp.modules.user.dto.request.CreateReviewRequest;
 import com.gymapp.modules.user.dto.request.PtProfileCreateReq;
 import com.gymapp.modules.user.dto.request.PtProfileUpdateReq;
 import com.gymapp.modules.user.dto.request.SuspendReq;
@@ -10,11 +11,14 @@ import com.gymapp.modules.user.dto.response.PtDetailDto;
 import com.gymapp.modules.user.dto.response.PtListDto;
 import com.gymapp.common.response.PageResponse;
 import com.gymapp.modules.user.dto.response.PtProfileDto;
+import com.gymapp.modules.user.dto.response.ReviewDto;
 import com.gymapp.modules.user.entity.PtProfile;
+import com.gymapp.modules.user.entity.PtReview;
 import com.gymapp.modules.user.entity.User;
 import com.gymapp.modules.user.entity.UserRole;
 import com.gymapp.modules.user.repository.PtProfileRepository;
 import com.gymapp.modules.user.repository.PtProfileSpecification;
+import com.gymapp.modules.user.repository.PtReviewRepository;
 import com.gymapp.modules.user.repository.UserRepository;
 import com.gymapp.modules.user.service.PtProfileService;
 
@@ -40,6 +44,7 @@ public class PtProfileServiceImpl implements PtProfileService {
 
     private final PtProfileRepository ptProfileRepository;
     private final UserRepository userRepository;
+    private final PtReviewRepository ptReviewRepository;
 
     @Override
     @Transactional
@@ -147,8 +152,64 @@ public class PtProfileServiceImpl implements PtProfileService {
                 .totalReviews(profile.getTotalReviews())
                 .yearsExperience(profile.getYearsExperience())
                 .certificateUrls(profile.getCertificateUrls())
-                .reviews(new ArrayList<>()) // TODO: implement fetching reviews later
+                .reviews(ptReviewRepository.findByPtIdOrderByCreatedAtDesc(ptId).stream()
+                        .map(r -> ReviewDto.builder()
+                                .id(r.getId())
+                                .userId(r.getUser().getId())
+                                .userName(r.getUser().getFullName())
+                                .avatarUrl(r.getUser().getAvatarUrl())
+                                .rating(r.getRating().intValue())
+                                .comment(r.getComment())
+                                .createdAt(r.getCreatedAt())
+                                .build())
+                        .collect(java.util.stream.Collectors.toList()))
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public ReviewDto submitReview(UUID userId, UUID ptId, CreateReviewRequest req) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new com.gymapp.common.exception.ResourceNotFoundException("USER_NOT_FOUND", "Không tìm thấy người dùng"));
+
+        PtProfile pt = ptProfileRepository.findById(ptId)
+                .orElseThrow(() -> new com.gymapp.common.exception.ResourceNotFoundException("PT_NOT_FOUND", "Không tìm thấy PT"));
+
+        if (ptReviewRepository.existsByUserIdAndPtId(userId, ptId)) {
+            throw new com.gymapp.common.exception.ConflictException("ALREADY_REVIEWED", "Bạn đã đánh giá PT này rồi");
+        }
+
+        PtReview review = PtReview.builder()
+                .user(user)
+                .pt(pt)
+                .rating(req.getRating().shortValue())
+                .comment(req.getComment())
+                .build();
+
+        PtReview saved = ptReviewRepository.saveAndFlush(review);
+
+        // Recalculate avg rating
+        Double avg = ptReviewRepository.calculateAvgRating(ptId);
+        long count = ptReviewRepository.countByPtId(ptId);
+        pt.setRatingAvg(java.math.BigDecimal.valueOf(avg != null ? Math.round(avg * 10.0) / 10.0 : 0.0));
+        pt.setTotalReviews((int) count);
+        ptProfileRepository.save(pt);
+
+        return ReviewDto.builder()
+                .id(saved.getId())
+                .userId(userId)
+                .userName(user.getFullName())
+                .avatarUrl(user.getAvatarUrl())
+                .rating(req.getRating())
+                .comment(req.getComment())
+                .createdAt(saved.getCreatedAt() != null ? saved.getCreatedAt() : OffsetDateTime.now())
+                .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean hasUserReviewed(UUID userId, UUID ptId) {
+        return ptReviewRepository.existsByUserIdAndPtId(userId, ptId);
     }
 
     @Override

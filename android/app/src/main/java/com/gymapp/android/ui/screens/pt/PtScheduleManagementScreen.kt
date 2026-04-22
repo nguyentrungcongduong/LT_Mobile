@@ -6,7 +6,9 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -17,6 +19,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -29,16 +32,20 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-// ─── Colors ──────────────────────────────────────────────────────────────────
-private val OrangePrimary = Color(0xFFFF5722)
-private val OrangeLight = Color(0xFFFFF3E0)
-private val BgGray = Color(0xFFF8F9FA)
-private val CardWhite = Color.White
-private val TextMain = Color(0xFF111827)
-private val TextSub = Color(0xFF6B7280)
-private val Divider = Color(0xFFE5E7EB)
+// ─── Dark Design Tokens ────────────────────────────────────────────────────────
+private val BgPrimary    = Color(0xFF121212)
+private val BgSecondary  = Color(0xFF1C1C1E)
+private val BgCard       = Color(0xFF1E1E22)
+private val BorderDark   = Color(0xFF2A2A2E)
+private val Tprimary     = Color(0xFFF2F2F2)
+private val Tsecondary   = Color(0xFF9A9A9E)
+private val Orange       = Color(0xFFFF6B2B)
+private val OrangeGlow   = Color(0xFFFF8C00)
+private val OrangeDim    = Color(0xFF2A1508)
+private val GreenText    = Color(0xFF2ECC8E)
+private val GreenBg      = Color(0xFF0D2B1E)
 
-// ─── Preset time slots ────────────────────────────────────────────────────────
+// ─── Preset time slots ─────────────────────────────────────────────────────────
 private val PRESET_SLOTS = listOf(
     Pair("06:00", "07:00"),
     Pair("07:00", "08:00"),
@@ -70,17 +77,11 @@ fun PtScheduleManagementScreen(
     var viewingDate by remember { mutableStateOf(LocalDate.now()) }
 
     LaunchedEffect(currentPtId) {
-        if (currentPtId.isNotBlank()) {
-            viewModel.setCurrentPtId(currentPtId)
-        }
+        if (currentPtId.isNotBlank()) viewModel.setCurrentPtId(currentPtId)
     }
-
-    // Re-load when selected date changes
     LaunchedEffect(viewingDate) {
         viewModel.selectDate(viewingDate)
-        if (currentPtId.isNotBlank()) {
-            viewModel.loadSlots()
-        }
+        if (currentPtId.isNotBlank()) viewModel.loadSlots()
     }
 
     Scaffold(
@@ -90,62 +91,56 @@ fun PtScheduleManagementScreen(
                     Column {
                         Text(
                             "Quản lý Lịch dạy",
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.ExtraBold,
                             fontSize = 20.sp,
-                            color = TextMain
+                            color = Tprimary
                         )
                         Text(
                             "Thêm slot để học viên đặt lịch",
                             fontSize = 13.sp,
-                            color = TextSub
+                            color = Tsecondary
                         )
                     }
                 },
                 actions = {
-                    IconButton(
-                        onClick = { showAddDialog = true }
-                    ) {
+                    IconButton(onClick = { showAddDialog = true }) {
                         Box(
                             modifier = Modifier
                                 .size(40.dp)
-                                .background(OrangePrimary, CircleShape),
+                                .background(
+                                    Brush.linearGradient(listOf(OrangeGlow, Orange)),
+                                    CircleShape
+                                ),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                Icons.Default.Add,
-                                contentDescription = "Thêm slot",
-                                tint = Color.White,
-                                modifier = Modifier.size(22.dp)
-                            )
+                            Icon(Icons.Default.Add, "Thêm slot", tint = Color.White, modifier = Modifier.size(22.dp))
                         }
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = BgGray)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = BgSecondary)
             )
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = { showAddDialog = true },
-                containerColor = OrangePrimary,
+                containerColor = Orange,
                 contentColor = Color.White,
-                icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                icon = { Icon(Icons.Default.Add, null) },
                 text = { Text("Thêm lịch dạy", fontWeight = FontWeight.SemiBold) }
             )
         },
-        containerColor = BgGray
+        containerColor = BgPrimary
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // ── Mini Calendar strip ──────────────────────────────────────────
+            // ── Date strip ──────────────────────────────────────────────────
             DateStripSelector(
                 selectedDate = viewingDate,
                 onDateSelected = { viewingDate = it }
             )
-
-            Spacer(modifier = Modifier.height(4.dp))
 
             // ── Summary row ─────────────────────────────────────────────────
             val slotsForDay = mySlots.filter { slot ->
@@ -154,103 +149,88 @@ fun PtScheduleManagementScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .padding(horizontal = 16.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     "Slot ngày ${viewingDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))}",
                     fontWeight = FontWeight.SemiBold,
-                    color = TextMain,
-                    fontSize = 16.sp
+                    color = Tprimary,
+                    fontSize = 15.sp
                 )
-                Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = OrangeLight
+                Box(
+                    modifier = Modifier
+                        .background(OrangeDim, RoundedCornerShape(12.dp))
+                        .border(1.dp, Orange.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 12.dp, vertical = 4.dp)
                 ) {
                     Text(
                         "${mySlots.size} slot tổng",
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                        color = OrangePrimary,
+                        color = Orange,
                         fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
 
+            HorizontalDivider(color = BorderDark, thickness = 1.dp)
+
             // ── Slot list ────────────────────────────────────────────────────
             when (val state = uiState) {
                 is PtScheduleUiState.Loading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(color = OrangePrimary)
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = Orange)
                     }
                 }
                 is PtScheduleUiState.Error -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(
-                                Icons.Default.Warning,
-                                contentDescription = null,
-                                tint = Color(0xFFE53935),
-                                modifier = Modifier.size(48.dp)
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(state.message, color = Color(0xFFE53935))
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Icon(Icons.Default.Warning, null, tint = Color(0xFFEF5350), modifier = Modifier.size(48.dp))
+                            Spacer(Modifier.height(8.dp))
+                            Text(state.message, color = Color(0xFFEF5350))
+                            Spacer(Modifier.height(16.dp))
                             Button(
                                 onClick = { viewModel.loadSlots() },
-                                colors = ButtonDefaults.buttonColors(containerColor = OrangePrimary)
-                            ) {
-                                Text("Thử lại")
-                            }
+                                colors = ButtonDefaults.buttonColors(containerColor = Orange)
+                            ) { Text("Thử lại", color = Color.White) }
                         }
                     }
                 }
                 else -> {
-                    if (mySlots.isEmpty()) {
-                        // Empty state
+                    if (slotsForDay.isEmpty()) {
                         Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f),
+                            modifier = Modifier.fillMaxWidth().weight(1f),
                             contentAlignment = Alignment.Center
                         ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(
-                                    Icons.Default.CalendarMonth,
-                                    contentDescription = null,
-                                    tint = TextSub,
-                                    modifier = Modifier.size(64.dp)
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Text(
-                                    "Chưa có lịch dạy nào",
-                                    color = TextMain,
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(80.dp)
+                                        .background(BgSecondary, CircleShape),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(Icons.Default.CalendarMonth, null, tint = Tsecondary, modifier = Modifier.size(40.dp))
+                                }
+                                Text("Chưa có lịch dạy nào", color = Tprimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                                 Text(
                                     "Nhấn nút + để thêm slot dạy\nHọc viên sẽ thấy và đặt lịch với bạn",
-                                    color = TextSub,
+                                    color = Tsecondary,
                                     fontSize = 14.sp,
                                     textAlign = TextAlign.Center,
                                     lineHeight = 20.sp
                                 )
-                                Spacer(modifier = Modifier.height(24.dp))
+                                Spacer(Modifier.height(8.dp))
                                 Button(
                                     onClick = { showAddDialog = true },
-                                    colors = ButtonDefaults.buttonColors(containerColor = OrangePrimary),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Orange),
                                     shape = RoundedCornerShape(12.dp),
                                     modifier = Modifier.height(48.dp)
                                 ) {
-                                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                                    Icon(Icons.Default.Add, null, modifier = Modifier.size(18.dp))
                                     Spacer(Modifier.width(8.dp))
                                     Text("Thêm lịch dạy đầu tiên", fontWeight = FontWeight.SemiBold)
                                 }
@@ -258,16 +238,11 @@ fun PtScheduleManagementScreen(
                         }
                     } else {
                         LazyColumn(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f)
-                                .padding(horizontal = 16.dp),
+                            modifier = Modifier.fillMaxWidth().weight(1f).padding(horizontal = 16.dp),
                             verticalArrangement = Arrangement.spacedBy(10.dp),
-                            contentPadding = PaddingValues(top = 8.dp, bottom = 80.dp)
+                            contentPadding = PaddingValues(top = 12.dp, bottom = 80.dp)
                         ) {
-                            items(slotsForDay) { slot ->
-                                SlotCard(slot = slot)
-                            }
+                            items(slotsForDay) { slot -> SlotCard(slot = slot) }
                         }
                     }
                 }
@@ -275,33 +250,27 @@ fun PtScheduleManagementScreen(
         }
     }
 
-    // ── Add Slot Dialog ───────────────────────────────────────────────────────
     if (showAddDialog) {
         AddSlotDialog(
             initialDate = viewingDate,
             isCreating = isCreating,
             onDismiss = { showAddDialog = false },
-            onConfirm = { date, startH, startM, endH, endM ->
+            onConfirm = { date, sh, sm, eh, em ->
                 viewModel.createSlot(
-                    date = date,
-                    startHour = startH,
-                    startMinute = startM,
-                    endHour = endH,
-                    endMinute = endM,
+                    date = date, startHour = sh, startMinute = sm, endHour = eh, endMinute = em,
                     onSuccess = {
                         showAddDialog = false
                         Toast.makeText(context, "✅ Đã thêm slot thành công!", Toast.LENGTH_SHORT).show()
                     },
-                    onError = { err ->
-                        Toast.makeText(context, "❌ $err", Toast.LENGTH_LONG).show()
-                    }
+                    onError = { err -> Toast.makeText(context, "❌ $err", Toast.LENGTH_LONG).show() }
                 )
             }
         )
     }
 }
 
-// ─── Date Strip ───────────────────────────────────────────────────────────────
+// ─── Date Strip ────────────────────────────────────────────────────────────────
+// Dùng LazyRow để tránh dính, mỗi ngày là card riêng có padding đầy đủ
 @Composable
 private fun DateStripSelector(
     selectedDate: LocalDate,
@@ -309,46 +278,69 @@ private fun DateStripSelector(
 ) {
     val today = LocalDate.now()
     val dates = (0..13).map { today.plusDays(it.toLong()) }
-    val dayFormat = DateTimeFormatter.ofPattern("EEE", Locale("vi", "VN"))
+    val dayFormat  = DateTimeFormatter.ofPattern("EEE", Locale("vi", "VN"))
     val dateFormat = DateTimeFormatter.ofPattern("dd")
 
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(CardWhite)
-            .padding(vertical = 12.dp, horizontal = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
+            .background(BgSecondary)
+            .padding(vertical = 12.dp)
     ) {
-        dates.forEach { date ->
-            val isSelected = date == selectedDate
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(if (isSelected) OrangePrimary else Color.Transparent)
-                    .clickable { onDateSelected(date) }
-                    .padding(vertical = 8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = date.format(dayFormat).uppercase(),
-                    fontSize = 9.sp,
-                    color = if (isSelected) Color.White else TextSub,
-                    fontWeight = FontWeight.Medium
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = date.format(dateFormat),
-                    fontSize = 14.sp,
-                    color = if (isSelected) Color.White else TextMain,
-                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                )
-                if (date == today && !isSelected) {
-                    Spacer(modifier = Modifier.height(3.dp))
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(dates) { date ->
+                val isSelected = date == selectedDate
+                val isToday    = date == today
+
+                Column(
+                    modifier = Modifier
+                        .width(52.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(
+                            if (isSelected)
+                                Brush.verticalGradient(listOf(OrangeGlow, Orange))
+                            else
+                                Brush.verticalGradient(listOf(BgCard, BgCard))
+                        )
+                        .border(
+                            width = 1.5.dp,
+                            color = if (isSelected) Orange else if (isToday) Orange.copy(alpha = 0.4f) else BorderDark,
+                            shape = RoundedCornerShape(14.dp)
+                        )
+                        .clickable { onDateSelected(date) }
+                        .padding(vertical = 10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    // Day abbreviation
+                    Text(
+                        text = date.format(dayFormat).take(2).uppercase(),
+                        fontSize = 10.sp,
+                        color = if (isSelected) Color.White else Tsecondary,
+                        fontWeight = FontWeight.Medium
+                    )
+                    // Date number
+                    Text(
+                        text = date.format(dateFormat),
+                        fontSize = 16.sp,
+                        color = if (isSelected) Color.White
+                               else if (isToday) Orange
+                               else Tprimary,
+                        fontWeight = if (isSelected || isToday) FontWeight.ExtraBold else FontWeight.Normal
+                    )
+                    // "Hôm nay" dot indicator
                     Box(
                         modifier = Modifier
-                            .size(4.dp)
-                            .background(OrangePrimary, CircleShape)
+                            .size(5.dp)
+                            .background(
+                                color = if (isSelected) Color.White.copy(alpha = 0.7f)
+                                        else if (isToday) Orange
+                                        else Color.Transparent,
+                                shape = CircleShape
+                            )
                     )
                 }
             }
@@ -356,114 +348,73 @@ private fun DateStripSelector(
     }
 }
 
-// ─── Slot Card ────────────────────────────────────────────────────────────────
+// ─── Slot Card ─────────────────────────────────────────────────────────────────
 @Composable
 private fun SlotCard(slot: PtAvailabilityDto) {
-    val isBooked = slot.isBooked
-    val bgColor = if (isBooked) Color(0xFFFFF8F5) else CardWhite
-    val statusColor = if (isBooked) OrangePrimary else Color(0xFF16A34A)
-    val statusText = if (isBooked) "Đã đặt" else "Còn trống"
-    val statusBg = if (isBooked) OrangeLight else Color(0xFFDCFCE7)
+    val isBooked     = slot.isBooked
+    val statusColor  = if (isBooked) Orange else GreenText
+    val statusBg     = if (isBooked) OrangeDim else GreenBg
+    val statusText   = if (isBooked) "Đã đặt" else "Còn trống"
+    val iconBg       = if (isBooked) OrangeDim else GreenBg
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = bgColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = BgCard),
+        border = androidx.compose.foundation.BorderStroke(1.dp, if (isBooked) Orange.copy(alpha = 0.4f) else BorderDark),
+        elevation = CardDefaults.cardElevation(0.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
+        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Time icon
                 Box(
                     modifier = Modifier
-                        .size(48.dp)
-                        .background(
-                            if (isBooked) OrangeLight else Color(0xFFF0FDF4),
-                            RoundedCornerShape(12.dp)
-                        ),
+                        .size(50.dp)
+                        .background(iconBg, RoundedCornerShape(14.dp)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Schedule,
-                        contentDescription = null,
-                        tint = if (isBooked) OrangePrimary else Color(0xFF16A34A),
-                        modifier = Modifier.size(24.dp)
-                    )
+                    Icon(Icons.Default.Schedule, null, tint = statusColor, modifier = Modifier.size(24.dp))
                 }
-
-                Spacer(modifier = Modifier.width(14.dp))
-
+                Spacer(Modifier.width(14.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = slot.startTime,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp,
-                        color = TextMain
-                    )
-                    Text(
-                        text = "→  ${slot.endTime}",
-                        fontSize = 13.sp,
-                        color = TextSub
-                    )
+                    Text(slot.startTime, fontWeight = FontWeight.ExtraBold, fontSize = 20.sp, color = Tprimary)
+                    Text("→  ${slot.endTime}", fontSize = 13.sp, color = Tsecondary)
                 }
-
-                // Status badge
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = statusBg
+                Box(
+                    modifier = Modifier
+                        .background(statusBg, RoundedCornerShape(20.dp))
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
                 ) {
-                    Text(
-                        text = statusText,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                        color = statusColor,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    Text(statusText, color = statusColor, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             }
 
-            // Hiện tên học viên nếu slot đã được đặt
             if (isBooked && slot.bookedByName != null) {
-                Spacer(modifier = Modifier.height(10.dp))
-                HorizontalDivider(color = Color(0xFFFFE0CC), thickness = 1.dp)
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(Modifier.height(12.dp))
+                HorizontalDivider(color = BorderDark, thickness = 1.dp)
+                Spacer(Modifier.height(12.dp))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    // Avatar initials
                     Box(
                         modifier = Modifier
-                            .size(32.dp)
-                            .background(OrangePrimary, androidx.compose.foundation.shape.CircleShape),
+                            .size(34.dp)
+                            .background(Orange, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = slot.bookedByName.take(1).uppercase(),
+                            slot.bookedByName.take(1).uppercase(),
                             color = Color.White,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
                     Column {
-                        Text(
-                            text = slot.bookedByName,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 14.sp,
-                            color = TextMain
-                        )
-                        Text(
-                            text = "Học viên đã đặt buổi này",
-                            fontSize = 12.sp,
-                            color = TextSub
-                        )
+                        Text(slot.bookedByName, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = Tprimary)
+                        Text("Học viên đã đặt buổi này", fontSize = 12.sp, color = Tsecondary)
                     }
                 }
             }
@@ -471,8 +422,7 @@ private fun SlotCard(slot: PtAvailabilityDto) {
     }
 }
 
-
-// ─── Add Slot Dialog ──────────────────────────────────────────────────────────
+// ─── Add Slot Dialog ───────────────────────────────────────────────────────────
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddSlotDialog(
@@ -484,165 +434,142 @@ private fun AddSlotDialog(
     var selectedPresetIndex by remember { mutableStateOf<Int?>(null) }
     var selectedDate by remember { mutableStateOf(initialDate) }
 
-    val today = LocalDate.now()
+    val today     = LocalDate.now()
     val next7Days = (0..6).map { today.plusDays(it.toLong()) }
-    val dateFmt = DateTimeFormatter.ofPattern("dd/MM (EEE)", Locale("vi", "VN"))
+    val dateFmt   = DateTimeFormatter.ofPattern("dd/MM (EEE)", Locale("vi", "VN"))
+
+    val DialogBg  = Color(0xFF1C1C1E)
+    val FieldBg   = Color(0xFF252528)
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = CardWhite,
+        containerColor = DialogBg,
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    Icons.Default.AddCircle,
-                    contentDescription = null,
-                    tint = OrangePrimary,
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Thêm slot dạy", fontWeight = FontWeight.Bold, color = TextMain)
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .background(OrangeDim, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Default.AddCircle, null, tint = Orange, modifier = Modifier.size(20.dp))
+                }
+                Spacer(Modifier.width(10.dp))
+                Text("Thêm slot dạy", fontWeight = FontWeight.Bold, color = Tprimary)
             }
         },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
-                // ── Chọn ngày ──────────────────────────────────────────────
-                Text(
-                    "Chọn ngày",
-                    fontWeight = FontWeight.SemiBold,
-                    color = TextSub,
-                    fontSize = 13.sp
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
+                // ── Chọn ngày ─────────────────────────────────────────────
+                Text("Chọn ngày", fontWeight = FontWeight.SemiBold, color = Tsecondary, fontSize = 12.sp)
+                Spacer(Modifier.height(10.dp))
+
+                // 7 ngày dùng LazyRow để không bị dính
+                LazyRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    next7Days.forEach { date ->
+                    items(next7Days) { date ->
                         val isSelected = date == selectedDate
+                        val isToday    = date == today
+
                         Column(
                             modifier = Modifier
-                                .weight(1f)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(if (isSelected) OrangePrimary else BgGray)
+                                .width(44.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(if (isSelected) Orange else FieldBg)
                                 .border(
                                     1.dp,
-                                    if (isSelected) OrangePrimary else Divider,
-                                    RoundedCornerShape(8.dp)
+                                    if (isSelected) Orange else if (isToday) Orange.copy(0.4f) else BorderDark,
+                                    RoundedCornerShape(12.dp)
                                 )
                                 .clickable { selectedDate = date }
-                                .padding(vertical = 6.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
+                                .padding(vertical = 8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(3.dp)
                         ) {
                             Text(
                                 DateTimeFormatter.ofPattern("EEE", Locale("vi", "VN")).format(date).take(2).uppercase(),
                                 fontSize = 9.sp,
-                                color = if (isSelected) Color.White else TextSub
+                                color = if (isSelected) Color.White else Tsecondary
                             )
                             Text(
                                 DateTimeFormatter.ofPattern("dd").format(date),
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = if (isSelected) Color.White else TextMain
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = if (isSelected) Color.White else if (isToday) Orange else Tprimary
                             )
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(Modifier.height(20.dp))
 
-                // ── Chọn giờ preset ────────────────────────────────────────
-                Text(
-                    "Chọn khung giờ",
-                    fontWeight = FontWeight.SemiBold,
-                    color = TextSub,
-                    fontSize = 13.sp
-                )
-                Spacer(modifier = Modifier.height(8.dp))
+                // ── Chọn giờ ──────────────────────────────────────────────
+                Text("Chọn khung giờ", fontWeight = FontWeight.SemiBold, color = Tsecondary, fontSize = 12.sp)
+                Spacer(Modifier.height(10.dp))
 
-                // Morning
-                Text("Buổi sáng", fontSize = 12.sp, color = TextSub)
-                Spacer(modifier = Modifier.height(6.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
+                Text("🌅  Buổi sáng", fontSize = 11.sp, color = Tsecondary)
+                Spacer(Modifier.height(6.dp))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     PRESET_SLOTS.take(5).forEachIndexed { idx, slot ->
-                        val isSelected = selectedPresetIndex == idx
                         TimeChip(
                             label = slot.first,
-                            isSelected = isSelected,
+                            isSelected = selectedPresetIndex == idx,
                             modifier = Modifier.weight(1f),
-                            onClick = { selectedPresetIndex = if (isSelected) null else idx }
+                            onClick = { selectedPresetIndex = if (selectedPresetIndex == idx) null else idx }
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
-
-                // Afternoon / Evening
-                Text("Buổi chiều / tối", fontSize = 12.sp, color = TextSub)
-                Spacer(modifier = Modifier.height(6.dp))
-
-                // Row 1
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
+                Spacer(Modifier.height(10.dp))
+                Text("🌇  Buổi chiều / tối", fontSize = 11.sp, color = Tsecondary)
+                Spacer(Modifier.height(6.dp))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     PRESET_SLOTS.drop(5).take(4).forEachIndexed { i, slot ->
                         val idx = i + 5
-                        val isSelected = selectedPresetIndex == idx
                         TimeChip(
                             label = slot.first,
-                            isSelected = isSelected,
+                            isSelected = selectedPresetIndex == idx,
                             modifier = Modifier.weight(1f),
-                            onClick = { selectedPresetIndex = if (isSelected) null else idx }
+                            onClick = { selectedPresetIndex = if (selectedPresetIndex == idx) null else idx }
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(6.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
+                Spacer(Modifier.height(6.dp))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     PRESET_SLOTS.drop(9).forEachIndexed { i, slot ->
                         val idx = i + 9
-                        val isSelected = selectedPresetIndex == idx
                         TimeChip(
                             label = slot.first,
-                            isSelected = isSelected,
+                            isSelected = selectedPresetIndex == idx,
                             modifier = Modifier.weight(1f),
-                            onClick = { selectedPresetIndex = if (isSelected) null else idx }
+                            onClick = { selectedPresetIndex = if (selectedPresetIndex == idx) null else idx }
                         )
                     }
-                    // Padding boxes
-                    repeat(4 - PRESET_SLOTS.drop(9).size) {
-                        Spacer(modifier = Modifier.weight(1f))
-                    }
+                    repeat(4 - PRESET_SLOTS.drop(9).size) { Spacer(Modifier.weight(1f)) }
                 }
 
                 // Preview
                 selectedPresetIndex?.let { idx ->
                     val preset = PRESET_SLOTS[idx]
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Surface(
-                        shape = RoundedCornerShape(10.dp),
-                        color = OrangeLight
+                    Spacer(Modifier.height(16.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(OrangeDim, RoundedCornerShape(12.dp))
+                            .border(1.dp, Orange.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(Icons.Default.Schedule, contentDescription = null, tint = OrangePrimary)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                "${selectedDate.format(dateFmt)}   ${preset.first} → ${preset.second}",
-                                color = OrangePrimary,
-                                fontWeight = FontWeight.Medium,
-                                fontSize = 14.sp
-                            )
-                        }
+                        Icon(Icons.Default.Schedule, null, tint = Orange)
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            "${selectedDate.format(dateFmt)}   ${preset.first} → ${preset.second}",
+                            color = Orange,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 13.sp
+                        )
                     }
                 }
             }
@@ -656,28 +583,23 @@ private fun AddSlotDialog(
                     val (eh, em) = preset.second.split(":").map { it.toInt() }
                     onConfirm(selectedDate, sh, sm, eh, em)
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = OrangePrimary),
+                colors = ButtonDefaults.buttonColors(containerColor = Orange),
                 enabled = !isCreating && selectedPresetIndex != null
             ) {
                 if (isCreating) {
-                    CircularProgressIndicator(
-                        color = Color.White,
-                        modifier = Modifier.size(16.dp),
-                        strokeWidth = 2.dp
-                    )
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                 } else {
-                    Text("Tạo slot", color = Color.White, fontWeight = FontWeight.SemiBold)
+                    Text("Tạo slot", color = Color.White, fontWeight = FontWeight.Bold)
                 }
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Hủy", color = TextSub)
-            }
+            TextButton(onClick = onDismiss) { Text("Hủy", color = Tsecondary) }
         }
     )
 }
 
+// ─── Time Chip ─────────────────────────────────────────────────────────────────
 @Composable
 private fun TimeChip(
     label: String,
@@ -687,18 +609,18 @@ private fun TimeChip(
 ) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(if (isSelected) OrangePrimary else BgGray)
-            .border(1.dp, if (isSelected) OrangePrimary else Divider, RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(10.dp))
+            .background(if (isSelected) Orange else Color(0xFF252528))
+            .border(1.dp, if (isSelected) Orange else BorderDark, RoundedCornerShape(10.dp))
             .clickable { onClick() }
-            .padding(vertical = 8.dp),
+            .padding(vertical = 9.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = label,
             fontSize = 12.sp,
-            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-            color = if (isSelected) Color.White else TextMain
+            fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Normal,
+            color = if (isSelected) Color.White else Tprimary
         )
     }
 }

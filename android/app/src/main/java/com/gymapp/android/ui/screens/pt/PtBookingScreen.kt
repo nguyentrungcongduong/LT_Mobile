@@ -29,8 +29,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.gymapp.android.data.remote.api.PtReviewDto
 import com.gymapp.android.ui.theme.*
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -496,6 +498,36 @@ fun PtBookingScreen(
                     onClick = { viewModel.selectProvider("MOMO") }
                 )
             }
+
+            // ── Reviews Section ───────────────────────────────────────────
+            val reviews = ptDetail?.reviews ?: emptyList()
+            if (reviews.isNotEmpty()) {
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Star,
+                            contentDescription = null,
+                            tint = Color(0xFFFFB300),
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            "Đánh giá từ học viên (${reviews.size})",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                    reviews.forEach { review ->
+                        ReviewItem(review = review)
+                        Spacer(Modifier.height(10.dp))
+                    }
+                }
+            }
+
             Spacer(Modifier.height(32.dp))
         }
     }
@@ -603,5 +635,84 @@ private fun formatVnd(amount: Long): String {
         val fmt = NumberFormat.getNumberInstance(Locale("vi", "VN"))
         "${fmt.format(amount)}đ"
     } catch (e: Exception) { "${amount}đ" }
+}
+
+@Composable
+private fun ReviewItem(review: PtReviewDto) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color(0xFFF9F9F9))
+            .padding(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        // Avatar
+        if (review.avatarUrl.isNullOrBlank()) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFF1A1A2E)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    review.userName?.take(1)?.uppercase() ?: "?",
+                    color = Color.White,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        } else {
+            AsyncImage(
+                model = review.avatarUrl,
+                contentDescription = review.userName,
+                modifier = Modifier.size(36.dp).clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        Column(modifier = Modifier.weight(1f)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    review.userName ?: "Ẩn danh",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF1A1A2E)
+                )
+                Row {
+                    repeat(review.rating) {
+                        Icon(
+                            Icons.Default.Star,
+                            contentDescription = null,
+                            tint = Color(0xFFFFB300),
+                            modifier = Modifier.size(12.dp)
+                        )
+                    }
+                    repeat(5 - review.rating) {
+                        Icon(
+                            Icons.Default.Star,
+                            contentDescription = null,
+                            tint = Color(0xFFE0E0E0),
+                            modifier = Modifier.size(12.dp)
+                        )
+                    }
+                }
+            }
+            if (!review.comment.isNullOrBlank()) {
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    review.comment,
+                    fontSize = 13.sp,
+                    color = Color(0xFF555555),
+                    lineHeight = 18.sp
+                )
+            }
+        }
+    }
 }
 

@@ -1,6 +1,7 @@
 package com.gymapp.modules.user.controller;
 
 import com.gymapp.modules.user.dto.response.CheckinLogResponse;
+import com.gymapp.modules.user.dto.response.CheckinStatsResponse;
 import com.gymapp.modules.user.dto.request.CheckinVerifyRequest;
 import com.gymapp.modules.user.dto.request.CheckinRequest;
 import com.gymapp.modules.user.dto.response.QrTokenResponse;
@@ -9,7 +10,10 @@ import com.gymapp.modules.user.service.CheckinService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController("checkinQrController")
 @RequestMapping("/api/v1/checkin")
@@ -21,19 +25,17 @@ public class CheckinController {
 
     /**
      * [1] GET /api/v1/checkin/qr
-     * User gọi để lấy QR token (JWT, 60s TTL, stored in Redis).
-     * QR code được gen phía client từ token string này.
+     * User gọi để lấy QR token (JWT, 60s TTL, stored in-memory).
      */
     @GetMapping("/qr")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') or hasRole('PT')")
     public ResponseEntity<QrTokenResponse> generateQrToken() {
         return ResponseEntity.ok(checkinQrService.generateQrToken());
     }
 
     /**
      * [2] POST /api/v1/checkin/verify
-     * Staff/system quét QR → gửi token lên để verify.
-     * Flow: JWT verify → Redis one-time check → membership → save CheckinLog.
+     * Admin quét QR → verify token → ghi log check-in.
      */
     @PostMapping("/verify")
     @PreAuthorize("isAuthenticated()")
@@ -44,6 +46,18 @@ public class CheckinController {
                 request.getBranchId()
         );
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * [3] GET /api/v1/checkin/stats
+     * User xem thống kê cá nhân: tổng buổi, streak, tổng giờ.
+     */
+    @GetMapping("/stats")
+    @PreAuthorize("hasRole('USER') or hasRole('PT')")
+    public ResponseEntity<CheckinStatsResponse> getMyStats() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        var userId = UUID.fromString(auth.getName());
+        return ResponseEntity.ok(checkinQrService.getMyCheckinStats(userId));
     }
 
     /**
@@ -65,4 +79,3 @@ public class CheckinController {
         }
     }
 }
-

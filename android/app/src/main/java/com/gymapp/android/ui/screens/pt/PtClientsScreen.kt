@@ -11,13 +11,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -26,37 +29,33 @@ import com.gymapp.android.data.remote.api.ClientDto
 import java.text.SimpleDateFormat
 import java.util.*
 
-// ── Design Tokens ──────────────────────────────────────────────────────────────
-private val BgPrimary      = Color(0xFFFFFFFF)
-private val BgSecondary    = Color(0xFFF5F5F5)
-private val BorderTertiary = Color(0xFFEBEBEB)
-private val Tprimary       = Color(0xFF1A1A1A)
-private val Tsecondary     = Color(0xFF6B6B6B)
-private val GreenPrimary   = Color(0xFF1D9E75)
-private val GreenLight     = Color(0xFFE1F5EE)
-private val GreenBorder    = Color(0xFF9FE1CB)
-private val ConfirmedBg    = Color(0xFFEAF3DE)
-private val ConfirmedBorder= Color(0xFFC0DD97)
-private val ConfirmedText  = Color(0xFF3B6D11)
-private val CompletedBg    = Color(0xFFF1EFE8)
-private val CompletedBorder= Color(0xFFD3D1C7)
-private val CompletedText  = Color(0xFF5F5E5A)
-
+// ── Dark Design Tokens ─────────────────────────────────────────────────────────
+private val BgPrimary      = Color(0xFF121212)
+private val BgSecondary    = Color(0xFF1C1C1E)
+private val BgCard         = Color(0xFF1E1E22)
+private val BorderDark     = Color(0xFF2A2A2E)
+private val Tprimary       = Color(0xFFF2F2F2)
+private val Tsecondary     = Color(0xFF9A9A9E)
+private val Orange         = Color(0xFFFF6B2B)
+private val OrangeGlow     = Color(0xFFFF8C00)
+private val OrangeDim      = Color(0xFF2A1508)
+private val ActiveBg       = Color(0xFF0D2B1E)
+private val ActiveText     = Color(0xFF2ECC8E)
+private val InactiveBg     = Color(0xFF1E1E22)
+private val InactiveText   = Color(0xFF9A9A9E)
 
 private fun formatDate(date: Date?): String {
     if (date == null) return "-"
     return SimpleDateFormat("dd/MM", Locale.getDefault()).format(date)
 }
 
-// ── Screen 6: PT Clients List ─────────────────────────────────────────────────
+// ── Screen: PT Clients List ───────────────────────────────────────────────────
 @Composable
 fun PtClientsScreen(
     onNavigateToClientProgress: (String, String, Long, String?) -> Unit = { _, _, _, _ -> },
     viewModel: PtClientsViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.loadClients()
-    }
+    LaunchedEffect(Unit) { viewModel.loadClients() }
 
     val uiState by viewModel.uiState.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
@@ -66,38 +65,74 @@ fun PtClientsScreen(
             .fillMaxSize()
             .background(BgPrimary)
     ) {
-        // Header
-        Row(
+        // ── Header ─────────────────────────────────────────────────────────
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(BgSecondary)
-                .border(0.5.dp, BorderTertiary)
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text("Clients của tôi", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Tprimary)
-            if (uiState is PtClientsUiState.Success) {
-                Text(
-                    text = "${(uiState as PtClientsUiState.Success).clients.size} clients",
-                    fontSize = 14.sp,
-                    color = Tsecondary
+                .background(
+                    Brush.verticalGradient(listOf(BgSecondary, BgPrimary))
                 )
+                .padding(horizontal = 16.dp, vertical = 16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .background(OrangeDim, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Default.People, null, tint = Orange, modifier = Modifier.size(18.dp))
+                    }
+                    Text(
+                        "Clients của tôi",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Tprimary
+                    )
+                }
+                if (uiState is PtClientsUiState.Success) {
+                    val count = (uiState as PtClientsUiState.Success).clients.size
+                    Box(
+                        modifier = Modifier
+                            .background(OrangeDim, RoundedCornerShape(20.dp))
+                            .border(1.dp, Orange.copy(alpha = 0.3f), RoundedCornerShape(20.dp))
+                            .padding(horizontal = 12.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            "$count clients",
+                            fontSize = 13.sp,
+                            color = Orange,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
             }
         }
 
+        // ── Content ────────────────────────────────────────────────────────
         when (val state = uiState) {
             is PtClientsUiState.Loading -> {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = GreenPrimary)
+                    CircularProgressIndicator(color = Orange)
                 }
             }
             is PtClientsUiState.Error -> {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         Text(state.message, color = Tsecondary, fontSize = 14.sp)
                         TextButton(onClick = { viewModel.loadClients() }) {
-                            Text("Thử lại", color = GreenPrimary)
+                            Text("Thử lại", color = Orange)
                         }
                     }
                 }
@@ -107,32 +142,30 @@ fun PtClientsScreen(
                 else state.clients.filter { it.fullName.contains(searchQuery, ignoreCase = true) }
 
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 14.dp),
                     verticalArrangement = Arrangement.spacedBy(0.dp)
                 ) {
-                    // Search Bar
+                    // ── Search Bar ─────────────────────────────────────────
                     item {
-                        Spacer(Modifier.height(10.dp))
+                        Spacer(Modifier.height(14.dp))
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(BgSecondary, RoundedCornerShape(7.dp))
-                                .border(0.5.dp, BorderTertiary, RoundedCornerShape(7.dp))
-                                .padding(horizontal = 8.dp, vertical = 5.dp),
+                                .background(BgSecondary, RoundedCornerShape(12.dp))
+                                .border(1.dp, BorderDark, RoundedCornerShape(12.dp))
+                                .padding(horizontal = 12.dp, vertical = 10.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Icon(
-                                Icons.Default.Search,
-                                contentDescription = "Tìm kiếm",
-                                modifier = Modifier.size(14.dp),
-                                tint = Tsecondary
-                            )
+                            Icon(Icons.Default.Search, null, modifier = Modifier.size(16.dp), tint = Tsecondary)
                             BasicTextField(
                                 value = searchQuery,
                                 onValueChange = { searchQuery = it },
                                 modifier = Modifier.fillMaxWidth(),
                                 singleLine = true,
+                                textStyle = TextStyle(color = Tprimary, fontSize = 14.sp),
                                 decorationBox = { inner ->
                                     if (searchQuery.isEmpty()) {
                                         Text("Tìm kiếm client...", fontSize = 14.sp, color = Tsecondary)
@@ -141,19 +174,56 @@ fun PtClientsScreen(
                                 }
                             )
                         }
-                        Spacer(Modifier.height(10.dp))
+                        Spacer(Modifier.height(14.dp))
                     }
 
-                    // Client List
+                    // ── Empty State ────────────────────────────────────────
+                    if (filtered.isEmpty()) {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 80.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(80.dp)
+                                            .background(BgSecondary, CircleShape),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(Icons.Default.People, null, tint = Tsecondary, modifier = Modifier.size(36.dp))
+                                    }
+                                    Text(
+                                        if (searchQuery.isEmpty()) "Chưa có client nào" else "Không tìm thấy \"$searchQuery\"",
+                                        color = Tprimary,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                    Text(
+                                        "Học viên đặt lịch với bạn sẽ xuất hiện ở đây",
+                                        color = Tsecondary,
+                                        fontSize = 13.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // ── Client List ────────────────────────────────────────
                     items(filtered.withIndex().toList()) { (index, client) ->
                         ClientRow(
                             client = client,
                             colorIndex = index % AvatarColors.size,
-                            onClick = { 
-                                val dateStr = client.lastSessionAt?.let { 
-                                    SimpleDateFormat("dd-MM-yyyy", Locale.US).format(it) 
+                            onClick = {
+                                val dateStr = client.lastSessionAt?.let {
+                                    SimpleDateFormat("dd-MM-yyyy", Locale.US).format(it)
                                 }
-                                onNavigateToClientProgress(client.userId, client.fullName, client.totalSessions, dateStr) 
+                                onNavigateToClientProgress(client.userId, client.fullName, client.totalSessions, dateStr)
                             }
                         )
                     }
@@ -168,82 +238,89 @@ private fun ClientRow(client: ClientDto, colorIndex: Int, onClick: () -> Unit) {
     val (bgColor, textColor) = AvatarColors[colorIndex]
     val isActive = client.totalSessions > 0L
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .border(0.dp, Color.Transparent)
-            .padding(vertical = 6.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    Column {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onClick() }
+                .padding(vertical = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(44.dp)
                         .clip(CircleShape)
-                        .background(color = bgColor),
+                        .background(bgColor),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(avatarInitials(client.fullName), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = textColor)
-                }
-                Column {
-                    Text(client.fullName, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Tprimary)
                     Text(
-                        "Buổi cuối: ${formatDate(client.lastSessionAt)} · ${client.totalSessions} buổi tổng",
-                        fontSize = 14.sp,
+                        avatarInitials(client.fullName),
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = textColor
+                    )
+                }
+                Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text(client.fullName, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Tprimary)
+                    Text(
+                        "Buổi cuối: ${formatDate(client.lastSessionAt)} · ${client.totalSessions} buổi",
+                        fontSize = 13.sp,
                         color = Tsecondary
                     )
                 }
-        }
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (isActive) {
-                Box(
-                    modifier = Modifier
-                        .border(0.5.dp, ConfirmedBorder, RoundedCornerShape(8.dp))
-                        .background(ConfirmedBg, RoundedCornerShape(8.dp))
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                ) {
-                    Text("Đang tập", fontSize = 12.sp, fontWeight = FontWeight.W500, color = ConfirmedText)
-                }
-            } else {
-                Box(
-                    modifier = Modifier
-                        .border(0.5.dp, CompletedBorder, RoundedCornerShape(8.dp))
-                        .background(CompletedBg, RoundedCornerShape(8.dp))
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                ) {
-                    Text("Không tập", fontSize = 12.sp, fontWeight = FontWeight.W500, color = CompletedText)
-                }
             }
-            Icon(
-                Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp),
-                tint = Tsecondary
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .background(
+                            if (isActive) ActiveBg else InactiveBg,
+                            RoundedCornerShape(8.dp)
+                        )
+                        .border(
+                            1.dp,
+                            if (isActive) ActiveText.copy(0.3f) else BorderDark,
+                            RoundedCornerShape(8.dp)
+                        )
+                        .padding(horizontal = 10.dp, vertical = 5.dp)
+                ) {
+                    Text(
+                        if (isActive) "Đang tập" else "Không tập",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (isActive) ActiveText else InactiveText
+                    )
+                }
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = Tsecondary
+                )
+            }
         }
+        HorizontalDivider(thickness = 1.dp, color = BorderDark)
     }
-    HorizontalDivider(thickness = 0.5.dp, color = BorderTertiary, modifier = Modifier.padding(vertical = 4.dp))
 }
 
 @Composable
 private fun ClientStatCard(label: String, value: String, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
-            .background(BgSecondary, RoundedCornerShape(10.dp))
-            .border(0.5.dp, BorderTertiary, RoundedCornerShape(10.dp))
-            .padding(horizontal = 12.dp, vertical = 10.dp)
+            .background(BgCard, RoundedCornerShape(12.dp))
+            .border(1.dp, BorderDark, RoundedCornerShape(12.dp))
+            .padding(horizontal = 14.dp, vertical = 12.dp)
     ) {
         Text(label, fontSize = 12.sp, color = Tsecondary)
         Spacer(Modifier.height(4.dp))
-        Text(value, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = GreenPrimary)
+        Text(value, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = Orange)
     }
 }
