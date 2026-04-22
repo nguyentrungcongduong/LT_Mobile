@@ -62,4 +62,15 @@ public interface MembershipRepository extends JpaRepository<Membership, UUID> {
         @Param("status") MembershipStatus status,
         @Param("today") LocalDate today
     );
+
+    @Query("""
+            SELECT COUNT(DISTINCT m.user.id)
+            FROM Membership m
+            WHERE m.status = :status
+              AND m.endDate >= :today
+            """)
+    long countDistinctActiveMembers(
+            @Param("status") MembershipStatus status,
+            @Param("today") LocalDate today
+    );
 }

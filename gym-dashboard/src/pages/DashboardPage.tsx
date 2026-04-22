@@ -1,7 +1,7 @@
 // src/pages/DashboardPage.tsx
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Table, Button, Tag, Space, Typography } from 'antd';
+import { Alert, Button, Card, Space, Table, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
   UserOutlined,
@@ -9,49 +9,98 @@ import {
   CreditCardOutlined,
   TeamOutlined,
   ReloadOutlined,
-  PlusOutlined,
+  CheckCircleOutlined,
 } from '@ant-design/icons';
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import StatsCard from '@/components/common/StatsCard';
 import { ROUTES } from '@/constants/routes';
+import {
+  dashboardService,
+  type DashboardResponse,
+  type DashboardTopPt,
+} from '@/features/dashboard/services/dashboardService';
 
 const { Title, Text } = Typography;
 
-interface BookingData {
-  id: string;
-  name: string;
-  service: string;
-  time: string;
-  status: string;
-}
+const currencyFormatter = new Intl.NumberFormat('vi-VN', {
+  style: 'currency',
+  currency: 'VND',
+  maximumFractionDigits: 0,
+});
+
+const compactCurrencyFormatter = new Intl.NumberFormat('vi-VN', {
+  notation: 'compact',
+  maximumFractionDigits: 1,
+});
+
+const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
+  day: '2-digit',
+  month: '2-digit',
+});
+
+const emptyDashboard: DashboardResponse = {
+  totalUsers: 0,
+  activeMembers: 0,
+  monthlyRevenue: 0,
+  todayBookings: 0,
+  todayCheckins: 0,
+  revenueLast7Days: [],
+  topPTs: [],
+};
 
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
+  const [dashboard, setDashboard] = useState<DashboardResponse>(emptyDashboard);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const dataSource: BookingData[] = [];
+  const fetchDashboard = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await dashboardService.getDashboard();
+      setDashboard(res.data);
+    } catch (err) {
+      console.error(err);
+      setError('Không thể tải dữ liệu dashboard. Vui lòng thử lại.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const columns: ColumnsType<BookingData> = [
+  useEffect(() => {
+    fetchDashboard();
+  }, []);
+
+  const chartData = useMemo(
+    () =>
+      dashboard.revenueLast7Days.map((item) => ({
+        ...item,
+        label: dateFormatter.format(new Date(item.date)),
+      })),
+    [dashboard.revenueLast7Days]
+  );
+
+  const columns: ColumnsType<DashboardTopPt> = [
     {
-      title: 'Hội viên',
+      title: 'PT',
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: 'Dịch vụ',
-      dataIndex: 'service',
-      key: 'service',
-    },
-    {
-      title: 'Thời gian',
-      dataIndex: 'time',
-      key: 'time',
-    },
-    {
-      title: 'Trạng thái',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string) => (
-        <Tag color="blue">{status}</Tag>
-      ),
+      title: 'Doanh thu',
+      dataIndex: 'revenue',
+      key: 'revenue',
+      align: 'right',
+      render: (value: number) => currencyFormatter.format(value),
     },
   ];
 
@@ -62,45 +111,58 @@ const DashboardPage: React.FC = () => {
         <div>
           <Title level={2} className="!mb-1">Tổng quan hệ thống</Title>
           <Text type="secondary">
-            Chào mừng bạn trở lại, hệ thống đang hoạt động ổn định.
+            Theo dõi người dùng, đặt lịch, check-in và doanh thu hiện tại.
           </Text>
         </div>
         <Space>
-          <Button icon={<ReloadOutlined />}>Làm mới</Button>
-          <Button type="primary" icon={<PlusOutlined />}>Đăng ký mới</Button>
+          <Button icon={<ReloadOutlined />} loading={loading} onClick={fetchDashboard}>
+            Làm mới
+          </Button>
+          <Button type="primary" onClick={() => navigate(ROUTES.BOOKINGS)}>
+            Quản lý booking
+          </Button>
         </Space>
       </div>
 
+      {error && <Alert type="error" showIcon message={error} />}
+
       {/* ── Stats Grid ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
         <StatsCard
-          title="Tổng hội viên"
-          value={1240}
-          trend={12.5}
+          title="Tổng users"
+          value={dashboard.totalUsers}
+          loading={loading}
           color="blue"
           prefix={<UserOutlined />}
         />
         <StatsCard
-          title="Bookings hôm nay"
-          value={48}
-          trend={-3.2}
+          title="Active members"
+          value={dashboard.activeMembers}
+          loading={loading}
           color="green"
-          prefix={<CalendarOutlined />}
+          prefix={<TeamOutlined />}
         />
         <StatsCard
           title="Doanh thu tháng"
-          value="85.4M"
+          value={compactCurrencyFormatter.format(dashboard.monthlyRevenue)}
           suffix="₫"
-          trend={8.1}
+          loading={loading}
           color="orange"
           prefix={<CreditCardOutlined />}
         />
         <StatsCard
-          title="PT đang hoạt động"
-          value={12}
-          trend={0}
+          title="Bookings hôm nay"
+          value={dashboard.todayBookings}
+          loading={loading}
+          color="green"
+          prefix={<CalendarOutlined />}
+        />
+        <StatsCard
+          title="Check-ins hôm nay"
+          value={dashboard.todayCheckins}
+          loading={loading}
           color="purple"
-          prefix={<TeamOutlined />}
+          prefix={<CheckCircleOutlined />}
         />
       </div>
 
@@ -108,30 +170,42 @@ const DashboardPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Chart */}
         <Card
-          title="Phân tích doanh thu"
+          title="Doanh thu 7 ngày gần nhất"
           className="lg:col-span-2 rounded-xl shadow-sm border-none"
           styles={{
             body: {
               height: '350px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
             },
           }}
         >
-          <div className="text-center">
-            <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CreditCardOutlined style={{ fontSize: '24px' }} />
-            </div>
-            <Text type="secondary">
-              Biểu đồ doanh thu sẽ sớm cập nhật tại WEB-09
-            </Text>
-          </div>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData} margin={{ top: 16, right: 24, left: 8, bottom: 8 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="label" tickLine={false} axisLine={false} />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(value) => compactCurrencyFormatter.format(Number(value))}
+              />
+              <Tooltip
+                formatter={(value) => currencyFormatter.format(Number(value))}
+                labelFormatter={(_, payload) => payload?.[0]?.payload?.date ?? ''}
+              />
+              <Line
+                type="monotone"
+                dataKey="revenue"
+                stroke="#1677ff"
+                strokeWidth={3}
+                dot={{ r: 4 }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </Card>
 
-        {/* Recent bookings */}
+        {/* Top PT revenue */}
         <Card
-          title="Đặt lịch gần đây"
+          title="Top 5 PT theo doanh thu"
           extra={
             <Space>
               <Button
@@ -144,16 +218,9 @@ const DashboardPage: React.FC = () => {
               <Button
                 type="link"
                 className="!p-0"
-                onClick={() => navigate('/admin/checkin')}
+                onClick={() => navigate('/admin/payments')}
               >
-                Check-in
-              </Button>
-              <Button
-                type="link"
-                className="!p-0"
-                onClick={() => navigate('/admin/banner')}
-              >
-                Banner
+                Thanh toán
               </Button>
             </Space>
           }
@@ -161,12 +228,13 @@ const DashboardPage: React.FC = () => {
           styles={{ body: { padding: 0 } }}
         >
           <Table
-            dataSource={dataSource}
+            dataSource={dashboard.topPTs}
             columns={columns}
             pagination={false}
             size="middle"
-            locale={{ emptyText: 'Chưa có lịch đặt mới hôm nay' }}
-            rowKey="id"
+            loading={loading}
+            locale={{ emptyText: 'Chưa có dữ liệu doanh thu PT' }}
+            rowKey="name"
           />
         </Card>
       </div>

@@ -68,6 +68,15 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
 
     Optional<Booking> findFirstByAvailabilityIdAndStatusIn(UUID availabilityId, List<BookingStatus> statuses);
 
+    @Query("""
+            SELECT b FROM Booking b
+            LEFT JOIN FETCH b.pt
+            LEFT JOIN FETCH b.user
+            LEFT JOIN FETCH b.availability
+            ORDER BY b.scheduledAt DESC
+            """)
+    List<Booking> findAllWithRelations();
+
     @Query(value = """
                 SELECT b.* FROM bookings b
                 JOIN users p ON p.id = b.pt_id
@@ -98,4 +107,6 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
             @Param("fromDate") OffsetDateTime fromDate,
             @Param("toDate") OffsetDateTime toDate,
             Pageable pageable);
+
+    long countByScheduledAtGreaterThanEqualAndScheduledAtLessThan(OffsetDateTime start, OffsetDateTime end);
 }

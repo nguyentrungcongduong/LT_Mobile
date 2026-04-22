@@ -77,4 +77,6 @@ public interface CheckinLogRepository extends JpaRepository<CheckinLog, UUID> {
             """)
     List<CheckinLog> findAllForExport();
 
+    long countByCheckinDate(LocalDate checkinDate);
+
 }
